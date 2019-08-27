@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnIjkPlayer;
     @BindView(R.id.btn_exoPlayer)
     Button btnExoPlayer;
+    /*https://blog.csdn.net/panghaha12138/article/details/72412902*/
     private UpdataDialog updataDialog;
 
     /***
