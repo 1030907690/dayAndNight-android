@@ -1,0 +1,91 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+//    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+
+        sourceSets {
+            main {
+                jniLibs.srcDir 'libs'
+            }
+            debug.setRoot('build-types/debug')
+            release.setRoot('build-types/release')
+        }
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api 'com.android.support:appcompat-v7:' + rootProject.supportLibraryVersion
+    //第一种
+//    api (project(':ijkplayer-exo2')){
+//        exclude group: 'tv.danmaku.ijk.media',
+//                module: 'ijkplayer-java'
+//    }
+    //第二种
+//    api 'org.dync.kathline:ijkplayer-exo2:0.8.9'
+    api (project(':ijkplayer-exo2'))
+//    api ('org.dync.kathline:ijkplayer-exo2:0.8.8.8'){
+//        exclude group: 'tv.danmaku.ijk.media',
+//                module: 'ijkplayer-java'
+//    }
+
+    api 'com.google.android.exoplayer:exoplayer:' + rootProject.exoplayer
+    api 'com.google.android.exoplayer:extension-rtmp:' + rootProject.exoplayer
+    api 'tv.danmaku.ijk.media:ijkplayer-java:' + rootProject.ijkplayer
+    //    api 'tv.danmaku.ijk.media:ijkplayer-exo:0.8.8'
+
+    api 'tv.danmaku.ijk.media:ijkplayer-armv7a:' + rootProject.ijkplayer
+    //    // Other ABIs: optional
+    //    api 'tv.danmaku.ijk.media:ijkplayer-armv5:0.8.8'
+    //    api 'tv.danmaku.ijk.media:ijkplayer-arm64:0.8.8'
+    api 'tv.danmaku.ijk.media:ijkplayer-x86:' + rootProject.ijkplayer
+    //    api 'tv.danmaku.ijk.media:ijkplayer-x86_64:0.8.8'
+}
+
+//解决 gradlew 构建错误: 编码 GBK的不可映射字符
+tasks.withType(Javadoc) {
+//    options.encoding = "UTF-8"
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+}
+
+ext {
+    //显示的目录bintray.user/bintrayRepo/bintrayName
+    bintrayRepo = 'DyncKathline' //这个应该是传到maven的仓库的，即在Open Source Repository界面
+    bintrayName = 'ijkplayerlib'  //发布的项目名字，即在Create New Package界面
+
+    //GROUP_ID:ARTIFACT_ID:VERSION
+    publishedGroupId = 'org.dync.kathline'//依赖时的GROUP_ID
+    libraryName = 'ijkplayerlib'
+    artifact = 'ijkplayerlib'//依赖时的ARTIFACT_ID，这里要与类库名保持一致，即项目的module名
+
+    libraryDescription = 'With immersion sideslip the effect of closed Activity' //项目的描述
+
+    siteUrl = 'https://github.com/DyncKathline/IJKPlayer-android/issues' // 项目的主页
+    gitUrl = 'https://github.com/DyncKathline/IJKPlayer-android.git' // Git仓库的url
+
+    libraryVersion = '1.0.5' //依赖时的VERSION
+
+    developerId = 'dync'
+    developerName = 'DyncKathline'
+    developerEmail = 'xiongxuesong@dync.cc'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+apply from: '../bintray.gradle'
