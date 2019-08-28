@@ -10,7 +10,7 @@ import android.widget.TextView;
 import org.dync.ijkplayer.R;
 
 import java.util.List;
-
+/*https://blog.csdn.net/lmj623565791/article/details/45059587*/
 public class RecyclerSearchAdapter extends RecyclerView.Adapter<RecyclerSearchAdapter.MyViewHolder> {
 
     private Context context;
