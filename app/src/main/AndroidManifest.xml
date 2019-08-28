@@ -41,6 +41,7 @@
             android:name=".ExoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
+        <!--增加注册activity-->
         <activity
             android:name=".VideoSearchListActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
