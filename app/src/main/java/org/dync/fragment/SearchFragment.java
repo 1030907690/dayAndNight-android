@@ -67,31 +67,13 @@ public class SearchFragment extends Fragment {
             String name = bundle.get("name").toString();
         }
 
-
+        searchEditText.setText("海");
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Editable editable = searchEditText.getText();
                 if (null != editable && null != editable.toString() && !"".equals(editable.toString())) {
-                    GlobalConfig.getInstance().executorService().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
-                                IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
-                                List<VideoSearch> videoSearchList = dataSourceStrategy.search(editable.toString());
-                                // Log.d(TAG,"videoSearchList size " + videoSearchList.size() );
-                                Message msg = new Message();
-                                msg.what = 0;
-                                Bundle data = new Bundle();
-                                data.putString("json", JSONObject.toJSONString(videoSearchList));
-                                msg.setData(data);
-                                searchVideoHandler.sendMessage(msg);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
+                    VideoSearchListActivity.intentTo(getActivity(), editable.toString());
                 } else {
                     ToastUtil.showToast(getActivity(), "请输入要搜索的内容!");
                 }
@@ -101,18 +83,7 @@ public class SearchFragment extends Fragment {
     }
 
 
-    private Handler searchVideoHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    VideoSearchListActivity.intentTo(getActivity(), msg.getData().getString("json"));
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+
 
     @Override
     public void onDestroy() {

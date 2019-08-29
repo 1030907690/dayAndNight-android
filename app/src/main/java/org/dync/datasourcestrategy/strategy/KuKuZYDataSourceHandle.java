@@ -59,6 +59,7 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
                             String title = aElement.attr("title");*/
                             VideoSearch videoSearch = new VideoSearch();
                             videoSearch.setName(aElement.text());
+                            videoSearch.setPhoto("http://www.605zy.cc/upload/vod/2019-08/15666429251.jpg");
                             videoList.add(videoSearch);
                           //  System.out.println( aElement.text());
                         }

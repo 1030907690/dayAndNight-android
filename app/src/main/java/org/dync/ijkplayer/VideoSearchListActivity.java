@@ -3,15 +3,23 @@ package org.dync.ijkplayer;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
+import org.dync.adapter.DividerItemDecoration;
 import org.dync.adapter.RecyclerSearchAdapter;
 import org.dync.bean.VideoSearch;
+import org.dync.datasourcestrategy.IDataSourceStrategy;
+import org.dync.utils.GlobalConfig;
+import org.dync.utils.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +27,7 @@ import java.util.List;
 public class VideoSearchListActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
-    private List<String> mDatas;
+    private List<VideoSearch> mDatas;
     private RecyclerSearchAdapter mAdapter;
 
     @Override
@@ -28,40 +36,94 @@ public class VideoSearchListActivity extends AppCompatActivity {
         setContentView(R.layout.video_search_list);
 
         initData();
-        initView();
+
+
+
+
     }
+
+
+
 
     private void initView() {
         mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mAdapter = new RecyclerSearchAdapter(VideoSearchListActivity.this, this.mDatas));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
+
     }
 
+    private void listener(){
+        mAdapter.setOnItemClickListener(new RecyclerSearchAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                ToastUtil.showToast(VideoSearchListActivity.this,"点击 " + mDatas.get(position).getName());
+            }
 
+            @Override
+            public void onItemLongClick(View view, int position) {
+                ToastUtil.showToast(VideoSearchListActivity.this,"长按 " + mDatas.get(position).getName());
+            }
+        });
+    }
     private void initData() {
         Intent intent = getIntent();
-        String json = intent.getStringExtra("json");
-        if (null != json && json.length() > 0) {
-            List<VideoSearch> videoSearchList = JSONArray.parseArray(json, VideoSearch.class);
-            mDatas = new ArrayList<>();
-            if (null != videoSearchList) {
-                for (VideoSearch videoSearch : videoSearchList) {
-                    mDatas.add(videoSearch.getName());
+        GlobalConfig.getInstance().executorService().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                    IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
+                    List<VideoSearch> videoSearchList = dataSourceStrategy.search(intent.getStringExtra("key"));
+                    // Log.d(TAG,"videoSearchList size " + videoSearchList.size() );
+                    Message msg = new Message();
+                    msg.what = 0;
+                    Bundle data = new Bundle();
+                    data.putString("json", JSONObject.toJSONString(videoSearchList));
+                    msg.setData(data);
+                    searchVideoHandler.sendMessage(msg);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-        }
+        });
 
     }
 
-    public static Intent newIntent(Context context, String json) {
+
+    private Handler searchVideoHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    String json = msg.getData().getString("json");
+                    if (null != json && json.length() > 0) {
+                        List<VideoSearch> videoSearchList = JSONArray.parseArray(json, VideoSearch.class);
+                        mDatas = new ArrayList<>();
+                        if (null != videoSearchList) {
+                            for (VideoSearch videoSearch : videoSearchList) {
+                                mDatas.add(videoSearch);
+                            }
+                        }
+                    }
+                    initView();
+                    listener();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+    public static Intent newIntent(Context context, String key) {
         Intent intent = new Intent(context, VideoSearchListActivity.class);
-        intent.putExtra("json", json);
+        intent.putExtra("key", key);
         return intent;
     }
 
 
-    public static void intentTo(Context context, String json) {
-        context.startActivity(newIntent(context, json));
+    public static void intentTo(Context context, String key) {
+        context.startActivity(newIntent(context, key));
     }
 
 
