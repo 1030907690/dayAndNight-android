@@ -32,6 +32,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.android.exoplayer2.C;
 
 import org.dync.bean.Video;
+import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.ijkplayer.utils.GlideUtil;
 import org.dync.ijkplayer.utils.NetworkUtils;
 import org.dync.ijkplayer.utils.StatusBarUtil;
@@ -51,6 +52,7 @@ import org.dync.subtitleconverter.subtitleFile.FormatSTL;
 import org.dync.subtitleconverter.subtitleFile.FormatTTML;
 import org.dync.subtitleconverter.subtitleFile.TimedTextFileFormat;
 import org.dync.subtitleconverter.subtitleFile.TimedTextObject;
+import org.dync.utils.GlobalConfig;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -76,7 +78,7 @@ import static org.dync.ijkplayerlib.widget.util.PlayerController.formatedSpeed;
 public class VideoActivity extends BaseActivity {
 
     //public static String videoUrl = "http://www.kukuzy.com/index.php/vod/detail/id/364.html";
-    public static String videoUrl = "http://www.kukuzy.com/index.php/vod/detail/id/430.html";
+    private String videoUrl = "http://www.kukuzy.com/index.php/vod/detail/id/430.html";
     private static final String TAG = "VideoActivity";
     private String mVideoPath;
     private Uri mVideoUri;
@@ -187,16 +189,18 @@ public class VideoActivity extends BaseActivity {
     @BindView(R.id.app_video_box)
     RelativeLayout appVideoBox;
 
-    public static Intent newIntent(Context context, String videoPath, String videoTitle) {
+    public static Intent newIntent(Context context, String videoPath, String videoTitle,String videoUrl) {
         Intent intent = new Intent(context, VideoActivity.class);
         intent.putExtra("videoPath", videoPath);
         intent.putExtra("videoTitle", videoTitle);
+        intent.putExtra("videoUrl", videoUrl);
         return intent;
     }
 
-    public static void intentTo(Context context, String videoPath, String videoTitle) {
-        context.startActivity(newIntent(context, videoPath, videoTitle));
+    public static void intentTo(Context context, String videoPath, String videoTitle,String videoUrl) {
+        context.startActivity(newIntent(context, videoPath, videoTitle,videoUrl));
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,6 +209,12 @@ public class VideoActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         mContext = this;
+
+        //隐藏 2019年8月31日16:45:43
+        btnIjkPlayer.setVisibility(View.GONE);
+        btnExoPlayer.setVisibility(View.GONE);
+
+        videoUrl = getIntent().getStringExtra("videoUrl");
 
         // handle arguments
         mVideoPath = getIntent().getStringExtra("videoPath");
@@ -240,39 +250,13 @@ public class VideoActivity extends BaseActivity {
             }
         }
 
-        new Thread() {
+        GlobalConfig.getInstance().executorService().execute(new Runnable() {
             @Override
             public void run() {
                 try {
-                    List<Video> videoList = new ArrayList<>();
-                    String $str = "$";
-                    Connection connect = Jsoup.connect(VideoActivity.videoUrl);//获取连接对象
-                    Document document = connect.get();//获取url页面的内容并解析成document对象
-                    Elements classElements = document.body().select("div[id=\"playlist\"]");
-                    int i = 0;
-                    for (Element classElement : classElements) {
-                        i++;
-                        Elements titleElements = classElement.select("h3[class=\"title\"]");
-                        if(titleElements.html().contains("kkm3u8")){
-                            Elements videoElements = classElement.getElementsByTag("li");
-
-                            for (Element videoElement : videoElements) {
-                                Elements videoInputElements = videoElement.select("input[type=\"checkbox\"]");
-                                for (Element videoInputElement : videoInputElements) {
-                                    System.out.println(" videoElement  " +videoInputElement.attr("value"));
-                                    String [] videoArray = videoInputElement.attr("value").split("\\"+$str);
-                                    Video video = new Video();
-                                    video.setName("视频源"+i+videoArray[0].replace($str,""));
-                                    video.setUrl(videoArray[1]);
-                                    videoList.add(video);
-                                }
-
-                            }
-
-                        }
-
-                    }
-
+                    String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                    IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
+                    List<Video> videoList = dataSourceStrategy.playList(videoUrl);
                     Message msg = new Message();
                     msg.what = 0;
                     Bundle data = new Bundle();
@@ -283,7 +267,8 @@ public class VideoActivity extends BaseActivity {
                     e.printStackTrace();
                 }
             }
-        }.start();
+        });
+
 
 
     }
@@ -292,7 +277,7 @@ public class VideoActivity extends BaseActivity {
 
         List<Video> videoList = new ArrayList<>();
         String $str = "$";
-        Connection connect = Jsoup.connect(VideoActivity.videoUrl);//获取连接对象
+        Connection connect = Jsoup.connect("http://www.kukuzy.com/index.php/vod/detail/id/430.html");//获取连接对象
         Document document = connect.get();//获取url页面的内容并解析成document对象
         Elements classElements = document.body().select("div[id=\"playlist\"]");
         for (Element classElement : classElements) {

@@ -13,4 +13,10 @@ public interface IDataSourceStrategy {
      * */
     public List<VideoSearch> search(String key);
 
+    /***
+     * 获取播放列表 具体的集
+     * @param url
+     * */
+    public List<Video> playList(String url);
+
 }

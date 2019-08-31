@@ -38,7 +38,7 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
                 domain = dataSource.getDomain();
             }
         }*/
-       // urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search.html?wd=%s&submit=");
+        // urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search.html?wd=%s&submit=");
         urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search/page/%s/wd/%s.html");
     }
 
@@ -47,7 +47,7 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
         List<VideoSearch> videoList = new ArrayList<>();
         if (urlMap.containsKey(KEY)) {
             try {
-                Connection connect = Jsoup.connect(String.format(urlMap.get(KEY), "1",key)).userAgent("Mozilla");//获取连接对象
+                Connection connect = Jsoup.connect(String.format(urlMap.get(KEY), "1", key)).userAgent("Mozilla");//获取连接对象
                 Document document = connect.get();//获取url页面的内容并解析成document对象
                 Elements classElements = document.body().select("ul[class=\"stui-vodlist clearfix\"]");
                 if (null != classElements && classElements.size() > 0) {
@@ -55,13 +55,14 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
                     for (Element titleElement : titleElements) {
                         Elements aElements = titleElement.getElementsByTag("a");
                         for (Element aElement : aElements) {
-                            /*String href = aElement.attr("href");
-                            String title = aElement.attr("title");*/
+                            String href = aElement.attr("href");
+                            String title = aElement.attr("title");
                             VideoSearch videoSearch = new VideoSearch();
                             videoSearch.setName(aElement.text());
                             videoSearch.setPhoto("http://www.605zy.cc/upload/vod/2019-08/15666429251.jpg");
+                            videoSearch.setUrl(domain + href);
                             videoList.add(videoSearch);
-                          //  System.out.println( aElement.text());
+                            //  System.out.println( aElement.text());
                         }
 
                     }
@@ -75,6 +76,42 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
         return videoList;
     }
 
+
+    @Override
+    public List<Video> playList(String url) {
+        List<Video> videoList = new ArrayList<>();
+        try {
+            String $str = "$";
+            Connection connect = Jsoup.connect(url);//获取连接对象
+            Document document = connect.get();//获取url页面的内容并解析成document对象
+            Elements classElements = document.body().select("div[id=\"playlist\"]");
+            int i = 0;
+            for (Element classElement : classElements) {
+                i++;
+                Elements titleElements = classElement.select("h3[class=\"title\"]");
+                if (titleElements.html().contains("m3u8")) {
+                    Elements videoElements = classElement.getElementsByTag("li");
+                    for (Element videoElement : videoElements) {
+                        Elements videoInputElements = videoElement.select("input[type=\"checkbox\"]");
+                        for (Element videoInputElement : videoInputElements) {
+                            System.out.println(" videoElement  " + videoInputElement.attr("value"));
+                            String[] videoArray = videoInputElement.attr("value").split("\\" + $str);
+                            Video video = new Video();
+                            video.setName("视频源" + i + videoArray[0].replace($str, ""));
+                            video.setUrl(videoArray[1]);
+                            videoList.add(video);
+                        }
+
+                    }
+
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return videoList;
+    }
 
     public static void main(String[] args) {
         KuKuZYDataSourceHandle handle = new KuKuZYDataSourceHandle();

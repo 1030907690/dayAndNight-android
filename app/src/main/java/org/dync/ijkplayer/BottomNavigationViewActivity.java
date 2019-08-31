@@ -46,7 +46,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
     private MenuItem menuItem;
     private UpdataDialog updataDialog;
 
-    private final String INIT_URL = "https://raw.githubusercontent.com/1030907690/dayAndNight/master/VersionManager.json";
+    private final String INIT_URL = "https://gitee.com/apple_1030907690/weiXin/raw/master/VersionManager.json";
 
 
     public void checkVersionGet() {
@@ -179,8 +179,8 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
         List<Fragment> list = new ArrayList<>();
         list.add(TestFragment.newInstance("首页"));
         list.add(SearchFragment.newInstance("搜索"));
-        list.add(TestFragment.newInstance("卡片"));
-        list.add(TestFragment.newInstance("个人"));
+        list.add(TestFragment.newInstance("Me"));
+        list.add(TestFragment.newInstance("关于"));
         viewPagerAdapter.setList(list);
 
         initView();

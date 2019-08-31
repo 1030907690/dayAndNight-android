@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.dync.adapter.DividerItemDecoration;
 import org.dync.adapter.RecyclerSearchAdapter;
+import org.dync.bean.Video;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.utils.GlobalConfig;
@@ -29,7 +30,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private List<VideoSearch> mDatas;
     private RecyclerSearchAdapter mAdapter;
-
+    private Context context = this;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,15 +38,15 @@ public class VideoSearchListActivity extends AppCompatActivity {
 
         initData();
 
-
-
-
     }
 
 
 
 
     private void initView() {
+        if(null == mDatas){
+            mDatas = new ArrayList<>();
+        }
         mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mAdapter = new RecyclerSearchAdapter(VideoSearchListActivity.this, this.mDatas));
@@ -53,11 +54,41 @@ public class VideoSearchListActivity extends AppCompatActivity {
 
     }
 
+
+
     private void listener(){
         mAdapter.setOnItemClickListener(new RecyclerSearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                ToastUtil.showToast(VideoSearchListActivity.this,"点击 " + mDatas.get(position).getName());
+                //ToastUtil.showToast(VideoSearchListActivity.this,"点击 " + mDatas.get(position).getName() +  " - " +mDatas.get(position).getUrl());
+                //String videoPath = "https://meigui.qqqq-kuyun.com/20190627/9918_47cdf731/index.m3u8";
+
+                GlobalConfig.getInstance().executorService().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                            IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
+                            List<Video> videoList = dataSourceStrategy.playList(mDatas.get(position).getUrl());
+                            Message msg = searchVideoHandler.obtainMessage();
+                            msg.what = 1;
+                            Bundle data = new Bundle();
+                            String videoPath = "https://meigui.qqqq-kuyun.com/20190627/9918_47cdf731/index.m3u8";
+
+                            if(null != videoList && videoList.size() > 0 ){
+                                videoPath = videoList.get(0).getUrl();
+                            }
+                            data.putString("videoPath", videoPath);
+                            data.putString("url", mDatas.get(position).getUrl());
+                            msg.setData(data);
+                            searchVideoHandler.sendMessage(msg);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+
             }
 
             @Override
@@ -66,6 +97,9 @@ public class VideoSearchListActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
     private void initData() {
         Intent intent = getIntent();
         GlobalConfig.getInstance().executorService().execute(new Runnable() {
@@ -106,8 +140,14 @@ public class VideoSearchListActivity extends AppCompatActivity {
                             }
                         }
                     }
+
                     initView();
                     listener();
+                    break;
+
+                case 1:
+                    Bundle data = msg.getData();
+                    VideoActivity.intentTo(context, data.getString("videoPath"), "测试",data.getString("url"));
                     break;
                 default:
                     break;

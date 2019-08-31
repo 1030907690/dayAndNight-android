@@ -3,10 +3,12 @@ package org.dync.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,22 +54,11 @@ public class RecyclerSearchAdapter extends RecyclerView.Adapter<RecyclerSearchAd
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         MyViewHolder holder = new MyViewHolder(LayoutInflater.from(context).inflate(R.layout.video_search_list_item, parent, false));
+
         return holder;
     }
 
 
-    public void showImageByAsyncTask(String url) {
-        GlobalConfig.getInstance().executorService().execute(new Runnable() {
-            @Override
-            public void run() {
-                Bitmap bitmap = getBitmapFromUrl(url);
-                Message msg = handler.obtainMessage();
-                msg.obj = bitmap;
-                msg.what = 0;
-                handler.sendMessage(msg);
-            }
-        });
-    }
 
 
     public Bitmap getBitmapFromUrl(String urlString) {
@@ -94,26 +85,56 @@ public class RecyclerSearchAdapter extends RecyclerView.Adapter<RecyclerSearchAd
         return null;
     }
 
-
-    private Handler handler = new Handler() {
+    /**
+     * 异步加载图片
+     */
+    class DownLoadTask extends AsyncTask<String ,Void,BitmapDrawable>{
+        private ImageView mImageView;
+        String url;
+        public DownLoadTask(ImageView imageView){
+            mImageView = imageView;
+        }
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    Bitmap bitmap = (Bitmap) msg.obj;
-                    holder.iv.setImageBitmap(bitmap);
-                    break;
-                default:
-                    break;
+        protected BitmapDrawable doInBackground(String... params) {
+            url = params[0];
+            Bitmap bitmap = downLoadBitmap(url);
+            BitmapDrawable drawable = new BitmapDrawable(context.getResources(),bitmap);
+            return  drawable;
+        }
+
+        private Bitmap downLoadBitmap(String url) {
+            Bitmap bitmap = null;
+            OkHttpClient client = new OkHttpClient();
+            Log.d("recyclerAdapter",url);
+            Request request = new Request.Builder().url(url).build();
+            try {
+                Response response = client.newCall(request).execute();
+                bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(BitmapDrawable drawable) {
+            super.onPostExecute(drawable);
+
+            if ( mImageView != null && drawable != null){
+                mImageView.setImageDrawable(drawable);
             }
         }
-    };
-    private MyViewHolder holder;
+    }
+
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.tv.setText(mDatas.get(position).getName());
-        imageLoader.DisplayImage(mDatas.get(position).getPhoto() , holder.iv);
+        VideoSearch videoSearch = mDatas.get(position);
+        holder.tv.setText(videoSearch.getName());
+        //执行下载操作
+        DownLoadTask task = new DownLoadTask(holder.iv);
+        task.execute(videoSearch.getPhoto());
+
         // item click
         if (mOnItemClickListener != null) {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -154,11 +175,13 @@ public class RecyclerSearchAdapter extends RecyclerView.Adapter<RecyclerSearchAd
 
         TextView tv;
         ImageView iv;
+        TextView tvUrl;
 
         public MyViewHolder(View view) {
             super(view);
             tv = view.findViewById(R.id.video_list_item);
             iv = view.findViewById(R.id.video_list_image_item);
+            tvUrl = view.findViewById(R.id.video_list_item_url);
         }
     }
 }
