@@ -11,9 +11,9 @@
     <item
         android:id="@+id/navigation_notifications"
         android:icon="@drawable/ic_thumb"
-        android:title="卡片" />
+        android:title="Me" />
     <item
         android:id="@+id/navigation_person"
         android:icon="@drawable/ic_thumb"
-        android:title="个人" />
+        android:title="关于" />
 </menu>
