@@ -21,6 +21,7 @@ import org.dync.ijkplayerlib.widget.receiver.NetWorkControl;
 import org.dync.ijkplayerlib.widget.receiver.NetworkChangedReceiver;
 import org.dync.ijkplayerlib.widget.util.Settings;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -30,6 +31,7 @@ public class TestFragment extends Fragment {
     private Button btnSetting;
     private final String TAG = "MainActivity";
 
+    Button btnExoPlayer;
     private Button btnPlayer;
     private TextView tv;
 
@@ -66,8 +68,11 @@ public class TestFragment extends Fragment {
             String name = bundle.get("name").toString();
             //tv.setText(name);
         }
+        btnExoPlayer = view.findViewById(R.id.btn_exoPlayer);
 
         btnSetting = (Button) view.findViewById(R.id.btn_setting);
+
+        btnExoPlayer.setVisibility(View.GONE);
         btnSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
