@@ -1,11 +1,8 @@
 package org.dync.datasourcestrategy.strategy;
 
-import org.dync.bean.DataSource;
 import org.dync.bean.Video;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
-import org.dync.ijkplayer.VideoActivity;
-import org.dync.utils.GlobalConfig;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -43,37 +40,41 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
     }
 
     @Override
-    public List<VideoSearch> search(String key) {
+    public List<VideoSearch> search(String key, Integer page) {
         List<VideoSearch> videoList = new ArrayList<>();
         if (urlMap.containsKey(KEY)) {
             try {
-                Connection connect = Jsoup.connect(String.format(urlMap.get(KEY), "1", key)).userAgent("Mozilla");//获取连接对象
-                Document document = connect.get();//获取url页面的内容并解析成document对象
-                Elements classElements = document.body().select("ul[class=\"stui-vodlist clearfix\"]");
-                if (null != classElements && classElements.size() > 0) {
-                    Elements titleElements = classElements.get(0).getElementsByClass("title");
-                    for (Element titleElement : titleElements) {
-                        Elements aElements = titleElement.getElementsByTag("a");
-                        for (Element aElement : aElements) {
-                            String href = aElement.attr("href");
-                            String title = aElement.attr("title");
-                            VideoSearch videoSearch = new VideoSearch();
-                            videoSearch.setName(aElement.text());
-                            videoSearch.setPhoto("http://www.605zy.cc/upload/vod/2019-08/15666429251.jpg");
-                            videoSearch.setUrl(domain + href);
-                            videoList.add(videoSearch);
-                            //  System.out.println( aElement.text());
-                        }
-
-                    }
-                }
-                //System.out.println(" body " + classElements.html());
-
+                searchKey(videoList, key, page);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return videoList;
+    }
+
+
+    private void searchKey(List<VideoSearch> videoList, String key, Integer page) throws Exception {
+        Connection connect = Jsoup.connect(String.format(urlMap.get(KEY), page, key)).userAgent("Mozilla");//获取连接对象
+        Document document = connect.get();//获取url页面的内容并解析成document对象
+        Elements classElements = document.body().select("ul[class=\"stui-vodlist clearfix\"]");
+        if (null != classElements && classElements.size() > 0) {
+            Elements titleElements = classElements.get(0).getElementsByClass("title");
+            if (null != titleElements && titleElements.size() > 0) {
+                for (Element titleElement : titleElements) {
+                    Elements aElements = titleElement.getElementsByTag("a");
+                    for (Element aElement : aElements) {
+                        String href = aElement.attr("href");
+                        String title = aElement.attr("title");
+                        VideoSearch videoSearch = new VideoSearch();
+                        videoSearch.setName(aElement.text());
+                        videoSearch.setPhoto("http://www.605zy.cc/upload/vod/2019-08/15666429251.jpg");
+                        videoSearch.setUrl(domain + href);
+                        videoList.add(videoSearch);
+                    }
+                }
+                searchKey(videoList, key, page + 1);
+            }
+        }
     }
 
 
@@ -115,7 +116,6 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
 
     public static void main(String[] args) {
         KuKuZYDataSourceHandle handle = new KuKuZYDataSourceHandle();
-        handle.search("海上");
-
+        handle.search("海上",1);
     }
 }

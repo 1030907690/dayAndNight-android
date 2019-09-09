@@ -31,6 +31,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
     private List<VideoSearch> mDatas;
     private RecyclerSearchAdapter mAdapter;
     private Context context = this;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,22 +42,19 @@ public class VideoSearchListActivity extends AppCompatActivity {
     }
 
 
-
-
     private void initView() {
-        if(null == mDatas){
+        if (null == mDatas) {
             mDatas = new ArrayList<>();
         }
         mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mAdapter = new RecyclerSearchAdapter(VideoSearchListActivity.this, this.mDatas));
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL_LIST));
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
     }
 
 
-
-    private void listener(){
+    private void listener() {
         mAdapter.setOnItemClickListener(new RecyclerSearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -75,7 +73,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
                             Bundle data = new Bundle();
                             String videoPath = "https://meigui.qqqq-kuyun.com/20190627/9918_47cdf731/index.m3u8";
 
-                            if(null != videoList && videoList.size() > 0 ){
+                            if (null != videoList && videoList.size() > 0) {
                                 videoPath = videoList.get(0).getUrl();
                             }
                             data.putString("videoPath", videoPath);
@@ -93,11 +91,10 @@ public class VideoSearchListActivity extends AppCompatActivity {
 
             @Override
             public void onItemLongClick(View view, int position) {
-                ToastUtil.showToast(VideoSearchListActivity.this,"长按 " + mDatas.get(position).getName());
+                ToastUtil.showToast(VideoSearchListActivity.this, "长按 " + mDatas.get(position).getName());
             }
         });
     }
-
 
 
     private void initData() {
@@ -108,7 +105,10 @@ public class VideoSearchListActivity extends AppCompatActivity {
                 try {
                     String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
                     IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
-                    List<VideoSearch> videoSearchList = dataSourceStrategy.search(intent.getStringExtra("key"));
+                    List<VideoSearch> videoSearchList = dataSourceStrategy.search(intent.getStringExtra("key"), 1);
+                    if (null == videoSearchList || videoSearchList.size() <= 0) {
+                        ToastUtil.showToast(VideoSearchListActivity.this, "抱歉,没有数据,请切换关键字!");
+                    }
                     // Log.d(TAG,"videoSearchList size " + videoSearchList.size() );
                     Message msg = new Message();
                     msg.what = 0;
@@ -147,7 +147,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
 
                 case 1:
                     Bundle data = msg.getData();
-                    VideoActivity.intentTo(context, data.getString("videoPath"), "测试",data.getString("url"));
+                    VideoActivity.intentTo(context, data.getString("videoPath"), "测试", data.getString("url"));
                     break;
                 default:
                     break;
