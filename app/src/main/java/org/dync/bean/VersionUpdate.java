@@ -17,6 +17,17 @@ public class VersionUpdate implements Serializable {
     /** 数据源**/
     private List<DataSource> dataSource;
 
+    /** 过滤类型 **/
+    private String [] filterClass;
+
+    public String[] getFilterClass() {
+        return filterClass;
+    }
+
+    public void setFilterClass(String[] filterClass) {
+        this.filterClass = filterClass;
+    }
+
     public String getCurrentVersion() {
         return currentVersion;
     }

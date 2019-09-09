@@ -1,8 +1,11 @@
 package org.dync.datasourcestrategy.strategy;
 
+import com.alibaba.fastjson.JSONObject;
+
 import org.dync.bean.Video;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
+import org.dync.utils.GlobalConfig;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -53,8 +56,11 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
     }
 
 
+    /***
+     * 递归查询所有视频
+     * */
     private void searchKey(List<VideoSearch> videoList, String key, Integer page) throws Exception {
-        Connection connect = Jsoup.connect(String.format(urlMap.get(KEY), page, key)).userAgent("Mozilla");//获取连接对象
+        /*Connection connect = Jsoup.connect(String.format(urlMap.get(KEY), page, key)).userAgent("Mozilla");//获取连接对象
         Document document = connect.get();//获取url页面的内容并解析成document对象
         Elements classElements = document.body().select("ul[class=\"stui-vodlist clearfix\"]");
         if (null != classElements && classElements.size() > 0) {
@@ -67,16 +73,74 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
                         String title = aElement.attr("title");
                         VideoSearch videoSearch = new VideoSearch();
                         videoSearch.setName(aElement.text());
-                        videoSearch.setPhoto("http://www.605zy.cc/upload/vod/2019-08/15666429251.jpg");
                         videoSearch.setUrl(domain + href);
+                        videoDescribe(videoSearch);
                         videoList.add(videoSearch);
                     }
                 }
                 searchKey(videoList, key, page + 1);
             }
+        }*/
+
+        Connection connect = Jsoup.connect(String.format(urlMap.get(KEY), page, key)).userAgent("Mozilla");//获取连接对象
+        Document document = connect.get();//获取url页面的内容并解析成document对象
+        Elements classElements = document.body().select("ul[class=\"stui-vodlist clearfix\"]");
+        if (null != classElements && classElements.size() > 0) {
+            Elements liClassElements = classElements.get(0).select("li[class=\"clearfix\"]");
+            if (null != liClassElements && liClassElements.size() > 0) {
+                for (Element liClassElement : liClassElements) {
+                    Elements titleElements = liClassElement.getElementsByClass("title");
+                    Elements typeElements = liClassElement.getElementsByClass("type");
+                    if (!Arrays.asList(GlobalConfig.getInstance().getVersionUpdate().getFilterClass()).contains(typeElements.get(0).text())) {
+                        if (null != titleElements && titleElements.size() > 0) {
+                            for (Element titleElement : titleElements) {
+                                Elements aElements = titleElement.getElementsByTag("a");
+                                for (Element aElement : aElements) {
+                                    String href = aElement.attr("href");
+                                    String title = aElement.attr("title");
+                                    VideoSearch videoSearch = new VideoSearch();
+                                    videoSearch.setName(aElement.text());
+                                    videoSearch.setUrl(domain + href);
+                                    videoDescribe(videoSearch);
+                                    videoList.add(videoSearch);
+                                    //System.out.println(JSONObject.toJSONString(videoSearch));
+                                }
+                            }
+                        }
+                    }
+                }
+                searchKey(videoList, key, page + 1);
+            }
         }
+
+
     }
 
+    /***
+     * 获取视频详情
+     * */
+    private void videoDescribe(VideoSearch videoSearch) {
+        // 设置默认值
+        videoSearch.setPhoto("http://www.605zy.cc/upload/vod/2019-08/15666429251.jpg");
+        if (null != videoSearch && null != videoSearch.getUrl()) {
+            try {
+                Connection connect = Jsoup.connect(String.format(videoSearch.getUrl())).userAgent("Mozilla");//获取连接对象
+                Document document = connect.get();//获取url页面的内容并解析成document对象
+                // 获取图片url
+                Elements imageElements = document.body().select("img[class=\"img-responsive\"]");
+                if (null != imageElements && imageElements.size() > 0) {
+                    String imageSrc = imageElements.get(0).attr("src");
+                    if (null != imageSrc && !"".equals(imageSrc.trim())) {
+                        videoSearch.setPhoto(imageSrc);
+                        //System.out.println(imageSrc);
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public List<Video> playList(String url) {
@@ -114,8 +178,13 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
         return videoList;
     }
 
+
     public static void main(String[] args) {
         KuKuZYDataSourceHandle handle = new KuKuZYDataSourceHandle();
-        handle.search("海上",1);
+        handle.search("海上", 1);
+        VideoSearch videoSearch = new VideoSearch();
+        // videoSearch.setUrl("http://www.kukuzy.com/index.php/vod/detail/id/39261.html");
+        //handle.videoDescribe(videoSearch);
+
     }
 }
