@@ -434,7 +434,7 @@
         android:id="@+id/fl_video_url"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/ijkplayer_video_navigation_info" />
+        android:layout_below="@+id/ll_video_info" />
 
     <FrameLayout
         android:id="@+id/fl_app_window"
