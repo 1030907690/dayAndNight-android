@@ -409,11 +409,32 @@
 
     </LinearLayout>
 
+    <!--<android.support.v7.widget.RecyclerView
+        android:id="@+id/ijkplayer_video_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ll_video_info" />
+-->
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tab_layout_data"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_below="@+id/ll_video_info"
+        />
+
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/ijkplayer_video_navigation_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tab_layout_data" />
+
     <FrameLayout
         android:id="@+id/fl_video_url"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/ll_video_info" />
+        android:layout_below="@+id/ijkplayer_video_navigation_info" />
 
     <FrameLayout
         android:id="@+id/fl_app_window"

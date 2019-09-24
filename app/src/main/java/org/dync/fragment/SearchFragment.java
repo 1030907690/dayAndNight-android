@@ -67,7 +67,7 @@ public class SearchFragment extends Fragment {
             String name = bundle.get("name").toString();
         }
 
-       // searchEditText.setText("海");
+       searchEditText.setText("水中火");
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

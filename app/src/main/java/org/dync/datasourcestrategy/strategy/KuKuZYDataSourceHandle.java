@@ -2,7 +2,9 @@ package org.dync.datasourcestrategy.strategy;
 
 import com.alibaba.fastjson.JSONObject;
 
+import org.dync.bean.DataSource;
 import org.dync.bean.Video;
+import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.utils.GlobalConfig;
@@ -30,18 +32,18 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
     private String domain = "http://www.kukuzy.com";
     private final Map<String, String> urlMap = new HashMap<>();
 
-    private final int maxPage = 3;
+    private final int maxPage = 1;
 
     public KuKuZYDataSourceHandle() {
-       /* List<DataSource> dataSourceList = GlobalConfig.getInstance().getVersionUpdate().getDataSource();
+        List<DataSource> dataSourceList = GlobalConfig.getInstance().getVersionUpdate().getDataSource();
         for (DataSource dataSource : dataSourceList) {
             urlMap.put(dataSource.getKey(), dataSource.getSearchUrl());
             if(KEY.equals(dataSource.getKey())){
                 domain = dataSource.getDomain();
             }
-        }*/
-        // urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search.html?wd=%s&submit=");
-        urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search/page/%s/wd/%s.html");
+        }
+         //urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search.html?wd=%s&submit=");
+        //urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search/page/%s/wd/%s.html");
     }
 
     @Override
@@ -165,7 +167,7 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
                     for (Element videoElement : videoElements) {
                         Elements videoInputElements = videoElement.select("input[type=\"checkbox\"]");
                         for (Element videoInputElement : videoInputElements) {
-                            System.out.println(" videoElement  " + videoInputElement.attr("value"));
+                            //System.out.println(" videoElement  " + videoInputElement.attr("value"));
                             String[] videoArray = videoInputElement.attr("value").split("\\" + $str);
                             Video video = new Video();
                             video.setName("视频源" + i + videoArray[0].replace($str, ""));
@@ -183,6 +185,50 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
         }
         return videoList;
     }
+
+
+
+    @Override
+    public List<VideoGroup> playList(String url, int page) {
+        List<VideoGroup> videoGroupList = new ArrayList<>();
+        try {
+            String $str = "$";
+            Connection connect = Jsoup.connect(url);//获取连接对象
+            Document document = connect.get();//获取url页面的内容并解析成document对象
+            Elements classElements = document.body().select("div[id=\"playlist\"]");
+            int i = 0;
+            for (Element classElement : classElements) {
+                i++;
+                Elements titleElements = classElement.select("h3[class=\"title\"]");
+                if (titleElements.html().contains("m3u8")) {
+
+                    List<Video> videoList = new ArrayList<>();
+                    Elements videoElements = classElement.getElementsByTag("li");
+                    for (Element videoElement : videoElements) {
+                        Elements videoInputElements = videoElement.select("input[type=\"checkbox\"]");
+                        for (Element videoInputElement : videoInputElements) {
+                            //System.out.println(" videoElement  " + videoInputElement.attr("value"));
+                            String[] videoArray = videoInputElement.attr("value").split("\\" + $str);
+                            Video video = new Video();
+                            video.setName(videoArray[0].replace($str, ""));
+                            video.setUrl(videoArray[1]);
+                            videoList.add(video);
+                        }
+
+                    }
+                    VideoGroup videoGroup = new VideoGroup();
+                    videoGroup.setGroup(titleElements.text().replace("播放类型","").replace(":","").replace("：","").trim());
+                    videoGroup.setVideoList(videoList);
+                    videoGroupList.add(videoGroup);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return videoGroupList;
+    }
+
 
 
     public static void main(String[] args) {

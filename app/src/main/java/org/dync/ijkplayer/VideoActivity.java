@@ -10,7 +10,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentTransaction;
+import android.support.design.widget.TabLayout;
+
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -31,7 +34,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.android.exoplayer2.C;
 
+import org.dync.adapter.DividerGridItemDecoration;
+import org.dync.adapter.DividerItemDecoration;
+import org.dync.adapter.RecyclerSearchAdapter;
+import org.dync.adapter.RecyclerVideoSourceDramaSeriesAdapter;
 import org.dync.bean.Video;
+import org.dync.bean.VideoGroup;
+import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.ijkplayer.utils.GlideUtil;
 import org.dync.ijkplayer.utils.NetworkUtils;
@@ -53,6 +62,7 @@ import org.dync.subtitleconverter.subtitleFile.FormatTTML;
 import org.dync.subtitleconverter.subtitleFile.TimedTextFileFormat;
 import org.dync.subtitleconverter.subtitleFile.TimedTextObject;
 import org.dync.utils.GlobalConfig;
+import org.dync.utils.ToastUtil;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -62,8 +72,10 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -189,7 +201,15 @@ public class VideoActivity extends BaseActivity {
     @BindView(R.id.app_video_box)
     RelativeLayout appVideoBox;
 
-    public static Intent newIntent(Context context, String videoPath, String videoTitle,String videoUrl) {
+    private RecyclerView ijkplayerVideoNavigationInfoRecyclerView;
+
+    private TabLayout tabLayoutTitle;
+
+    private RecyclerVideoSourceDramaSeriesAdapter recyclerVideoSourceDramaSeriesAdapter;
+
+    private Map<String, List<Video>> videoGroupMap = new HashMap<String, List<Video>>();
+
+    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl) {
         Intent intent = new Intent(context, VideoActivity.class);
         intent.putExtra("videoPath", videoPath);
         intent.putExtra("videoTitle", videoTitle);
@@ -197,8 +217,8 @@ public class VideoActivity extends BaseActivity {
         return intent;
     }
 
-    public static void intentTo(Context context, String videoPath, String videoTitle,String videoUrl) {
-        context.startActivity(newIntent(context, videoPath, videoTitle,videoUrl));
+    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl) {
+        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl));
     }
 
 
@@ -256,7 +276,7 @@ public class VideoActivity extends BaseActivity {
                 try {
                     String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
                     IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
-                    List<Video> videoList = dataSourceStrategy.playList(videoUrl);
+                    List<VideoGroup> videoList = dataSourceStrategy.playList(videoUrl, 1);
                     Message msg = new Message();
                     msg.what = 0;
                     Bundle data = new Bundle();
@@ -270,10 +290,9 @@ public class VideoActivity extends BaseActivity {
         });
 
 
-
     }
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
 
         List<Video> videoList = new ArrayList<>();
         String $str = "$";
@@ -282,15 +301,15 @@ public class VideoActivity extends BaseActivity {
         Elements classElements = document.body().select("div[id=\"playlist\"]");
         for (Element classElement : classElements) {
             Elements titleElements = classElement.select("h3[class=\"title\"]");
-            if(titleElements.html().contains("rem3u8")){
+            if (titleElements.html().contains("rem3u8")) {
                 Elements videoElements = classElement.getElementsByTag("li");
                 for (Element videoElement : videoElements) {
                     Elements videoInputElements = videoElement.select("input[type=\"checkbox\"]");
                     for (Element videoInputElement : videoInputElements) {
-                        System.out.println(" videoElement  " +videoInputElement.attr("value"));
-                        String [] videoArray = videoInputElement.attr("value").split($str);
+                        //System.out.println(" videoElement  " + videoInputElement.attr("value"));
+                        String[] videoArray = videoInputElement.attr("value").split($str);
                         Video video = new Video();
-                        video.setName(videoArray[0].replace($str,""));
+                        video.setName(videoArray[0].replace($str, ""));
                         video.setUrl(videoArray[1]);
                         videoList.add(video);
                     }
@@ -300,7 +319,7 @@ public class VideoActivity extends BaseActivity {
             }
 
         }
-        
+
         //System.out.printf(" 打印 " + classElements.html());
 
     }
@@ -313,7 +332,7 @@ public class VideoActivity extends BaseActivity {
                 case 0:
                     initVideoControl();
                     initPlayer();
-                    initFragment(JSONArray.parseArray(msg.getData().getString("json"),Video.class));
+                    initFragment(JSONArray.parseArray(msg.getData().getString("json"), VideoGroup.class));
                     initListener();
                     initVideoListener();
 //
@@ -498,8 +517,10 @@ public class VideoActivity extends BaseActivity {
         }
     }
 
-    private void initFragment(List<Video> videoList) {
-        SampleMediaListFragment videoUrlFragment = new SampleMediaListFragment(videoList);
+    private void initFragment(List<VideoGroup> videoGroupList) {
+       /*
+       2019年9月23日16:34:17
+       SampleMediaListFragment videoUrlFragment = new SampleMediaListFragment(videoList);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.fl_video_url, videoUrlFragment);
         fragmentTransaction.commit();
@@ -516,7 +537,119 @@ public class VideoActivity extends BaseActivity {
                     videoView.start();
                 }
             }
+        });*/
+
+
+        // 初始化可播放的数据源
+    /*    ijkplayerVideoNavigation = findViewById(R.id.ijkplayer_video_navigation);
+        //ijkplayerVideoNavigation.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManagerNavigation = new LinearLayoutManager(this);
+        linearLayoutManagerNavigation.setOrientation(LinearLayoutManager.HORIZONTAL);
+        ijkplayerVideoNavigation.setLayoutManager(linearLayoutManagerNavigation);
+        //ijkplayerVideoNavigation.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false));
+        ijkplayerVideoNavigation.setAdapter(recyclerVideoSourceAdapter = new RecyclerVideoSourceAdapter(VideoActivity.this, videoGroupList));
+        ijkplayerVideoNavigation.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+*/
+
+
+        // 初始化剧集
+        ijkplayerVideoNavigationInfoRecyclerView = findViewById(R.id.ijkplayer_video_navigation_info);
+        //纵向线性布局
+        GridLayoutManager layoutManagerInfo = new GridLayoutManager(this, 4);
+        ijkplayerVideoNavigationInfoRecyclerView.setLayoutManager(layoutManagerInfo);
+        recyclerVideoSourceDramaSeriesAdapter = new RecyclerVideoSourceDramaSeriesAdapter(VideoActivity.this, videoGroupList.get(0).getVideoList());
+        ijkplayerVideoNavigationInfoRecyclerView.setAdapter(recyclerVideoSourceDramaSeriesAdapter);
+        //ijkplayerVideoNavigationInfoRecyclerView.addItemDecoration(new DividerGridItemDecoration(this));
+
+        recyclerVideoSourceDramaSeriesAdapter.setOnItemClickListener(new RecyclerVideoSourceDramaSeriesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                if (view instanceof Button) {
+                    Button videoItemBtn = (Button) view;
+                    //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
+                    videoItemBtn.setTextColor(0xFFFFFFFF);
+
+                    onDestroyVideo();
+                    mVideoPath = videoItemBtn.getTag().toString();
+                    Log.d(TAG, "OnItemClick: mVideoPath: " + mVideoPath);
+                    if (mVideoPath != null) {
+                        showVideoLoading();
+                        videoView.setVideoPath(mVideoPath);
+                        videoView.start();
+                    }
+                }
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+                    ToastUtil.showToast(VideoActivity.this, "--");
+            }
         });
+
+
+        initTab(videoGroupList);
+    }
+
+
+    private void initTab(List<VideoGroup> videoGroups) {
+        tabLayoutTitle = findViewById(R.id.tab_layout_data);
+        tabLayoutTitle.setTabMode(TabLayout.MODE_SCROLLABLE);
+
+        for (VideoGroup videoGroup : videoGroups) {
+            tabLayoutTitle.addTab(tabLayoutTitle.newTab().setText(videoGroup.getGroup()).setTag(videoGroup.getGroup()));
+            videoGroupMap.put(videoGroup.getGroup(), videoGroup.getVideoList());
+        }
+
+        tabLayoutTitle.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                String group = (String) tab.getTag();
+                //纵向线性布局
+                GridLayoutManager layoutManagerInfo = new GridLayoutManager(VideoActivity.this, 4);
+                ijkplayerVideoNavigationInfoRecyclerView.setLayoutManager(layoutManagerInfo);
+                ijkplayerVideoNavigationInfoRecyclerView.setAdapter(recyclerVideoSourceDramaSeriesAdapter = new RecyclerVideoSourceDramaSeriesAdapter(VideoActivity.this, videoGroupMap.get(group)));
+                recyclerVideoSourceDramaSeriesAdapter.notifyDataSetChanged();
+
+                recyclerVideoSourceDramaSeriesAdapter.setOnItemClickListener(new RecyclerVideoSourceDramaSeriesAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        if (view instanceof Button) {
+                            Button videoItemBtn = (Button) view;
+                            //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
+                            videoItemBtn.setTextColor(0xFFFFFFFF);
+
+                            onDestroyVideo();
+                            mVideoPath = videoItemBtn.getTag().toString();
+                            Log.d(TAG, "OnItemClick: mVideoPath: " + mVideoPath);
+                            if (mVideoPath != null) {
+                                showVideoLoading();
+                                videoView.setVideoPath(mVideoPath);
+                                videoView.start();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onItemLongClick(View view, int position) {
+                        ToastUtil.showToast(VideoActivity.this, "1");
+                    }
+                });
+
+
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
+
     }
 
     private void initListener() {
