@@ -19,6 +19,9 @@ import com.alibaba.fastjson.JSONObject;
 import org.dync.adapter.ViewPagerAdapter;
 import org.dync.bean.VersionUpdate;
 import org.dync.dialog.UpdataDialog;
+import org.dync.fragment.AboutFragment;
+import org.dync.fragment.HomeFragment;
+import org.dync.fragment.MeFragment;
 import org.dync.fragment.SearchFragment;
 import org.dync.fragment.TestFragment;
 import org.dync.utils.BaseUtils;
@@ -177,10 +180,10 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
         List<Fragment> list = new ArrayList<>();
-        list.add(TestFragment.newInstance("首页"));
+        list.add(HomeFragment.newInstance("首页"));
         list.add(SearchFragment.newInstance("搜索"));
-        list.add(TestFragment.newInstance("Me"));
-        list.add(TestFragment.newInstance("关于"));
+        list.add(MeFragment.newInstance("Me"));
+        list.add(AboutFragment.newInstance("关于"));
         viewPagerAdapter.setList(list);
 
         initView();
