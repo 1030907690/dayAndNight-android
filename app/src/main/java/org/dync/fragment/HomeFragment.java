@@ -89,6 +89,8 @@ public class HomeFragment extends Fragment {
 
 
         btnPlayer = (Button) view.findViewById(R.id.btn_ijkPlayer);
+        //隐藏
+        btnPlayer.setVisibility(View.GONE);
         btnPlayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
