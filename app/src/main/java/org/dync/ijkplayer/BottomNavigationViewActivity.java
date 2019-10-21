@@ -11,6 +11,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -48,6 +49,29 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private MenuItem menuItem;
     private UpdataDialog updataDialog;
+    //上次按下返回键的系统时间
+    private long lastBackTime = 0;
+    //当前按下返回键的系统时间
+    private long currentBackTime = 0;
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //捕获返回键按下的事件
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            //获取当前系统时间的毫秒数
+            currentBackTime = System.currentTimeMillis();
+            //比较上次按下返回键和当前按下返回键的时间差，如果大于2秒，则提示再按一次退出
+            if(currentBackTime - lastBackTime > 2 * 1000){
+                ToastUtil.showToast(this, "再按一次返回键退出");
+                lastBackTime = currentBackTime;
+            }else{ //如果两次按下的时间差小于2秒，则退出程序
+                finish();
+                System.exit(0);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
 
     /**
