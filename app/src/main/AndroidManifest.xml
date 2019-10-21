@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".BottomNavigationViewActivity">
+        <activity android:name=".SwitchTvOrPhoneActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -44,6 +44,16 @@
         <!--增加注册activity-->
         <activity
             android:name=".VideoSearchListActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
+        <!--增加注册activity-->
+        <activity
+            android:name=".BottomNavigationViewActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
+        <!--增加注册activity-->
+        <activity
+            android:name=".MainTvActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
 
