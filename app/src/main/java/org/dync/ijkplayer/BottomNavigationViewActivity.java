@@ -49,21 +49,31 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
     private MenuItem menuItem;
     private UpdataDialog updataDialog;
 
-    private final String INIT_URL = "https://gitee.com/apple_1030907690/weiXin/raw/master/VersionManager.json";
 
+    /**
+     *
+     * @param initUrl 初始化配置地址
 
-    public void checkVersionGet() {
+     * **/
+    public void checkVersionGet(String initUrl) {
         OkHttpClient client = new OkHttpClient();
         //构造Request对象
         //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
-        Request request = new Request.Builder().get().url(INIT_URL).build();
+        Request request = new Request.Builder().get().url(initUrl).build();
         Call call = client.newCall(request);
         //异步调用并设置回调函数
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                ToastUtil.showToast(BottomNavigationViewActivity.this, "Get 失败");
+                //e.printStackTrace();
+                GlobalConfig.reCount++;
+                if( GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length){
+                    ToastUtil.showToast(BottomNavigationViewActivity.this, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
+                    checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
+                }else{
+                    ToastUtil.showToast(BottomNavigationViewActivity.this, "获取服务信息失败!");
+                }
+
             }
 
             @Override
@@ -187,7 +197,10 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
         viewPagerAdapter.setList(list);
 
         initView();
-        checkVersionGet();
+        if(null == GlobalConfig.getInstance().getVersionUpdate()){
+            checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
+        }
+
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {

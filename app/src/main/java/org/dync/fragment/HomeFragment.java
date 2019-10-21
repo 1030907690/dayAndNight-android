@@ -20,6 +20,7 @@ import org.dync.ijkplayer.VideoActivity;
 import org.dync.ijkplayerlib.widget.receiver.NetWorkControl;
 import org.dync.ijkplayerlib.widget.receiver.NetworkChangedReceiver;
 import org.dync.ijkplayerlib.widget.util.Settings;
+import org.dync.utils.ToastUtil;
 
 
 import butterknife.ButterKnife;
@@ -38,10 +39,10 @@ public class HomeFragment extends Fragment {
     private Button btnPlayer;
     private TextView tv;
 
-    public static TestFragment newInstance(String name) {
+    public static HomeFragment newInstance(String name) {
         Bundle args = new Bundle();
         args.putString("name", name);
-        TestFragment fragment = new TestFragment();
+        HomeFragment fragment = new HomeFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -77,7 +78,6 @@ public class HomeFragment extends Fragment {
 
         // 隐藏
         btnExoPlayer.setVisibility(View.GONE);
-        btnPlayer.setVisibility(View.GONE);
         btnSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,6 +89,7 @@ public class HomeFragment extends Fragment {
 
 
         btnPlayer = (Button) view.findViewById(R.id.btn_ijkPlayer);
+        btnPlayer.setText("测试");
         //隐藏
         btnPlayer.setVisibility(View.GONE);
         btnPlayer.setOnClickListener(new View.OnClickListener() {

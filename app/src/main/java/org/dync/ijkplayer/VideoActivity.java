@@ -276,13 +276,17 @@ public class VideoActivity extends BaseActivity {
                 try {
                     String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
                     IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
-                    List<VideoGroup> videoList = dataSourceStrategy.playList(videoUrl, 1);
+                    List<VideoGroup> videoList = new ArrayList<>();
+                    if (null != videoUrl && !"".equals(videoUrl.trim())) {
+                        videoList = dataSourceStrategy.playList(videoUrl, 1);
+                    }
                     Message msg = new Message();
                     msg.what = 0;
                     Bundle data = new Bundle();
                     data.putString("json", JSONObject.toJSONString(videoList));
                     msg.setData(data);
                     videoHandle.sendMessage(msg);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -557,6 +561,13 @@ public class VideoActivity extends BaseActivity {
         //纵向线性布局
         GridLayoutManager layoutManagerInfo = new GridLayoutManager(this, 4);
         ijkplayerVideoNavigationInfoRecyclerView.setLayoutManager(layoutManagerInfo);
+        if (null == videoGroupList || videoGroupList.size() <= 0) {
+            videoGroupList = new ArrayList<VideoGroup>();
+            VideoGroup tempVideoGroup = new VideoGroup();
+            tempVideoGroup.setGroup("无");
+            tempVideoGroup.setVideoList(new ArrayList<>());
+            videoGroupList.add(tempVideoGroup);
+        }
         recyclerVideoSourceDramaSeriesAdapter = new RecyclerVideoSourceDramaSeriesAdapter(VideoActivity.this, videoGroupList.get(0).getVideoList());
         ijkplayerVideoNavigationInfoRecyclerView.setAdapter(recyclerVideoSourceDramaSeriesAdapter);
         //ijkplayerVideoNavigationInfoRecyclerView.addItemDecoration(new DividerGridItemDecoration(this));
@@ -582,7 +593,7 @@ public class VideoActivity extends BaseActivity {
 
             @Override
             public void onItemLongClick(View view, int position) {
-                    ToastUtil.showToast(VideoActivity.this, "--");
+                ToastUtil.showToast(VideoActivity.this, "--");
             }
         });
 
