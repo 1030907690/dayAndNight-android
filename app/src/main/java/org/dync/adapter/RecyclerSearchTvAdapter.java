@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -130,8 +131,18 @@ public class RecyclerSearchTvAdapter extends RecyclerView.Adapter<RecyclerSearch
         DownLoadTask task = new DownLoadTask(holder.iv);
         task.execute(videoSearch.getPhoto());
 
+
         // item click
         if (mOnItemClickListener != null) {
+
+            holder.infoBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mOnItemClickListener.onItemClick(holder.itemView, position);
+                }
+            });
+
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -171,12 +182,14 @@ public class RecyclerSearchTvAdapter extends RecyclerView.Adapter<RecyclerSearch
         TextView tv;
         ImageView iv;
         TextView tvUrl;
+        Button infoBtn;
 
         public MyViewHolder(View view) {
             super(view);
             tv = view.findViewById(R.id.video_list_item_tv);
             iv = view.findViewById(R.id.video_list_image_item_tv);
             tvUrl = view.findViewById(R.id.video_list_item_url);
+            infoBtn = view.findViewById(R.id.video_list_item_info_btn_tv);
         }
     }
 }

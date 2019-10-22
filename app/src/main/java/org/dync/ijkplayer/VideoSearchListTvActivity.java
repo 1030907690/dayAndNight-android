@@ -1,5 +1,6 @@
 package org.dync.ijkplayer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -37,7 +38,7 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private List<VideoSearch> mDatas;
     private RecyclerSearchTvAdapter mAdapter;
-    private Context context = this;
+    private Activity context = this;
 
     private TextView searchNoDataTips;
     @Override
@@ -106,6 +107,7 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
                 ToastUtil.showToast(VideoSearchListTvActivity.this, "长按 " + mDatas.get(position).getName());
             }
         });
+
     }
 
 

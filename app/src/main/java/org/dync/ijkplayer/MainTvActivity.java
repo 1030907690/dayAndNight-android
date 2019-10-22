@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.dync.bean.VersionUpdate;
 import org.dync.dialog.UpdataDialog;
+import org.dync.ijkplayerlib.widget.util.Settings;
 import org.dync.utils.BaseUtils;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
@@ -216,6 +217,10 @@ public class MainTvActivity extends AppCompatActivity {
                 new int[]{R.id.dialog_sure});
         searchEdit = findViewById(R.id.tv_search_editText);
         searchBtn = findViewById(R.id.tv_btn_search);
+
+        //设置默认的播放器
+        final Settings settings = new Settings(context);
+        settings.setPlayer(Settings.PV_PLAYER__IjkExoMediaPlayer);
     }
 
 
@@ -240,5 +245,6 @@ public class MainTvActivity extends AppCompatActivity {
         });
 
     }
+
 
 }

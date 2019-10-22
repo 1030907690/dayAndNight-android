@@ -15,7 +15,7 @@
         android:layout_marginLeft="200dp"
         android:layout_height="200dp"
         android:gravity="left"
-        android:text="1" />
+        android:text="" />
 
     <TextView
         android:id="@+id/video_list_item_url"
@@ -24,4 +24,12 @@
         android:layout_height="200dp"
         android:gravity="left"
         android:text="" />
+
+    <Button
+        android:id="@+id/video_list_item_info_btn_tv"
+        android:layout_width="100dp"
+        android:layout_marginTop="150dp"
+        android:layout_height="50dp"
+        android:layout_gravity="right"
+        android:text="详情" />
 </FrameLayout>
