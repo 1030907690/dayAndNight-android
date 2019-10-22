@@ -274,8 +274,8 @@ public class VideoActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
-                    IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
+                   // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                    IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
                     List<VideoGroup> videoList = new ArrayList<>();
                     if (null != videoUrl && !"".equals(videoUrl.trim())) {
                         videoList = dataSourceStrategy.playList(videoUrl, 1);

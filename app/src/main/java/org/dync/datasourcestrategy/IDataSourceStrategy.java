@@ -6,6 +6,9 @@ import org.dync.bean.VideoSearch;
 
 import java.util.List;
 
+/*
+* 视频源策略
+* */
 public interface IDataSourceStrategy {
 
     /***
@@ -26,5 +29,12 @@ public interface IDataSourceStrategy {
      * @param url
      * */
     public List<VideoGroup> playList(String url,int page);
+
+
+    /***
+     * 获取视频的详情
+     * */
+
+
 
 }

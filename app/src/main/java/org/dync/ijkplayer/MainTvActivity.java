@@ -225,7 +225,7 @@ public class MainTvActivity extends AppCompatActivity {
 
 
     private void onListener() {
-        searchEdit.setText("海上");
+        searchEdit.setText("九州海上牧云记");
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

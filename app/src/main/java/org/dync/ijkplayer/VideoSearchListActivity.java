@@ -70,8 +70,8 @@ public class VideoSearchListActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
-                            IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
+                           // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                            IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
                             List<Video> videoList = dataSourceStrategy.playList(mDatas.get(position).getUrl());
                             Message msg = searchVideoHandler.obtainMessage();
                             msg.what = 1;
@@ -108,8 +108,8 @@ public class VideoSearchListActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
-                    IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
+                    //String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                    IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
                     List<VideoSearch> videoSearchList = dataSourceStrategy.search(intent.getStringExtra("key"), 1);
                     if (null == videoSearchList || videoSearchList.size() <= 0) {
                         ToastUtil.showToast(VideoSearchListActivity.this, "抱歉,没有数据,请切换关键字!");

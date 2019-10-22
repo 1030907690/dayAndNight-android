@@ -78,7 +78,7 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                            /*String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
                             IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
                             List<Video> videoList = dataSourceStrategy.playList(mDatas.get(position).getUrl());
                             Message msg = searchVideoHandler.obtainMessage();
@@ -92,7 +92,10 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
                             data.putString("videoPath", videoPath);
                             data.putString("url", mDatas.get(position).getUrl());
                             msg.setData(data);
-                            searchVideoHandler.sendMessage(msg);
+                            searchVideoHandler.sendMessage(msg);*/
+                            Intent intent = new Intent(context,VideoDetailTvActivity.class);
+                            intent.putExtra("url",view.getTag().toString());
+                            startActivity(intent);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -117,11 +120,11 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
-                    IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
+                    //String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                    IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
                     List<VideoSearch> videoSearchList = dataSourceStrategy.search(intent.getStringExtra("key"), 1);
                     if (null == videoSearchList || videoSearchList.size() <= 0) {
-                        ToastUtil.showToast(VideoSearchListTvActivity.this, "抱歉,没有数据,请切换关键字!");
+                        ToastUtil.showToast(context, "抱歉,没有数据,请切换关键字!");
                     }
                     // Log.d(TAG,"videoSearchList size " + videoSearchList.size() );
                     Message msg = new Message();

@@ -1,0 +1,40 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+
+    <ImageView
+        android:id="@+id/video_detail_image_tv"
+        android:layout_width="220dp"
+        android:layout_height="300dp"
+        android:layout_gravity="left"
+        android:text=""
+        />
+
+    <TextView
+        android:id="@+id/video_detail_name_tv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:text="九州"
+        />
+
+    <TextView
+        android:id="@+id/video_detail_plot_text_tv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/video_detail_image_tv"
+        android:layout_gravity="left"
+        android:text="剧情介绍"
+        />
+
+    <TextView
+        android:id="@+id/video_detail_plot_info_tv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/video_detail_plot_text_tv"
+        android:text="剧情详细介绍"
+        />
+
+</RelativeLayout>

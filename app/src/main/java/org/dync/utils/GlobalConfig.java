@@ -2,6 +2,7 @@ package org.dync.utils;
 
 
 import org.dync.bean.VersionUpdate;
+import org.dync.datasourcestrategy.IDataSourceStrategy;
 
 import java.lang.reflect.Executable;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -21,6 +22,8 @@ public class GlobalConfig {
     /** 备用初始化地址**/
     public final String BACKUP_INIT_URL = "https://github.com/1030907690/dayAndNight-android/raw/master/VersionManager.json";
 
+    /** 默认选择第一个视频源**/
+    private int DEFAULT_DATA_SOURCE_INDEX = 0;
 
     public final String remoteServer [] = {INIT_URL,BACKUP_INIT_URL};
 
@@ -30,6 +33,8 @@ public class GlobalConfig {
     private VersionUpdate versionUpdate;
 
     private static volatile GlobalConfig globalConfig;
+
+    private IDataSourceStrategy dataSourceStrategy;
 
     private ExecutorService executorService;
     public static GlobalConfig getInstance() {
@@ -55,6 +60,13 @@ public class GlobalConfig {
 
     public void setVersionUpdate(VersionUpdate versionUpdate) {
         this.versionUpdate = versionUpdate;
+        //设置DataSourceStrategy
+        try {
+            String implName = versionUpdate.getDataSource().get(DEFAULT_DATA_SOURCE_INDEX).getKey() + "DataSourceHandle";
+            this.dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public ExecutorService executorService(){
@@ -63,5 +75,14 @@ public class GlobalConfig {
 
     public String[] getRemoteServer() {
         return remoteServer;
+    }
+
+
+    public IDataSourceStrategy getDataSourceStrategy() {
+        return dataSourceStrategy;
+    }
+
+    public void setDataSourceStrategy(IDataSourceStrategy dataSourceStrategy) {
+        this.dataSourceStrategy = dataSourceStrategy;
     }
 }

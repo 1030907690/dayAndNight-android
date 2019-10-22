@@ -50,7 +50,6 @@ public class RecyclerSearchTvAdapter extends RecyclerView.Adapter<RecyclerSearch
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         MyViewHolder holder = new MyViewHolder(LayoutInflater.from(context).inflate(R.layout.video_search_list_item_tv_activity, parent, false));
-
         return holder;
     }
 
@@ -131,7 +130,7 @@ public class RecyclerSearchTvAdapter extends RecyclerView.Adapter<RecyclerSearch
         DownLoadTask task = new DownLoadTask(holder.iv);
         task.execute(videoSearch.getPhoto());
 
-
+        holder.infoBtn.setTag(videoSearch.getUrl());
         // item click
         if (mOnItemClickListener != null) {
 
