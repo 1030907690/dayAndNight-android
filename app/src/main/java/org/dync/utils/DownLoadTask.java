@@ -17,7 +17,7 @@ import okhttp3.Response;
 /**
  * 异步加载图片
  */
-class DownLoadTask extends AsyncTask<String ,Void, BitmapDrawable> {
+public class DownLoadTask extends AsyncTask<String ,Void, BitmapDrawable> {
     private ImageView mImageView;
     String url;
     private Context context;

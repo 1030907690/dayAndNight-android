@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 public class GlobalConfig {
 
     /** 首先初始化地址 **/
-    public final String INIT_URL = "https://gitee.com/apple_1030907690/weiXin/raw/master/VersionManager.json";
+    //public final String INIT_URL = "https://gitee.com/apple_1030907690/weiXin/raw/master/VersionManager.json";
+    public final String INIT_URL = "https://github.com/1030907690/dayAndNight-android/raw/master/VersionManager.json";
 
     /** 备用初始化地址**/
     public final String BACKUP_INIT_URL = "https://github.com/1030907690/dayAndNight-android/raw/master/VersionManager.json";

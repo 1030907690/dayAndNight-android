@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.dync.bean.DataSource;
 import org.dync.bean.Video;
+import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
@@ -38,11 +39,11 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
         List<DataSource> dataSourceList = GlobalConfig.getInstance().getVersionUpdate().getDataSource();
         for (DataSource dataSource : dataSourceList) {
             urlMap.put(dataSource.getKey(), dataSource.getSearchUrl());
-            if(KEY.equals(dataSource.getKey())){
+            if (KEY.equals(dataSource.getKey())) {
                 domain = dataSource.getDomain();
             }
         }
-         //urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search.html?wd=%s&submit=");
+        //urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search.html?wd=%s&submit=");
         //urlMap.put(KEY, "http://www.kukuzy.com/index.php/vod/search/page/%s/wd/%s.html");
     }
 
@@ -187,7 +188,6 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
     }
 
 
-
     @Override
     public List<VideoGroup> playList(String url, int page) {
         List<VideoGroup> videoGroupList = new ArrayList<>();
@@ -217,7 +217,7 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
 
                     }
                     VideoGroup videoGroup = new VideoGroup();
-                    videoGroup.setGroup(titleElements.text().replace("播放类型","").replace(":","").replace("：","").trim());
+                    videoGroup.setGroup(titleElements.text().replace("播放类型", "").replace(":", "").replace("：", "").trim());
                     videoGroup.setVideoList(videoList);
                     videoGroupList.add(videoGroup);
                 }
@@ -230,6 +230,65 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
     }
 
 
+    @Override
+    public VideoDetail videoDetail(String url) {
+        VideoDetail videoDetail = new VideoDetail();
+        List<VideoGroup> videoGroupList = new ArrayList<>();
+        try {
+            String $str = "$";
+            Connection connect = Jsoup.connect(url);//获取连接对象
+            Document document = connect.get();//获取url页面的内容并解析成document对象
+
+            Element body = document.body();
+            //1、解析视频图片、名称 剧情等等
+            try {
+                //图片
+                String imageUrl = body.getElementsByClass("img-responsive").attr("src");
+                videoDetail.setImageUrl(imageUrl);
+                //名称
+                String name = body.select("h1[class=\"title\"]").text();
+                videoDetail.setName(name);
+
+                // 剧情
+                String plot = body.getElementsByClass("stui-content__desc col-pd clearfix").text();
+                videoDetail.setPlot(plot);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            //2、解析剧集
+            Elements classElements = body.select("div[id=\"playlist\"]");
+            for (Element classElement : classElements) {
+                Elements titleElements = classElement.select("h3[class=\"title\"]");
+                if (titleElements.html().contains("m3u8")) {
+                    List<Video> videoList = new ArrayList<>();
+                    Elements videoElements = classElement.getElementsByTag("li");
+                    for (Element videoElement : videoElements) {
+                        Elements videoInputElements = videoElement.select("input[type=\"checkbox\"]");
+                        for (Element videoInputElement : videoInputElements) {
+                            //System.out.println(" videoElement  " + videoInputElement.attr("value"));
+                            String[] videoArray = videoInputElement.attr("value").split("\\" + $str);
+                            Video video = new Video();
+                            video.setName(videoArray[0].replace($str, ""));
+                            video.setUrl(videoArray[1]);
+                            videoList.add(video);
+                        }
+
+                    }
+                    VideoGroup videoGroup = new VideoGroup();
+                    videoGroup.setGroup(titleElements.text().replace("播放类型", "").replace(":", "").replace("：", "").trim());
+                    videoGroup.setVideoList(videoList);
+                    videoGroupList.add(videoGroup);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        videoDetail.setVideoGroupList(videoGroupList);
+        return videoDetail;
+    }
 
     public static void main(String[] args) {
         KuKuZYDataSourceHandle handle = new KuKuZYDataSourceHandle();

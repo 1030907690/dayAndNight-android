@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSONArray;
@@ -41,6 +42,7 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
     private Activity context = this;
 
     private TextView searchNoDataTips;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +58,7 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
             mDatas = new ArrayList<>();
         }
         searchNoDataTips = findViewById(R.id.id_search_tips_tv);
-        if(null == mDatas || mDatas.size() <= 0){
+        if (null == mDatas || mDatas.size() <= 0) {
             searchNoDataTips.setVisibility(View.VISIBLE);
         }
         mRecyclerView = findViewById(R.id.id_recyclerview_tv);
@@ -74,34 +76,9 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
                 //ToastUtil.showToast(VideoSearchListActivity.this,"点击 " + mDatas.get(position).getName() +  " - " +mDatas.get(position).getUrl());
                 //String videoPath = "https://meigui.qqqq-kuyun.com/20190627/9918_47cdf731/index.m3u8";
 
-                GlobalConfig.getInstance().executorService().execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            /*String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
-                            IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
-                            List<Video> videoList = dataSourceStrategy.playList(mDatas.get(position).getUrl());
-                            Message msg = searchVideoHandler.obtainMessage();
-                            msg.what = 1;
-                            Bundle data = new Bundle();
-                            String videoPath = "https://meigui.qqqq-kuyun.com/20190627/9918_47cdf731/index.m3u8";
-
-                            if (null != videoList && videoList.size() > 0) {
-                                videoPath = videoList.get(0).getUrl();
-                            }
-                            data.putString("videoPath", videoPath);
-                            data.putString("url", mDatas.get(position).getUrl());
-                            msg.setData(data);
-                            searchVideoHandler.sendMessage(msg);*/
-                            Intent intent = new Intent(context,VideoDetailTvActivity.class);
-                            intent.putExtra("url",view.getTag().toString());
-                            startActivity(intent);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
+                Intent intent = new Intent(context, VideoDetailTvActivity.class);
+                intent.putExtra("url", mDatas.get(position).getUrl());
+                startActivity(intent);
 
             }
 

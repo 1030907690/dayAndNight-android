@@ -1,6 +1,7 @@
 package org.dync.datasourcestrategy;
 
 import org.dync.bean.Video;
+import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
 
@@ -34,7 +35,7 @@ public interface IDataSourceStrategy {
     /***
      * 获取视频的详情
      * */
-
+    public VideoDetail videoDetail(String url);
 
 
 }
