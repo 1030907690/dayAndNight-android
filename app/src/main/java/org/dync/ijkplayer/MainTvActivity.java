@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -82,7 +83,9 @@ public class MainTvActivity extends AppCompatActivity {
 
         initView();
         onListener();
-        checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
+        if(null == GlobalConfig.getInstance().getVersionUpdate()){
+            checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
+        }
     }
 
 
@@ -120,12 +123,28 @@ public class MainTvActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         // VersionUpdate versionUpdate = JSONObject.parseObject(responseStr, VersionUpdate.class);
-                        Message msg = new Message();
-                        Bundle data = new Bundle();
-                        data.putString("json", responseStr);
-                        msg.setData(data);
-                        msg.what = 0;
-                        mainActivityHandle.sendMessage(msg);
+
+                        try{
+                            JSONObject.parseObject(responseStr, VersionUpdate.class);
+                            Message msg = new Message();
+                            Bundle data = new Bundle();
+                            data.putString("json", responseStr);
+                            msg.setData(data);
+                            msg.what = 0;
+                            mainActivityHandle.sendMessage(msg);
+                        }catch (Exception e){
+                            Log.d("main exception",e.getMessage());
+                            GlobalConfig.reCount++;
+                            if( GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length){
+                                ToastUtil.showToast( context, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
+                                checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
+                            }else{
+                                ToastUtil.showToast(context, "获取服务信息失败!");
+                            }
+                        }
+
+
+
                         // initTextView.setText("当前版本 :" + currentVersion);
                         //comparison(currentVersion, jsonObject.getString("downloadUrl"));
                     }

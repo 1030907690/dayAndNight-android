@@ -1,5 +1,6 @@
 package org.dync.ijkplayer;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +55,8 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
     private long lastBackTime = 0;
     //当前按下返回键的系统时间
     private long currentBackTime = 0;
+
+    private Activity context = this;
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -107,12 +111,24 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         // VersionUpdate versionUpdate = JSONObject.parseObject(responseStr, VersionUpdate.class);
-                        Message msg = new Message();
-                        Bundle data = new Bundle();
-                        data.putString("json", responseStr);
-                        msg.setData(data);
-                        msg.what = 0;
-                        mainActivityHandle.sendMessage(msg);
+                        try{
+                            JSONObject.parseObject(responseStr, VersionUpdate.class);
+                            Message msg = new Message();
+                            Bundle data = new Bundle();
+                            data.putString("json", responseStr);
+                            msg.setData(data);
+                            msg.what = 0;
+                            mainActivityHandle.sendMessage(msg);
+                        }catch (Exception e){
+                            Log.d("main exception",e.getMessage());
+                            GlobalConfig.reCount++;
+                            if( GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length){
+                                ToastUtil.showToast( context, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
+                                checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
+                            }else{
+                                ToastUtil.showToast(context, "获取服务信息失败!");
+                            }
+                        }
                         // initTextView.setText("当前版本 :" + currentVersion);
                         //comparison(currentVersion, jsonObject.getString("downloadUrl"));
                     }
