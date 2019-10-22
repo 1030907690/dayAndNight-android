@@ -241,13 +241,15 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
 
             Element body = document.body();
             //1、解析视频图片、名称 剧情等等
+            String videoName = "";
             try {
                 //图片
                 String imageUrl = body.getElementsByClass("img-responsive").attr("src");
                 videoDetail.setImageUrl(imageUrl);
                 //名称
-                String name = body.select("h1[class=\"title\"]").text();
-                videoDetail.setName(name);
+                videoName = body.select("h1[class=\"title\"]").text();
+                videoName = videoName.replace(body.select("h1[class=\"title\"]").select("small[class=\"text-red\"]").text(), "");
+                videoDetail.setName(videoName);
 
                 // 剧情
                 String plot = body.getElementsByClass("stui-content__desc col-pd clearfix").text();

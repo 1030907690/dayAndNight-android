@@ -197,6 +197,9 @@ public class VideoTvActivity extends BaseActivity {
     @BindView(R.id.app_video_box)
     RelativeLayout appVideoBox;
 
+    @BindView(R.id.video_title_name_tip_tv)
+    private RelativeLayout titleNameTip;
+
     private RecyclerView ijkplayerVideoNavigationInfoRecyclerView;
 
     private TabLayout tabLayoutTitle;
@@ -211,17 +214,17 @@ public class VideoTvActivity extends BaseActivity {
     private long currentBackTime = 0;
 
 
-
-    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl) {
+    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl, String name) {
         Intent intent = new Intent(context, VideoTvActivity.class);
         intent.putExtra("videoPath", videoPath);
         intent.putExtra("videoTitle", videoTitle);
         intent.putExtra("videoUrl", videoUrl);
+        intent.putExtra("name", name);
         return intent;
     }
 
-    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl) {
-        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl));
+    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl, String name) {
+        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl, name));
     }
 
 
@@ -277,7 +280,7 @@ public class VideoTvActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                   // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                    // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
                   /*  IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
                     List<VideoGroup> videoList = new ArrayList<>();
                     if (null != videoUrl && !"".equals(videoUrl.trim())) {
@@ -331,7 +334,8 @@ public class VideoTvActivity extends BaseActivity {
 
     }
 
-
+    @BindView(R.id.video_name_tip_tv)
+    private TextView videoNameTipTv;
     private Handler videoHandle = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -344,6 +348,15 @@ public class VideoTvActivity extends BaseActivity {
                     initVideoListener();
 //
                     StatusBarUtil.setColor(VideoTvActivity.this, getResources().getColor(R.color.colorPrimary));
+
+                    //2019年10月22日19:09:56 tv版 默认设置为横屏
+                    updateFullScreenBg(true);
+
+                    videoNameTipTv.setText(getIntent().getStringExtra("name"));
+                    break;
+                case 1:
+                    llBottom.setVisibility(View.GONE);
+                    titleNameTip.setVisibility(View.GONE);
                     break;
             }
         }
@@ -1251,21 +1264,39 @@ public class VideoTvActivity extends BaseActivity {
     }
 
 
-
-
+    private void showBottom() {
+        llBottom.setVisibility(View.VISIBLE);
+        titleNameTip.setVisibility(View.VISIBLE);
+        GlobalConfig.getInstance().executorService().execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(3000);
+                    Message msg = videoHandle.obtainMessage();
+                    msg.what = 1;
+                    videoHandle.sendMessage(msg);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
+        showBottom();
         //捕获返回键按下的事件
-        if(keyCode == KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Log.d(TAG, String.valueOf(llBottom.getVisibility()));
+
             //获取当前系统时间的毫秒数
             currentBackTime = System.currentTimeMillis();
             //比较上次按下返回键和当前按下返回键的时间差，如果大于2秒，则提示再按一次退出
-            if(currentBackTime - lastBackTime > 2 * 1000){
+            if (currentBackTime - lastBackTime > 2 * 1000) {
                 ToastUtil.showToast(this, "再按一次返回键退出");
                 lastBackTime = currentBackTime;
-            }else{ //如果两次按下的时间差小于2秒，则退出程序
+            } else { //如果两次按下的时间差小于2秒，则退出程序
                 finish();
                 //System.exit(0);
             }
@@ -1274,96 +1305,105 @@ public class VideoTvActivity extends BaseActivity {
 
         switch (keyCode) {
             case KeyEvent.KEYCODE_ENTER:     //确定键enter
-                Log.d(TAG,"enter--->");
+                Log.d(TAG, "enter1--->");
 
                 if (videoView.isPlaying()) {
                     updatePlayBtnBg(true);
-                    ToastUtil.showToast(this,"暂停");
+                    ToastUtil.showToast(this, "暂停");
                 } else {
                     updatePlayBtnBg(false);
-                    ToastUtil.showToast(this,"播放");
+                    ToastUtil.showToast(this, "播放");
                 }
                 break;
-            /*case KeyEvent.KEYCODE_DPAD_CENTER:
-                Log.d(TAG,"enter--->");
-                ToastUtil.showToast(this,"enter2");
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+                Log.d(TAG, "enter2--->");
+                if (videoView.isPlaying()) {
+                    updatePlayBtnBg(true);
+                    ToastUtil.showToast(this, "暂停");
+                } else {
+                    updatePlayBtnBg(false);
+                    ToastUtil.showToast(this, "播放");
+                }
+                //ToastUtil.showToast(this,"enter2");
                 break;
 
             case KeyEvent.KEYCODE_BACK:    //返回键
-                Log.d(TAG,"back--->");
+                Log.d(TAG, "back--->");
 
                 return true;   //这里由于break会退出，所以我们自己要处理掉 不返回上一层
 
             case KeyEvent.KEYCODE_SETTINGS: //设置键
-                Log.d(TAG,"setting--->");
+                Log.d(TAG, "setting--->");
 
                 break;
 
             case KeyEvent.KEYCODE_DPAD_DOWN:   //向下键
 
-                *//*    实际开发中有时候会触发两次，所以要判断一下按下时触发 ，松开按键时不触发
+                /*    实际开发中有时候会触发两次，所以要判断一下按下时触发 ，松开按键时不触发
                  *    exp:KeyEvent.ACTION_UP
-                 *//*
-                if (event.getAction() == KeyEvent.ACTION_DOWN){
+                 */
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
 
-                    Log.d(TAG,"down--->");
+                    Log.d(TAG, "down--->");
                 }
 
                 break;
 
             case KeyEvent.KEYCODE_DPAD_UP:   //向上键
-                Log.d(TAG,"up--->");
+                Log.d(TAG, "up--->");
 
                 break;
 
-            case     KeyEvent.KEYCODE_0:   //数字键0
-                Log.d(TAG,"0--->");
+            case KeyEvent.KEYCODE_0:   //数字键0
+                Log.d(TAG, "0--->");
 
                 break;
 
             case KeyEvent.KEYCODE_DPAD_LEFT: //向左键
 
-                Log.d(TAG,"left--->");
+                Log.d(TAG, "left--->");
 
                 break;
 
             case KeyEvent.KEYCODE_DPAD_RIGHT:  //向右键
-                Log.d(TAG,"right--->");
+                Log.d(TAG, "right--->");
                 break;
 
             case KeyEvent.KEYCODE_INFO:    //info键
-                Log.d(TAG,"info--->");
+                Log.d(TAG, "info--->");
 
                 break;
 
             case KeyEvent.KEYCODE_PAGE_DOWN:     //向上翻页键
             case KeyEvent.KEYCODE_MEDIA_NEXT:
-                Log.d(TAG,"page down--->");
+                Log.d(TAG, "page down--->");
 
                 break;
 
 
             case KeyEvent.KEYCODE_PAGE_UP:     //向下翻页键
             case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                Log.d(TAG,"page up--->");
+                Log.d(TAG, "page up--->");
 
                 break;
 
             case KeyEvent.KEYCODE_VOLUME_UP:   //调大声音键
-                Log.d(TAG,"voice up--->");
+                Log.d(TAG, "voice up--->");
 
                 break;
 
             case KeyEvent.KEYCODE_VOLUME_DOWN: //降低声音键
-                Log.d(TAG,"voice down--->");
+                Log.d(TAG, "voice down--->");
 
                 break;
             case KeyEvent.KEYCODE_VOLUME_MUTE: //禁用声音
-                Log.d(TAG,"voice mute--->");
+                Log.d(TAG, "voice mute--->");
                 break;
+
             default:
-                break;*/
+                break;
         }
+
         return super.onKeyDown(keyCode, event);
 
     }

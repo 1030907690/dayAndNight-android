@@ -232,7 +232,8 @@ public class MainTvActivity extends AppCompatActivity {
                 Editable editable = searchEdit.getText();
                 if (null != editable && null != editable.toString() && !"".equals(editable.toString())) {
                     if (editable.toString().startsWith("http://") || editable.toString().startsWith("https://")) {
-                        ToastUtil.showToast(content, "协议暂不支持!");
+                        //ToastUtil.showToast(content, "协议暂不支持!");
+                        VideoTvActivity.intentTo(content, editable.toString(), "测试", "","");
                     } else {
                         Intent intent = new Intent(context,VideoSearchListTvActivity.class);
                         intent.putExtra("key",editable.toString());

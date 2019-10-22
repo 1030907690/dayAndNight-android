@@ -57,6 +57,7 @@ public class VideoDetailTvActivity extends AppCompatActivity {
 
     private final Activity content = this;
 
+    private String videoNameStr;
 
     private final int spanCount = 4;
 
@@ -68,8 +69,6 @@ public class VideoDetailTvActivity extends AppCompatActivity {
 
         initData();
     }
-
-
 
 
     private void initData() {
@@ -103,10 +102,11 @@ public class VideoDetailTvActivity extends AppCompatActivity {
             switch (msg.what) {
                 case 0:
                     VideoDetail videoDetail = (VideoDetail) msg.obj;
+                    videoNameStr = videoDetail.getName();
                     videoName.setText(videoDetail.getName());
                     DownLoadTask downLoadTask = new DownLoadTask(videoImg, content);
                     downLoadTask.execute(videoDetail.getImageUrl());
-                    videoInfo.setText(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + videoDetail.getPlot() + videoDetail.getPlot() + videoDetail.getPlot() + videoDetail.getPlot() + videoDetail.getPlot() + videoDetail.getPlot() + videoDetail.getPlot() + videoDetail.getPlot() + videoDetail.getPlot() + videoDetail.getPlot()));
+                    videoInfo.setText(Html.fromHtml("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + videoDetail.getPlot()));
 
                     List<VideoGroup> videoGroupList = videoDetail.getVideoGroupList();
                     // 初始化剧集
@@ -131,7 +131,7 @@ public class VideoDetailTvActivity extends AppCompatActivity {
                                 Button videoItemBtn = (Button) view;
                                 //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
                                 videoItemBtn.setTextColor(0xFFFFFFFF);
-                                VideoTvActivity.intentTo(content, videoItemBtn.getTag().toString(), "测试", "");
+                                VideoTvActivity.intentTo(content, videoItemBtn.getTag().toString(), "测试", "", videoNameStr + videoItemBtn.getText());
                             }
 
                         }
@@ -176,7 +176,7 @@ public class VideoDetailTvActivity extends AppCompatActivity {
                             Button videoItemBtn = (Button) view;
                             //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
                             videoItemBtn.setTextColor(0xFFFFFFFF);
-                            VideoTvActivity.intentTo(content, videoItemBtn.getTag().toString(), "测试", "");
+                            VideoTvActivity.intentTo(content, videoItemBtn.getTag().toString(), "测试", "", videoNameStr + videoItemBtn.getText());
                         }
                     }
 

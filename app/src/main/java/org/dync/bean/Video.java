@@ -8,6 +8,8 @@ public class Video implements Serializable {
 
     private String url;
 
+
+
     public String getName() {
         return name;
     }

@@ -12,6 +12,7 @@
         android:layout_height="200dp"
         android:background="#000000">
 
+
         <org.dync.ijkplayerlib.widget.media.IjkVideoView
             android:id="@+id/video_view"
             android:layout_width="match_parent"
@@ -96,6 +97,8 @@
             android:orientation="vertical"
             android:visibility="gone">
 
+
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -165,7 +168,30 @@
                 android:layout_height="match_parent"
                 android:background="#000000" />
 
+
         </RelativeLayout>
+
+
+        <!--视频名称-->
+        <RelativeLayout
+            android:id="@+id/video_title_name_tip_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/video_name_tip_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="九州"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+
+        </RelativeLayout>
+
+
 
         <!--底部栏-->
         <LinearLayout
@@ -178,6 +204,9 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="10dp">
+
+
+
 
             <ImageView
                 android:id="@+id/play_icon"

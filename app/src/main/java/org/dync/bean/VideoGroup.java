@@ -14,6 +14,7 @@ public class VideoGroup implements Serializable {
 
     private List<Video> videoList;
 
+
     public String getGroup() {
         return group;
     }
