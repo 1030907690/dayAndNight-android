@@ -220,19 +220,21 @@ public class MainTvActivity extends AppCompatActivity {
 
 
     private void onListener() {
-        searchEdit.setText("水中火");
+        searchEdit.setText("海上");
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Editable editable = searchEdit.getText();
                 if (null != editable && null != editable.toString() && !"".equals(editable.toString())) {
                     if (editable.toString().startsWith("http://") || editable.toString().startsWith("https://")) {
-                        ToastUtil.showToast(content, "暂不支持!");
+                        ToastUtil.showToast(content, "协议暂不支持!");
                     } else {
-
+                        Intent intent = new Intent(context,VideoSearchListTvActivity.class);
+                        intent.putExtra("key",editable.toString());
+                        startActivity(intent);
                     }
                 } else {
-                    ToastUtil.showToast(content, "请输入要搜索的内容!");
+                    ToastUtil.showToast(content, "请输入关键字");
                 }
             }
         });

@@ -4,7 +4,7 @@
     android:layout_height="match_parent" >
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/id_recyclerview"
+        android:id="@+id/id_recyclerview_tv"
         android:divider="#ffff0000"
         android:dividerHeight="10dp"
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
 
 
     <TextView
-        android:id="@+id/id_search_tips_phone"
+        android:id="@+id/id_search_tips_tv"
         android:divider="#ffff0000"
         android:dividerHeight="10dp"
         android:layout_width="match_parent"
@@ -21,4 +21,5 @@
         android:visibility="gone"
         android:text="@string/tips_search_no_data"
         />
+
 </RelativeLayout>

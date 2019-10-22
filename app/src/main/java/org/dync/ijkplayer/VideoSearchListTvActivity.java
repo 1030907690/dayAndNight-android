@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.dync.adapter.DividerItemDecoration;
 import org.dync.adapter.RecyclerSearchAdapter;
+import org.dync.adapter.RecyclerSearchTvAdapter;
 import org.dync.bean.Video;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
@@ -25,18 +26,24 @@ import org.dync.utils.ToastUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VideoSearchListActivity extends AppCompatActivity {
+
+/***
+ * zhouzhongqing
+ * 2019年10月22日10:42:18
+ * 视频搜索结果页面
+ * */
+public class VideoSearchListTvActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private List<VideoSearch> mDatas;
-    private RecyclerSearchAdapter mAdapter;
+    private RecyclerSearchTvAdapter mAdapter;
     private Context context = this;
-    private TextView searchNoDataTips;
 
+    private TextView searchNoDataTips;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.video_search_list);
+        setContentView(R.layout.video_search_list_tv_activity);
 
         initData();
 
@@ -47,20 +54,20 @@ public class VideoSearchListActivity extends AppCompatActivity {
         if (null == mDatas) {
             mDatas = new ArrayList<>();
         }
-        searchNoDataTips = findViewById(R.id.id_search_tips_phone);
+        searchNoDataTips = findViewById(R.id.id_search_tips_tv);
         if(null == mDatas || mDatas.size() <= 0){
             searchNoDataTips.setVisibility(View.VISIBLE);
         }
-        mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview);
+        mRecyclerView = findViewById(R.id.id_recyclerview_tv);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setAdapter(mAdapter = new RecyclerSearchAdapter(VideoSearchListActivity.this, this.mDatas));
+        mRecyclerView.setAdapter(mAdapter = new RecyclerSearchTvAdapter(context, this.mDatas));
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
     }
 
 
     private void listener() {
-        mAdapter.setOnItemClickListener(new RecyclerSearchAdapter.OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new RecyclerSearchTvAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
                 //ToastUtil.showToast(VideoSearchListActivity.this,"点击 " + mDatas.get(position).getName() +  " - " +mDatas.get(position).getUrl());
@@ -96,7 +103,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
 
             @Override
             public void onItemLongClick(View view, int position) {
-                ToastUtil.showToast(VideoSearchListActivity.this, "长按 " + mDatas.get(position).getName());
+                ToastUtil.showToast(VideoSearchListTvActivity.this, "长按 " + mDatas.get(position).getName());
             }
         });
     }
@@ -112,7 +119,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
                     IDataSourceStrategy dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
                     List<VideoSearch> videoSearchList = dataSourceStrategy.search(intent.getStringExtra("key"), 1);
                     if (null == videoSearchList || videoSearchList.size() <= 0) {
-                        ToastUtil.showToast(VideoSearchListActivity.this, "抱歉,没有数据,请切换关键字!");
+                        ToastUtil.showToast(VideoSearchListTvActivity.this, "抱歉,没有数据,请切换关键字!");
                     }
                     // Log.d(TAG,"videoSearchList size " + videoSearchList.size() );
                     Message msg = new Message();
@@ -161,7 +168,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
     };
 
     public static Intent newIntent(Context context, String key) {
-        Intent intent = new Intent(context, VideoSearchListActivity.class);
+        Intent intent = new Intent(context, VideoSearchListTvActivity.class);
         intent.putExtra("key", key);
         return intent;
     }
