@@ -40,6 +40,7 @@ import org.dync.adapter.DividerItemDecoration;
 import org.dync.adapter.RecyclerSearchAdapter;
 import org.dync.adapter.RecyclerVideoSourceDramaSeriesAdapter;
 import org.dync.bean.Video;
+import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
@@ -226,33 +227,30 @@ public class VideoActivity extends BaseActivity {
     private long currentBackTime = 0;
 
 
-
-    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl,String name) {
+    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl) {
         Intent intent = new Intent(context, VideoActivity.class);
         intent.putExtra("videoPath", videoPath);
         intent.putExtra("videoTitle", videoTitle);
         intent.putExtra("videoUrl", videoUrl);
-        // 视频名称
-        intent.putExtra("name", name);
         return intent;
     }
 
-    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl,String name) {
-        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl,name));
+    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl) {
+        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl));
     }
 
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //捕获返回键按下的事件
-        if(keyCode == KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             //获取当前系统时间的毫秒数
             currentBackTime = System.currentTimeMillis();
             //比较上次按下返回键和当前按下返回键的时间差，如果大于2秒，则提示再按一次退出
-            if(currentBackTime - lastBackTime > 2 * 1000){
+            if (currentBackTime - lastBackTime > 2 * 1000) {
                 ToastUtil.showToast(this, "再按一次返回键退出");
                 lastBackTime = currentBackTime;
-            }else{ //如果两次按下的时间差小于2秒，则退出程序
+            } else { //如果两次按下的时间差小于2秒，则退出程序
                 finish();
                 //System.exit(0);
             }
@@ -278,8 +276,6 @@ public class VideoActivity extends BaseActivity {
         Intent tempIntent = getIntent();
         videoUrl = tempIntent.getStringExtra("videoUrl");
 
-
-        videoTitleName = tempIntent.getStringExtra("name");
 
         // handle arguments
         mVideoPath = tempIntent.getStringExtra("videoPath");
@@ -320,17 +316,16 @@ public class VideoActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                   // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                    // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
                     IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
-                    List<VideoGroup> videoList = new ArrayList<>();
+                    VideoDetail videoDetail = new VideoDetail();
                     if (null != videoUrl && !"".equals(videoUrl.trim())) {
-                        videoList = dataSourceStrategy.playList(videoUrl, 1);
+                        videoDetail = dataSourceStrategy.videoDetail(videoUrl);
                     }
-                    Message msg = new Message();
+
+                    Message msg = videoHandle.obtainMessage();
+                    msg.obj = videoDetail;
                     msg.what = 0;
-                    Bundle data = new Bundle();
-                    data.putString("json", JSONObject.toJSONString(videoList));
-                    msg.setData(data);
                     videoHandle.sendMessage(msg);
 
                 } catch (Exception e) {
@@ -380,17 +375,20 @@ public class VideoActivity extends BaseActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
+
                     initVideoControl();
                     initPlayer();
-                    List<VideoGroup> videoGroupList = JSONArray.parseArray(msg.getData().getString("json"), VideoGroup.class);
+                    VideoDetail videoDetail = (VideoDetail) msg.obj;
+                    videoTitleName = videoDetail.getName();
+                    List<VideoGroup> videoGroupList = videoDetail.getVideoGroupList();
                     initFragment(videoGroupList);
                     initListener();
                     initVideoListener();
 //
                     StatusBarUtil.setColor(VideoActivity.this, getResources().getColor(R.color.colorPrimary));
 
-                    if(null != videoGroupList && videoGroupList.size() > 0 && null != videoGroupList.get(0).getVideoList() && videoGroupList.get(0).getVideoList().size() > 0){
-                        videoNameTipTv.setText(videoTitleName +" " + videoGroupList.get(0).getVideoList().get(0).getName());
+                    if (null != videoGroupList && videoGroupList.size() > 0 && null != videoGroupList.get(0).getVideoList() && videoGroupList.get(0).getVideoList().size() > 0) {
+                        videoNameTipTv.setText(videoTitleName + " " + videoGroupList.get(0).getVideoList().get(0).getName());
                     }
                     break;
             }

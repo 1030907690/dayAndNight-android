@@ -74,7 +74,7 @@ public class SearchFragment extends Fragment {
                 Editable editable = searchEditText.getText();
                 if (null != editable && null != editable.toString() && !"".equals(editable.toString())) {
                     if(editable.toString().startsWith("http://") || editable.toString().startsWith("https://")){
-                        VideoActivity.intentTo(getActivity(), editable.toString(), "测试","","");
+                        VideoActivity.intentTo(getActivity(), editable.toString(), "测试","");
                     }else{
                         VideoSearchListActivity.intentTo(getActivity(), editable.toString());
                     }

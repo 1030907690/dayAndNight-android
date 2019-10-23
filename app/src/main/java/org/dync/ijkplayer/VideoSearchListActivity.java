@@ -153,7 +153,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
 
                 case 1:
                     Bundle data = msg.getData();
-                    VideoActivity.intentTo(context, data.getString("videoPath"), "测试", data.getString("url"),data.getString("name"));
+                    VideoActivity.intentTo(context, data.getString("videoPath"), "测试", data.getString("url"));
                     break;
                 default:
                     break;

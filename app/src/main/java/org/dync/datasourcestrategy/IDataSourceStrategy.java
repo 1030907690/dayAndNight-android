@@ -22,6 +22,7 @@ public interface IDataSourceStrategy {
      * 获取播放列表 具体的集
      * @param url
      * */
+    @Deprecated
     public List<Video> playList(String url);
 
 
@@ -29,6 +30,7 @@ public interface IDataSourceStrategy {
      * 获取播放列表 具体的集
      * @param url
      * */
+    @Deprecated
     public List<VideoGroup> playList(String url,int page);
 
 

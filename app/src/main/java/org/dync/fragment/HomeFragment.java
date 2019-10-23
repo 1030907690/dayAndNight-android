@@ -96,7 +96,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 String videoPath = "https://meigui.qqqq-kuyun.com/20190627/9918_47cdf731/index.m3u8";
-                VideoActivity.intentTo(getActivity(), videoPath, "测试","","");
+                VideoActivity.intentTo(getActivity(), videoPath, "测试","");
             }
         });
 
