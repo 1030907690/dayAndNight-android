@@ -95,7 +95,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
             public void onFailure(Call call, IOException e) {
                 //e.printStackTrace();
                 GlobalConfig.reCount++;
-                if( GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length){
+                if( GlobalConfig.reCount < GlobalConfig.getInstance().getRemoteServer().length){
                     ToastUtil.showToast(BottomNavigationViewActivity.this, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
                     checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
                 }else{

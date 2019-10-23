@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -67,11 +68,13 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -216,6 +219,10 @@ public class VideoTvActivity extends BaseActivity {
     //当前按下返回键的系统时间
     private long currentBackTime = 0;
 
+    private AtomicInteger hideTipCount = new AtomicInteger(0);
+
+    /** 快进快退秒数 大概是30秒**/
+    private int income = 34748;
 
     public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl, String name) {
         Intent intent = new Intent(context, VideoTvActivity.class);
@@ -353,12 +360,18 @@ public class VideoTvActivity extends BaseActivity {
 
                     //2019年10月22日19:09:56 tv版 默认设置为横屏
                     updateFullScreenBg(true);
+                    if (mPlayerController.isPortrait()) {
+                        //转换屏幕方向
+                        mPlayerController.toggleScreenOrientation();
+                    }
 
                     videoNameTipTv.setText(getIntent().getStringExtra("name"));
                     break;
                 case 1:
-                    llBottom.setVisibility(View.GONE);
-                    titleNameTip.setVisibility(View.GONE);
+                    if(hideTipCount.getAndDecrement() < 2) {
+                        llBottom.setVisibility(View.GONE);
+                        titleNameTip.setVisibility(View.GONE);
+                    }
                     break;
             }
         }
@@ -1277,6 +1290,7 @@ public class VideoTvActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
+                    hideTipCount.getAndIncrement();
                     Thread.sleep(3000);
                     Message msg = videoHandle.obtainMessage();
                     msg.what = 1;
@@ -1335,14 +1349,10 @@ public class VideoTvActivity extends BaseActivity {
 
             case KeyEvent.KEYCODE_BACK:    //返回键
                 Log.d(TAG, "back--->");
-
                 return true;   //这里由于break会退出，所以我们自己要处理掉 不返回上一层
-
             case KeyEvent.KEYCODE_SETTINGS: //设置键
                 Log.d(TAG, "setting--->");
-
                 break;
-
             case KeyEvent.KEYCODE_DPAD_DOWN:   //向下键
 
                 /*    实际开发中有时候会触发两次，所以要判断一下按下时触发 ，松开按键时不触发
@@ -1352,32 +1362,24 @@ public class VideoTvActivity extends BaseActivity {
 
                     Log.d(TAG, "down--->");
                 }
-
                 break;
 
             case KeyEvent.KEYCODE_DPAD_UP:   //向上键
                 Log.d(TAG, "up--->");
-
                 break;
-
             case KeyEvent.KEYCODE_0:   //数字键0
                 Log.d(TAG, "0--->");
-
                 break;
-
             case KeyEvent.KEYCODE_DPAD_LEFT: //向左键
-
                 Log.d(TAG, "left--->");
-
+                fastRetreat();
                 break;
-
             case KeyEvent.KEYCODE_DPAD_RIGHT:  //向右键
                 Log.d(TAG, "right--->");
+                fastForward();
                 break;
-
             case KeyEvent.KEYCODE_INFO:    //info键
                 Log.d(TAG, "info--->");
-
                 break;
 
             case KeyEvent.KEYCODE_PAGE_DOWN:     //向上翻页键
@@ -1411,6 +1413,61 @@ public class VideoTvActivity extends BaseActivity {
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    private void fastRetreat() {
+        mPlayerController.setDragging(true);
+        mPlayerController.getmHandler().removeMessages(PlayerController.MESSAGE_SHOW_PROGRESS);
+        if (mPlayerController.getmAutoControlPanelRunnable() != null) {
+            mPlayerController.getmAutoControlPanelRunnable().stop();
+        }
+
+
+        long duration = videoView.getDuration();
+        long newPosition = (long) ((duration * mPlayerController.getSeekBar().getProgress() * 1.0) / mPlayerController.getSeekBarMaxProgress());
+        //快进大概10秒
+        newPosition = (newPosition + (-income));
+        Log.d(TAG, "newPosition " + newPosition);
+        mPlayerController.setNewPosition(newPosition);
+        mPlayerController.setDragging(false);
+        // if (!isMaxTime && newPosition >= 0) {
+        mPlayerController.getmHandler().removeMessages(PlayerController.MESSAGE_SEEK_NEW_POSITION);
+        mPlayerController.getmHandler().sendEmptyMessage(PlayerController.MESSAGE_SEEK_NEW_POSITION);
+        // }
+        mPlayerController.getmHandler().sendEmptyMessageDelayed(PlayerController.MESSAGE_SHOW_PROGRESS, 1000);
+        if (mPlayerController.getmAutoControlPanelRunnable() != null) {
+            mPlayerController.getmAutoControlPanelRunnable().start(5000);
+        }
+
+
+    }
+
+
+    private void fastForward() {
+
+
+        mPlayerController.setDragging(true);
+        mPlayerController.getmHandler().removeMessages(PlayerController.MESSAGE_SHOW_PROGRESS);
+        if (mPlayerController.getmAutoControlPanelRunnable() != null) {
+            mPlayerController.getmAutoControlPanelRunnable().stop();
+        }
+
+
+        long duration = videoView.getDuration();
+        long newPosition = (long) ((duration * mPlayerController.getSeekBar().getProgress() * 1.0) / mPlayerController.getSeekBarMaxProgress());
+        //快进大概10秒
+        newPosition = (newPosition + income);
+        Log.d(TAG, "newPosition " + newPosition);
+        mPlayerController.setNewPosition(newPosition);
+        mPlayerController.setDragging(false);
+        // if (!isMaxTime && newPosition >= 0) {
+        mPlayerController.getmHandler().removeMessages(PlayerController.MESSAGE_SEEK_NEW_POSITION);
+        mPlayerController.getmHandler().sendEmptyMessage(PlayerController.MESSAGE_SEEK_NEW_POSITION);
+        // }
+        mPlayerController.getmHandler().sendEmptyMessageDelayed(PlayerController.MESSAGE_SHOW_PROGRESS, 1000);
+        if (mPlayerController.getmAutoControlPanelRunnable() != null) {
+            mPlayerController.getmAutoControlPanelRunnable().start(5000);
+        }
 
     }
 }

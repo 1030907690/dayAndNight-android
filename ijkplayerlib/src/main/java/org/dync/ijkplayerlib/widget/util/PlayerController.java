@@ -173,11 +173,11 @@ public class PlayerController {
     /**
      * 同步进度
      */
-    private static final int MESSAGE_SHOW_PROGRESS = 1;
+    public static final int MESSAGE_SHOW_PROGRESS = 1;
     /**
      * 设置新位置
      */
-    private static final int MESSAGE_SEEK_NEW_POSITION = 3;
+    public static final int MESSAGE_SEEK_NEW_POSITION = 3;
     /**
      * 隐藏提示的box
      */
@@ -199,6 +199,7 @@ public class PlayerController {
                 /**滑动完成，设置播放进度*/
                 case MESSAGE_SEEK_NEW_POSITION:
                     if (videoView != null && !isLive && newPosition >= 0) {
+                        Log.d(TAG,"newPosition "+ newPosition);
                         videoView.seekTo((int) newPosition);
                         newPosition = -1;
                     }
@@ -1433,10 +1434,11 @@ public class PlayerController {
         }
     }
 
+
     /**
      * ==========================================内部类=============================
      */
-    private class AutoControlPanelRunnable implements Runnable {
+    public class AutoControlPanelRunnable implements Runnable {
 
         public static final int AUTO_INTERVAL = 5000;
 
@@ -1559,5 +1561,46 @@ public class PlayerController {
             }
             return true;
         }
+    }
+
+    public Handler getmHandler() {
+        return mHandler;
+    }
+
+    public long getNewPosition() {
+        return newPosition;
+    }
+
+    public void setNewPosition(long newPosition) {
+        this.newPosition = newPosition;
+    }
+
+    public int getSeekBarMaxProgress() {
+        return seekBarMaxProgress;
+    }
+
+    public void setSeekBarMaxProgress(int seekBarMaxProgress) {
+        this.seekBarMaxProgress = seekBarMaxProgress;
+    }
+
+
+    public SeekBar getSeekBar() {
+        return videoController;
+    }
+
+    public boolean isDragging() {
+        return isDragging;
+    }
+
+    public void setDragging(boolean dragging) {
+        isDragging = dragging;
+    }
+
+    public AutoControlPanelRunnable getmAutoControlPanelRunnable() {
+        return mAutoControlPanelRunnable;
+    }
+
+    public void setmAutoControlPanelRunnable(AutoControlPanelRunnable mAutoControlPanelRunnable) {
+        this.mAutoControlPanelRunnable = mAutoControlPanelRunnable;
     }
 }

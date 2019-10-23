@@ -108,7 +108,7 @@ public class MainTvActivity extends AppCompatActivity {
             public void onFailure(Call call, IOException e) {
                 //e.printStackTrace();
                 GlobalConfig.reCount++;
-                if( GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length){
+                if( GlobalConfig.reCount < GlobalConfig.getInstance().getRemoteServer().length){
                     ToastUtil.showToast( context, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
                     checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
                 }else{
@@ -225,7 +225,7 @@ public class MainTvActivity extends AppCompatActivity {
 
 
     private void onListener() {
-        //searchEdit.setText("九州海上牧云记");
+        searchEdit.setText("九州海上牧云记");
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
