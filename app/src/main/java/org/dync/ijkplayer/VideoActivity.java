@@ -16,6 +16,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -201,6 +202,12 @@ public class VideoActivity extends BaseActivity {
     @BindView(R.id.app_video_box)
     RelativeLayout appVideoBox;
 
+    @BindView(R.id.video_title_name_tip_phone)
+    RelativeLayout titleNameTip;
+
+    @BindView(R.id.video_name_tip_phone)
+    TextView videoNameTipTv;
+
     private RecyclerView ijkplayerVideoNavigationInfoRecyclerView;
 
     private TabLayout tabLayoutTitle;
@@ -209,16 +216,49 @@ public class VideoActivity extends BaseActivity {
 
     private Map<String, List<Video>> videoGroupMap = new HashMap<String, List<Video>>();
 
-    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl) {
+
+    private String videoTitleName;
+
+
+    //上次按下返回键的系统时间
+    private long lastBackTime = 0;
+    //当前按下返回键的系统时间
+    private long currentBackTime = 0;
+
+
+
+    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl,String name) {
         Intent intent = new Intent(context, VideoActivity.class);
         intent.putExtra("videoPath", videoPath);
         intent.putExtra("videoTitle", videoTitle);
         intent.putExtra("videoUrl", videoUrl);
+        // 视频名称
+        intent.putExtra("name", name);
         return intent;
     }
 
-    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl) {
-        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl));
+    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl,String name) {
+        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl,name));
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //捕获返回键按下的事件
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            //获取当前系统时间的毫秒数
+            currentBackTime = System.currentTimeMillis();
+            //比较上次按下返回键和当前按下返回键的时间差，如果大于2秒，则提示再按一次退出
+            if(currentBackTime - lastBackTime > 2 * 1000){
+                ToastUtil.showToast(this, "再按一次返回键退出");
+                lastBackTime = currentBackTime;
+            }else{ //如果两次按下的时间差小于2秒，则退出程序
+                finish();
+                //System.exit(0);
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
 
@@ -234,10 +274,16 @@ public class VideoActivity extends BaseActivity {
         btnIjkPlayer.setVisibility(View.GONE);
         btnExoPlayer.setVisibility(View.GONE);
 
-        videoUrl = getIntent().getStringExtra("videoUrl");
+
+        Intent tempIntent = getIntent();
+        videoUrl = tempIntent.getStringExtra("videoUrl");
+
+
+        videoTitleName = tempIntent.getStringExtra("name");
 
         // handle arguments
-        mVideoPath = getIntent().getStringExtra("videoPath");
+        mVideoPath = tempIntent.getStringExtra("videoPath");
+
         mVideoCoverUrl = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3120404212,3339906847&fm=27&gp=0.jpg";
         mVideoCoverUrl = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2973320425,1464020144&fm=27&gp=0.jpg";
 
@@ -336,11 +382,16 @@ public class VideoActivity extends BaseActivity {
                 case 0:
                     initVideoControl();
                     initPlayer();
-                    initFragment(JSONArray.parseArray(msg.getData().getString("json"), VideoGroup.class));
+                    List<VideoGroup> videoGroupList = JSONArray.parseArray(msg.getData().getString("json"), VideoGroup.class);
+                    initFragment(videoGroupList);
                     initListener();
                     initVideoListener();
 //
                     StatusBarUtil.setColor(VideoActivity.this, getResources().getColor(R.color.colorPrimary));
+
+                    if(null != videoGroupList && videoGroupList.size() > 0 && null != videoGroupList.get(0).getVideoList() && videoGroupList.get(0).getVideoList().size() > 0){
+                        videoNameTipTv.setText(videoTitleName +" " + videoGroupList.get(0).getVideoList().get(0).getName());
+                    }
                     break;
             }
         }
@@ -441,8 +492,12 @@ public class VideoActivity extends BaseActivity {
                     public void operatorPanel(boolean isShowControlPanel) {
                         if (isShowControlPanel) {
                             llBottom.setVisibility(View.VISIBLE);
+                            // 新增 2019年10月23日09:28:41
+                            titleNameTip.setVisibility(View.VISIBLE);
                         } else {
                             llBottom.setVisibility(View.GONE);
+                            // 新增 2019年10月23日09:28:41
+                            titleNameTip.setVisibility(View.GONE);
                         }
                     }
                 })
@@ -584,6 +639,8 @@ public class VideoActivity extends BaseActivity {
                     mVideoPath = videoItemBtn.getTag().toString();
                     Log.d(TAG, "OnItemClick: mVideoPath: " + mVideoPath);
                     if (mVideoPath != null) {
+                        // 集数
+                        videoNameTipTv.setText(videoTitleName + " " + videoItemBtn.getText().toString());
                         showVideoLoading();
                         videoView.setVideoPath(mVideoPath);
                         videoView.start();
@@ -633,6 +690,8 @@ public class VideoActivity extends BaseActivity {
                             mVideoPath = videoItemBtn.getTag().toString();
                             Log.d(TAG, "OnItemClick: mVideoPath: " + mVideoPath);
                             if (mVideoPath != null) {
+                                // 集数
+                                videoNameTipTv.setText(videoTitleName + " " + videoItemBtn.getText().toString());
                                 showVideoLoading();
                                 videoView.setVideoPath(mVideoPath);
                                 videoView.start();

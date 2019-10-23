@@ -167,6 +167,26 @@
 
         </RelativeLayout>
 
+        <!--视频名称-->
+        <RelativeLayout
+            android:id="@+id/video_title_name_tip_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:visibility="gone"
+            >
+
+            <TextView
+                android:id="@+id/video_name_tip_phone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="九州"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+
+        </RelativeLayout>
+
+
         <!--底部栏-->
         <LinearLayout
             android:id="@+id/ll_bottom"

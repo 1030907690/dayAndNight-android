@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
 //                String videoPath = "http://baobab.wdjcdn.com/1457423930928CGI.mp4";
                 //String videoPath = "https://youku.rebo5566.com/20190716/F66s4OVm/index.m3u8";
                 String videoPath = "https://meigui.qqqq-kuyun.com/20190627/9918_47cdf731/index.m3u8";
-                VideoActivity.intentTo(mContext, videoPath, "测试","http://www.kukuzy.com/index.php/vod/detail/id/430.html");
+                VideoActivity.intentTo(mContext, videoPath, "测试","http://www.kukuzy.com/index.php/vod/detail/id/430.html","视频名称");
                 break;
             case R.id.btn_exoPlayer:
                 startActivity(new Intent(mContext, ExoActivity.class));

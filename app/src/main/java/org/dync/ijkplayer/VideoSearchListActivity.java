@@ -83,6 +83,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
                             }
                             data.putString("videoPath", videoPath);
                             data.putString("url", mDatas.get(position).getUrl());
+                            data.putString("name", mDatas.get(position).getName());
                             msg.setData(data);
                             searchVideoHandler.sendMessage(msg);
                         } catch (Exception e) {
@@ -152,7 +153,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
 
                 case 1:
                     Bundle data = msg.getData();
-                    VideoActivity.intentTo(context, data.getString("videoPath"), "测试", data.getString("url"));
+                    VideoActivity.intentTo(context, data.getString("videoPath"), "测试", data.getString("url"),data.getString("name"));
                     break;
                 default:
                     break;

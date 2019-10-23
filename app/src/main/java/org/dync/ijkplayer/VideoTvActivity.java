@@ -200,6 +200,9 @@ public class VideoTvActivity extends BaseActivity {
     @BindView(R.id.video_title_name_tip_tv)
     RelativeLayout titleNameTip;
 
+    @BindView(R.id.video_name_tip_tv)
+    TextView videoNameTipTv;
+
     private RecyclerView ijkplayerVideoNavigationInfoRecyclerView;
 
     private TabLayout tabLayoutTitle;
@@ -334,8 +337,7 @@ public class VideoTvActivity extends BaseActivity {
 
     }
 
-    @BindView(R.id.video_name_tip_tv)
-    TextView videoNameTipTv;
+
     private Handler videoHandle = new Handler() {
         @Override
         public void handleMessage(Message msg) {
