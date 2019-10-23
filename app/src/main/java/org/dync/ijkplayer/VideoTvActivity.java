@@ -198,7 +198,7 @@ public class VideoTvActivity extends BaseActivity {
     RelativeLayout appVideoBox;
 
     @BindView(R.id.video_title_name_tip_tv)
-    private RelativeLayout titleNameTip;
+    RelativeLayout titleNameTip;
 
     private RecyclerView ijkplayerVideoNavigationInfoRecyclerView;
 
@@ -335,7 +335,7 @@ public class VideoTvActivity extends BaseActivity {
     }
 
     @BindView(R.id.video_name_tip_tv)
-    private TextView videoNameTipTv;
+    TextView videoNameTipTv;
     private Handler videoHandle = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -457,8 +457,12 @@ public class VideoTvActivity extends BaseActivity {
                     public void operatorPanel(boolean isShowControlPanel) {
                         if (isShowControlPanel) {
                             llBottom.setVisibility(View.VISIBLE);
+                            // 新增  2019年10月23日09:16:13
+                            titleNameTip.setVisibility(View.VISIBLE);
                         } else {
                             llBottom.setVisibility(View.GONE);
+                            // 新增  2019年10月23日09:16:13
+                            titleNameTip.setVisibility(View.GONE);
                         }
                     }
                 })
