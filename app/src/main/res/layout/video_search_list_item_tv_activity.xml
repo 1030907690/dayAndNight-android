@@ -10,10 +10,21 @@
         android:gravity="left" />
 
     <TextView
-        android:id="@+id/video_list_item_tv"
+        android:id="@+id/video_list_item"
         android:layout_width="match_parent"
         android:layout_marginLeft="200dp"
-        android:layout_height="200dp"
+        android:layout_height="30dp"
+        android:gravity="left"
+        android:text="1"
+        />
+
+
+    <TextView
+        android:id="@+id/video_list_item_performer"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="200dp"
         android:gravity="left"
         android:text="" />
 

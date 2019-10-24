@@ -144,7 +144,8 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
                         //System.out.println(imageSrc);
                     }
                 }
-
+               Map<String,String> result = videoDetailInfo(document.body());
+                videoSearch.setPerformer(result.get("leadPerformer"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -236,7 +237,8 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
         List<VideoGroup> videoGroupList = new ArrayList<>();
         try {
             String $str = "$";
-            Connection connect = Jsoup.connect(url);//获取连接对象
+            Connection connect = Jsoup.connect(url).userAgent("Mozilla");
+            ;//获取连接对象
             Document document = connect.get();//获取url页面的内容并解析成document对象
 
             Element body = document.body();
@@ -284,6 +286,9 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
                 }
 
             }
+
+            Map<String, String> result = videoDetailInfo(body);
+            videoDetail.setPerformer(result.get("leadPerformer"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -292,12 +297,57 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
         return videoDetail;
     }
 
+    /***
+     * 获取视频详情
+     * */
+    public Map<String, String> videoDetailInfo(Element body) {
+
+
+        Map<String, String> result = new HashMap<>();
+        //解析主演等等
+        Elements videoDetailInfo = body.getElementsByClass("stui-content__detail");
+
+        try {
+            //主演
+            Elements leadPerformer = videoDetailInfo.get(0).getElementsByClass("data");
+            String leadPerformerText = leadPerformer.get(2).text();
+            result.put("leadPerformer",leadPerformerText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+
+        }
+
+
+        try {
+            //图片
+            String imageUrl = body.getElementsByClass("img-responsive").attr("src");
+
+            //名称
+            String videoName = body.select("h1[class=\"title\"]").text();
+            videoName = videoName.replace(body.select("h1[class=\"title\"]").select("small[class=\"text-red\"]").text(), "");
+
+            // 剧情
+            String plot = body.getElementsByClass("stui-content__desc col-pd clearfix").text();
+            result.put("plot",plot);
+            result.put("videoName",videoName);
+            result.put("imageUrl",imageUrl);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+
     public static void main(String[] args) {
         KuKuZYDataSourceHandle handle = new KuKuZYDataSourceHandle();
-        handle.search("海上", 1);
-        VideoSearch videoSearch = new VideoSearch();
+       /* handle.search("海上", 1);
+        VideoSearch videoSearch = new VideoSearch();*/
         // videoSearch.setUrl("http://www.kukuzy.com/index.php/vod/detail/id/39261.html");
         //handle.videoDescribe(videoSearch);
+
+        handle.videoDetailInfo(null);
+
 
     }
 }

@@ -129,7 +129,7 @@ public class RecyclerSearchTvAdapter extends RecyclerView.Adapter<RecyclerSearch
         //执行下载操作
         DownLoadTask task = new DownLoadTask(holder.iv);
         task.execute(videoSearch.getPhoto());
-
+        holder.tvPerformer.setText(videoSearch.getPerformer());
         holder.infoBtn.setTag(videoSearch.getUrl());
         // item click
         if (mOnItemClickListener != null) {
@@ -182,13 +182,19 @@ public class RecyclerSearchTvAdapter extends RecyclerView.Adapter<RecyclerSearch
         ImageView iv;
         TextView tvUrl;
         Button infoBtn;
+        TextView tvPerformer;
 
         public MyViewHolder(View view) {
             super(view);
-            tv = view.findViewById(R.id.video_list_item_tv);
+            tv = view.findViewById(R.id.video_list_item);
             iv = view.findViewById(R.id.video_list_image_item_tv);
             tvUrl = view.findViewById(R.id.video_list_item_url);
             infoBtn = view.findViewById(R.id.video_list_item_info_btn_tv);
+            tvPerformer = view.findViewById(R.id.video_list_item_performer);
         }
+
     }
+
+
+
 }

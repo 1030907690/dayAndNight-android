@@ -9,6 +9,16 @@ public class VideoSearch implements Serializable {
     private String photo;
 
     private String url;
+    /** 演员**/
+    private String performer;
+
+    public String getPerformer() {
+        return performer;
+    }
+
+    public void setPerformer(String performer) {
+        this.performer = performer;
+    }
 
     public String getUrl() {
         return url;

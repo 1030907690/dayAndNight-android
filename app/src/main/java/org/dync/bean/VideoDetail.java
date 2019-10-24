@@ -16,6 +16,17 @@ public class VideoDetail implements Serializable {
 
     private String plot;
 
+
+    private String performer;
+
+    public String getPerformer() {
+        return performer;
+    }
+
+    public void setPerformer(String performer) {
+        this.performer = performer;
+    }
+
     public String getPlot() {
         return plot;
     }
