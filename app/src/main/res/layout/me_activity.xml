@@ -57,5 +57,11 @@
             android:src="@drawable/geq" />
     </LinearLayout>
 
+    <View
+        android:id="@+id/my_other_darker"
+        android:layout_below="@+id/watch_history_lin"
+        android:layout_width="fill_parent"
+        android:layout_height="2px"
+        android:background="@android:color/darker_gray"  />
 
 </RelativeLayout>
