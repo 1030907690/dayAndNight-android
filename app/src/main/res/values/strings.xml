@@ -20,4 +20,6 @@
     <string name="update_but_str">立即升级</string>
     <string name="tips_search">请输入关键字</string>
     <string name="tips_search_no_data">抱歉没有数据!</string>
+    <string name="my_download_str">我的下载</string>
+    <string name="watch_history_str">观看历史</string>
 </resources>

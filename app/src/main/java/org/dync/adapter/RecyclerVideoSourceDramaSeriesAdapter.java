@@ -46,14 +46,27 @@ public class RecyclerVideoSourceDramaSeriesAdapter extends RecyclerView.Adapter<
         holder.tv.setText(video.getUrl());
         holder.tv.setVisibility(View.GONE);
 
-        holder.btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mOnItemClickListener.onItemClick(view, position);
-            }
-        });
+
         // item click
         if (mOnItemClickListener != null) {
+
+
+            holder.btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mOnItemClickListener.onItemClick(view, position);
+                }
+            });
+
+            holder.btn.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    mOnItemClickListener.onItemLongClick(view, position);
+                    return true;
+                }
+            });
+
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

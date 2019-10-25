@@ -9,8 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import org.dync.ijkplayer.R;
+import org.w3c.dom.Text;
 
 
 /*
@@ -23,9 +25,9 @@ public class MeFragment extends Fragment {
 
     private final String TAG = "MeFragment";
 
-    private EditText searchEditText;
+    private TextView downloadView;
 
-    private Button btnSearch;
+    private TextView watchHistoryView;
 
     public static MeFragment newInstance(String name) {
         Bundle args = new Bundle();
@@ -39,7 +41,7 @@ public class MeFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.video_search, container, false);
+        View view = inflater.inflate(R.layout.me_activity, container, false);
         return view;
     }
 
@@ -53,6 +55,8 @@ public class MeFragment extends Fragment {
             String name = bundle.get("name").toString();
         }
 
+        downloadView = view.findViewById(R.id.my_download);
+        watchHistoryView = view.findViewById(R.id.my_watch_history);
 
 
     }

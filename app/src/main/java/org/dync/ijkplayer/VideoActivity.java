@@ -648,7 +648,8 @@ public class VideoActivity extends BaseActivity {
 
             @Override
             public void onItemLongClick(View view, int position) {
-                ToastUtil.showToast(VideoActivity.this, "--");
+                Button videoItemBtn = (Button) view;
+                ToastUtil.showToast(VideoActivity.this, "长按 " + videoItemBtn.getTag().toString());
             }
         });
 
@@ -699,7 +700,8 @@ public class VideoActivity extends BaseActivity {
 
                     @Override
                     public void onItemLongClick(View view, int position) {
-                        ToastUtil.showToast(VideoActivity.this, "1");
+                        Button videoItemBtn = (Button) view;
+                        ToastUtil.showToast(VideoActivity.this, "长按 " + videoItemBtn.getTag().toString());
                     }
                 });
 

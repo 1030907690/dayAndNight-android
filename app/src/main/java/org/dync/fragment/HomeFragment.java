@@ -78,6 +78,7 @@ public class HomeFragment extends Fragment {
 
         // 隐藏
         btnExoPlayer.setVisibility(View.GONE);
+        btnSetting.setVisibility(View.GONE);
         btnSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

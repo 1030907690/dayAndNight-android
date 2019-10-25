@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+  <!--我的界面-->
+
+
+    <LinearLayout
+        android:id="@+id/my_download_lin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/my_download"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="@string/my_download_str"
+        android:textSize="30dp"
+        android:layout_weight="1"
+        />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/geq" />
+   </LinearLayout>
+
+    <View
+        android:id="@+id/my_download_darker"
+        android:layout_below="@+id/my_download_lin"
+        android:layout_width="fill_parent"
+        android:layout_height="2px"
+        android:background="@android:color/darker_gray"  />
+    <!--观看历史-->
+    <LinearLayout
+        android:layout_below="@+id/my_download_darker"
+        android:id="@+id/watch_history_lin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/my_watch_history"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="@string/watch_history_str"
+            android:textSize="30dp"
+            android:layout_weight="1"
+            />
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/geq" />
+    </LinearLayout>
+
+
+</RelativeLayout>
