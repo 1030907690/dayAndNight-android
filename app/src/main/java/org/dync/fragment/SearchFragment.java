@@ -73,7 +73,7 @@ public class SearchFragment extends Fragment {
             public void onClick(View view) {
                 Editable editable = searchEditText.getText();
                 if (null != editable && null != editable.toString() && !"".equals(editable.toString())) {
-                    if(editable.toString().startsWith("http://") || editable.toString().startsWith("https://")){
+                    if(editable.toString().startsWith("http://") || editable.toString().startsWith("https://") || editable.toString().endsWith(".m3u8") || editable.toString().startsWith("rmpt://") || editable.toString().endsWith(".fly") ){
                         VideoActivity.intentTo(getActivity(), editable.toString(), "测试","");
                     }else{
                         VideoSearchListActivity.intentTo(getActivity(), editable.toString());

@@ -231,7 +231,7 @@ public class MainTvActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Editable editable = searchEdit.getText();
                 if (null != editable && null != editable.toString() && !"".equals(editable.toString())) {
-                    if (editable.toString().startsWith("http://") || editable.toString().startsWith("https://")) {
+                    if(editable.toString().startsWith("http://") || editable.toString().startsWith("https://") || editable.toString().endsWith(".m3u8") || editable.toString().startsWith("rmpt://") || editable.toString().endsWith(".fly") ){
                         //ToastUtil.showToast(content, "协议暂不支持!");
                         VideoTvActivity.intentTo(content, editable.toString(), "测试", "","");
                     } else {
