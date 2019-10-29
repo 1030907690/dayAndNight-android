@@ -285,7 +285,8 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                     VersionUpdate versionUpdate = JSONObject.parseObject(msg.getData().getString("json"), VersionUpdate.class);
                     GlobalConfig.getInstance().setVersionUpdate(versionUpdate);
                     //设置数据源
-                    GlobalConfig.getInstance().setOptionDataSourceStrategy(0);
+                    int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt("data_source_option",0);
+                    GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
                     comparison();
                 default:
                     break;

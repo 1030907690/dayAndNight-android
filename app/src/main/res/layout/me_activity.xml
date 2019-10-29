@@ -58,7 +58,7 @@
     </LinearLayout>
 
     <View
-        android:id="@+id/my_other_darker"
+        android:id="@+id/watch_history_darker"
         android:layout_below="@+id/watch_history_lin"
         android:layout_width="fill_parent"
         android:layout_height="2px"
@@ -68,7 +68,7 @@
 
     <!--选择数据源-->
     <LinearLayout
-        android:layout_below="@+id/my_other_darker"
+        android:layout_below="@+id/watch_history_darker"
         android:id="@+id/option_data_source_lin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -78,15 +78,23 @@
             android:id="@+id/option_data_source"
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:text="@string/watch_history_str"
+            android:text="@string/option_data_source_str"
             android:textSize="30dp"
             android:layout_weight="1"
             />
 
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/geq" />
+        <Spinner
+            android:id="@+id/data_source_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
+
+    <View
+        android:id="@+id/option_data_source_darker"
+        android:layout_below="@+id/option_data_source_lin"
+        android:layout_width="fill_parent"
+        android:layout_height="2px"
+        android:background="@android:color/darker_gray"  />
+
 
 </RelativeLayout>

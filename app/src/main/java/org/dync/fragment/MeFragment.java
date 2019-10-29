@@ -1,6 +1,7 @@
 package org.dync.fragment;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 
@@ -58,6 +62,8 @@ public class MeFragment extends Fragment {
 
     private TextView watchHistoryView;
 
+    private Spinner spinner;
+
     public static MeFragment newInstance(String name) {
         Bundle args = new Bundle();
         args.putString("name", name);
@@ -86,6 +92,8 @@ public class MeFragment extends Fragment {
 
         downloadView = view.findViewById(R.id.my_download);
         watchHistoryView = view.findViewById(R.id.my_watch_history);
+
+        spinner = view.findViewById(R.id.data_source_spinner);
 
         downloadView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,6 +135,41 @@ public class MeFragment extends Fragment {
                 ToastUtil.showToast(getActivity(), "功能正在开发中...");
             }
         });
+
+
+        if (null != GlobalConfig.getInstance().getVersionUpdate()) {
+            //方法二,使用数组
+            String[] seq = new String[GlobalConfig.getInstance().getVersionUpdate().getDataSource().size()];
+            for (int i = 0; i < GlobalConfig.getInstance().getVersionUpdate().getDataSource().size(); i++) {
+                seq[i] = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(i).getKey();
+            }
+            SharedPreferences sharedPreferences = GlobalConfig.getInstance().getSharedPreferences();
+            int dataSourceOption = sharedPreferences.getInt("data_source_option", 0);
+
+            ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(getActivity(), android.R.layout.simple_spinner_item, seq);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(adapter);
+            spinner.setSelection(dataSourceOption);
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putInt("data_source_option", position);
+                    editor.commit();
+
+                    //设置数据源
+                    int dataSourceOption = sharedPreferences.getInt("data_source_option",0);
+                    GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
+                   // ToastUtil.showToast(getActivity(), "Spinner1: position=" + position + " id=" + id);
+                    //选择后
+                }
+
+                public void onNothingSelected(AdapterView<?> arg0) {
+                    //ToastUtil.showToast(getActivity(), "没有选择");
+                    //没有选择
+                }
+            });
+
+        }
     }
 
     public static void main(String[] args) {
@@ -247,17 +290,17 @@ public class MeFragment extends Fragment {
                                         fullUrl = "https://" + tempUrl.substring(0, index + 1) + tempLineTxt;
                                     }
 
-                                    sBuiler.append("file:/"+basicPath + "/" + tempLineTxt+"\n");
+                                    sBuiler.append("file:/" + basicPath + "/" + tempLineTxt + "\n");
                                     System.out.println(TAG + "fullUrl " + fullUrl);
                                     downloadFile(fullUrl, nextFile.getPath(), basicPath);
                                 }
-                            }else{
+                            } else {
                                 //原样输出
-                                sBuiler.append(lineTxt+"\n");
+                                sBuiler.append(lineTxt + "\n");
                             }
                         }
 
-                        writeText(file.getPath(),sBuiler.toString());
+                        writeText(file.getPath(), sBuiler.toString());
                         bufferedReader.close();
                         read.close();
                     } else {
