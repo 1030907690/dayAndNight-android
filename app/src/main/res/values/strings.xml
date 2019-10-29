@@ -23,4 +23,5 @@
     <string name="my_download_str">我的下载</string>
     <string name="watch_history_str">观看历史</string>
     <string name="check_update_str">检查更新</string>
+    <string name="option_data_source_str">切换数据源</string>
 </resources>

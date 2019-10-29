@@ -28,7 +28,7 @@ public class GlobalConfig {
     /** 默认选择第一个视频源**/
     private int DEFAULT_DATA_SOURCE_INDEX = 0;
 
-    public final String remoteServer [] = {INIT_URL,BACKUP_INIT_URL};
+    public final String remoteServer [] = {BACKUP_INIT_URL,BACKUP_INIT_URL};
 
     /** 重试次数**/
     public static volatile int reCount = 0;
