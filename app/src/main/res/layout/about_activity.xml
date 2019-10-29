@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+  <!--关于界面-->
+
+
+    <LinearLayout
+        android:id="@+id/check_update_lin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/check_update"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="@string/check_update_str"
+        android:textSize="30dp"
+        android:layout_weight="1"
+        />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/geq" />
+   </LinearLayout>
+
+    <View
+        android:id="@+id/check_update_darker"
+        android:layout_below="@+id/check_update_lin"
+        android:layout_width="fill_parent"
+        android:layout_height="2px"
+        android:background="@android:color/darker_gray"  />
+
+
+</RelativeLayout>

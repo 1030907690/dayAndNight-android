@@ -95,7 +95,7 @@ public class MeFragment extends Fragment {
                 /**
                  * 动态获取权限，Android 6.0 新特性，一些保护权限，除了要在AndroidManifest中声明权限，还要使用如下代码动态获取
                  */
-                if (Build.VERSION.SDK_INT >= 23) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     final int REQUEST_EXTERNAL_STORAGE = 1;
                     String[] PERMISSIONS_STORAGE = {
                             Manifest.permission.READ_EXTERNAL_STORAGE,
