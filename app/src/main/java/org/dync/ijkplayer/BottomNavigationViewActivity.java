@@ -2,6 +2,7 @@ package org.dync.ijkplayer;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -161,6 +162,8 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                 case 0:
                     VersionUpdate versionUpdate = JSONObject.parseObject(msg.getData().getString("json"), VersionUpdate.class);
                     GlobalConfig.getInstance().setVersionUpdate(versionUpdate);
+                    //设置数据源
+                    GlobalConfig.getInstance().setOptionDataSourceStrategy(0);
                     comparison();
                 default:
                     break;
@@ -265,6 +268,5 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
             return false;
         }
     };
-
 
 }

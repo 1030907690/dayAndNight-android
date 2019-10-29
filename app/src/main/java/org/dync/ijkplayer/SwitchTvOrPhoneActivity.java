@@ -85,6 +85,7 @@ public class SwitchTvOrPhoneActivity extends AppCompatActivity {
     private void initView() {
 
         sharedPreferences = getSharedPreferences("data", Context.MODE_PRIVATE);
+        GlobalConfig.getInstance().setSharedPreferences(sharedPreferences);
         tvBtn = findViewById(R.id.selected_tv);
         phoneBtn = findViewById(R.id.selected_phone);
     }

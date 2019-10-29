@@ -1,6 +1,8 @@
 package org.dync.utils;
 
 
+import android.content.SharedPreferences;
+
 import org.dync.bean.VersionUpdate;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 
@@ -37,6 +39,11 @@ public class GlobalConfig {
 
     private IDataSourceStrategy dataSourceStrategy;
 
+
+    private SharedPreferences sharedPreferences;
+
+
+
     private ExecutorService executorService;
     public static GlobalConfig getInstance() {
         if (null == globalConfig) {
@@ -61,9 +68,17 @@ public class GlobalConfig {
 
     public void setVersionUpdate(VersionUpdate versionUpdate) {
         this.versionUpdate = versionUpdate;
+        setOptionDataSourceStrategy(DEFAULT_DATA_SOURCE_INDEX);
+    }
+
+
+    /***
+     * 选择DataSourceStrategy策略  默认为0
+     * */
+   public void setOptionDataSourceStrategy(int option){
         //设置DataSourceStrategy
         try {
-            String implName = versionUpdate.getDataSource().get(DEFAULT_DATA_SOURCE_INDEX).getKey() + "DataSourceHandle";
+            String implName = versionUpdate.getDataSource().get(option).getKey() + "DataSourceHandle";
             this.dataSourceStrategy = (IDataSourceStrategy) Class.forName("org.dync.datasourcestrategy.strategy." + implName).newInstance();
         }catch (Exception e){
             e.printStackTrace();
@@ -85,5 +100,13 @@ public class GlobalConfig {
 
     public void setDataSourceStrategy(IDataSourceStrategy dataSourceStrategy) {
         this.dataSourceStrategy = dataSourceStrategy;
+    }
+
+    public SharedPreferences getSharedPreferences() {
+        return sharedPreferences;
+    }
+
+    public void setSharedPreferences(SharedPreferences sharedPreferences) {
+        this.sharedPreferences = sharedPreferences;
     }
 }
