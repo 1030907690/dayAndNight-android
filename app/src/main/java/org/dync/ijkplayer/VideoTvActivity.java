@@ -60,6 +60,7 @@ import org.dync.subtitleconverter.subtitleFile.TimedTextFileFormat;
 import org.dync.subtitleconverter.subtitleFile.TimedTextObject;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
+import org.dync.utils.VideoType;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -224,17 +225,18 @@ public class VideoTvActivity extends BaseActivity {
     /** 快进快退秒数 大概是30秒**/
     private int income = 34748;
 
-    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl, String name) {
+    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl, String name,int videoTypeCode) {
         Intent intent = new Intent(context, VideoTvActivity.class);
         intent.putExtra("videoPath", videoPath);
         intent.putExtra("videoTitle", videoTitle);
         intent.putExtra("videoUrl", videoUrl);
         intent.putExtra("name", name);
+        intent.putExtra("videoTypeCode", videoTypeCode);
         return intent;
     }
 
     public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl, String name) {
-        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl, name));
+        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl, name, VideoType.SEARCH.getCode()));
     }
 
 

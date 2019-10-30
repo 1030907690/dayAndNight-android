@@ -8,16 +8,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import com.alibaba.fastjson.JSONObject;
 
+import org.dync.adapter.RecyclerHomeRecommendTvAdapter;
+import org.dync.adapter.RecyclerVideoSourceDramaSeriesAdapter;
 import org.dync.bean.VersionUpdate;
+import org.dync.bean.VideoGroup;
+import org.dync.bean.VideoSearch;
 import org.dync.dialog.UpdataDialog;
 import org.dync.ijkplayerlib.widget.util.Settings;
 import org.dync.utils.BaseUtils;
@@ -25,6 +32,8 @@ import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -51,24 +60,31 @@ public class MainTvActivity extends AppCompatActivity {
 
     private final Activity context = this;
 
+    /**
+     * 首页推荐
+     **/
+    private RecyclerView recommendRecyclerView;
 
+
+    private RecyclerHomeRecommendTvAdapter recyclerHomeRecommendTvAdapter;
 
     //上次按下返回键的系统时间
     private long lastBackTime = 0;
     //当前按下返回键的系统时间
     private long currentBackTime = 0;
 
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //捕获返回键按下的事件
-        if(keyCode == KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             //获取当前系统时间的毫秒数
             currentBackTime = System.currentTimeMillis();
             //比较上次按下返回键和当前按下返回键的时间差，如果大于2秒，则提示再按一次退出
-            if(currentBackTime - lastBackTime > 2 * 1000){
+            if (currentBackTime - lastBackTime > 2 * 1000) {
                 ToastUtil.showToast(this, "再按一次返回键退出");
                 lastBackTime = currentBackTime;
-            }else{ //如果两次按下的时间差小于2秒，则退出程序
+            } else { //如果两次按下的时间差小于2秒，则退出程序
                 finish();
                 System.exit(0);
             }
@@ -84,18 +100,40 @@ public class MainTvActivity extends AppCompatActivity {
 
         initView();
         onListener();
-        if(null == GlobalConfig.getInstance().getVersionUpdate()){
+        if (null == GlobalConfig.getInstance().getVersionUpdate()) {
             checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
         }
+
+
     }
 
 
+    /**
+     * 加载推荐内容
+     **/
+    private void loadingRecommend() {
+
+        if (null != GlobalConfig.getInstance().getVersionUpdate()) {
+            GlobalConfig.getInstance().executorService().execute(new Runnable() {
+                @Override
+                public void run() {
+                    List<VideoSearch> videoSearchList = GlobalConfig.getInstance().getDataSourceStrategy().homeRecommend();
+                    Message msg = mainActivityHandle.obtainMessage();
+                    msg.what = 1;
+                    msg.obj = videoSearchList;
+                    mainActivityHandle.sendMessage(msg);
+                }
+            });
+        } else {
+            ToastUtil.showToast(content, "连接服务器失败,请稍后再试!");
+        }
+
+    }
+
 
     /**
-     *
      * @param initUrl 初始化配置地址
-
-     * **/
+     **/
     public void checkVersionGet(String initUrl) {
         OkHttpClient client = new OkHttpClient();
         //构造Request对象
@@ -108,10 +146,10 @@ public class MainTvActivity extends AppCompatActivity {
             public void onFailure(Call call, IOException e) {
                 //e.printStackTrace();
                 GlobalConfig.reCount++;
-                if( GlobalConfig.reCount < GlobalConfig.getInstance().getRemoteServer().length){
-                    ToastUtil.showToast( context, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
+                if (GlobalConfig.reCount < GlobalConfig.getInstance().getRemoteServer().length) {
+                    ToastUtil.showToast(context, "获取服务信息失败!正在重试第" + GlobalConfig.reCount + "次");
                     checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
-                }else{
+                } else {
                     ToastUtil.showToast(context, "获取服务信息失败!");
                 }
 
@@ -125,7 +163,7 @@ public class MainTvActivity extends AppCompatActivity {
                     public void run() {
                         // VersionUpdate versionUpdate = JSONObject.parseObject(responseStr, VersionUpdate.class);
 
-                        try{
+                        try {
                             JSONObject.parseObject(responseStr, VersionUpdate.class);
                             Message msg = new Message();
                             Bundle data = new Bundle();
@@ -133,17 +171,16 @@ public class MainTvActivity extends AppCompatActivity {
                             msg.setData(data);
                             msg.what = 0;
                             mainActivityHandle.sendMessage(msg);
-                        }catch (Exception e){
-                            Log.d("main exception",e.getMessage());
+                        } catch (Exception e) {
+                            Log.d("main exception", e.getMessage());
                             GlobalConfig.reCount++;
-                            if( GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length){
-                                ToastUtil.showToast( context, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
+                            if (GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length) {
+                                ToastUtil.showToast(context, "获取服务信息失败!正在重试第" + GlobalConfig.reCount + "次");
                                 checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
-                            }else{
+                            } else {
                                 ToastUtil.showToast(context, "获取服务信息失败!");
                             }
                         }
-
 
 
                         // initTextView.setText("当前版本 :" + currentVersion);
@@ -155,7 +192,6 @@ public class MainTvActivity extends AppCompatActivity {
     }
 
 
-
     /***
      * 去下载
      * */
@@ -165,7 +201,7 @@ public class MainTvActivity extends AppCompatActivity {
         Uri content_url = Uri.parse(url);
         intent.setData(content_url);
         startActivity(intent);*/
-        ToastUtil.showToast(content,"TV版请手动更新!");
+        ToastUtil.showToast(content, "TV版请手动更新!");
     }
 
 
@@ -177,6 +213,44 @@ public class MainTvActivity extends AppCompatActivity {
                     VersionUpdate versionUpdate = JSONObject.parseObject(msg.getData().getString("json"), VersionUpdate.class);
                     GlobalConfig.getInstance().setVersionUpdate(versionUpdate);
                     comparison();
+
+
+                    /**
+                     * 加载推荐内容
+                     * **/
+                    loadingRecommend();
+                case 1:
+                    List<VideoSearch> videoSearchList = (List<VideoSearch>) msg.obj;
+                    if (null == videoSearchList){
+                        videoSearchList = new ArrayList<>();
+                    }
+
+                    //纵向线性布局
+                    GridLayoutManager layoutManagerInfo = new GridLayoutManager(content, 4);
+                    recommendRecyclerView.setLayoutManager(layoutManagerInfo);
+                    recyclerHomeRecommendTvAdapter = new RecyclerHomeRecommendTvAdapter(content, videoSearchList);
+                    recommendRecyclerView.setAdapter(recyclerHomeRecommendTvAdapter);
+
+
+                    recyclerHomeRecommendTvAdapter.setOnItemClickListener(new RecyclerHomeRecommendTvAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, int position) {
+                            if (view instanceof ImageButton) {
+                                ImageButton videoItemBtn = (ImageButton) view;
+                                //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
+                                Intent intent = new Intent(context, VideoDetailTvActivity.class);
+                                intent.putExtra("url", videoItemBtn.getTag().toString());
+                                startActivity(intent);
+                            }
+                        }
+
+                        @Override
+                        public void onItemLongClick(View view, int position) {
+
+                        }
+                    });
+
+                    break;
                 default:
                     break;
             }
@@ -192,7 +266,7 @@ public class MainTvActivity extends AppCompatActivity {
         //String version = sharedPreferences.getString("version", "1.0.0");
         String version = BaseUtils.getAppVersionName(context);
         if (0 != version.compareTo(currentVersion)) {
-            ToastUtil.showToast( context, "需要更新");
+            ToastUtil.showToast(context, "需要更新");
             updataDialog.show();
 
             updataDialog.setOnCenterItemClickListener(new UpdataDialog.OnCenterItemClickListener() {
@@ -221,6 +295,8 @@ public class MainTvActivity extends AppCompatActivity {
         //设置默认的播放器
         final Settings settings = new Settings(context);
         settings.setPlayer(Settings.PV_PLAYER__IjkExoMediaPlayer);
+
+        recommendRecyclerView = findViewById(R.id.home_lately_recommend_view);
     }
 
 
@@ -231,12 +307,12 @@ public class MainTvActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Editable editable = searchEdit.getText();
                 if (null != editable && null != editable.toString() && !"".equals(editable.toString())) {
-                    if(editable.toString().startsWith("http://") || editable.toString().startsWith("https://") || editable.toString().endsWith(".m3u8") || editable.toString().startsWith("rmpt://") || editable.toString().endsWith(".fly") ){
+                    if (editable.toString().startsWith("http://") || editable.toString().startsWith("https://") || editable.toString().endsWith(".m3u8") || editable.toString().startsWith("rmpt://") || editable.toString().endsWith(".fly")) {
                         //ToastUtil.showToast(content, "协议暂不支持!");
-                        VideoTvActivity.intentTo(content, editable.toString(), "测试", "","");
+                        VideoTvActivity.intentTo(content, editable.toString(), "测试", "", "");
                     } else {
-                        Intent intent = new Intent(context,VideoSearchListTvActivity.class);
-                        intent.putExtra("key",editable.toString());
+                        Intent intent = new Intent(context, VideoSearchListTvActivity.class);
+                        intent.putExtra("key", editable.toString());
                         startActivity(intent);
                     }
                 } else {

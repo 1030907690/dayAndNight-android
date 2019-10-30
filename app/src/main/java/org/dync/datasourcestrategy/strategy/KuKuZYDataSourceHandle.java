@@ -339,6 +339,41 @@ public class KuKuZYDataSourceHandle implements IDataSourceStrategy {
     }
 
 
+    @Override
+    public List<VideoSearch> homeRecommend() {
+        List<VideoSearch> videoSearchList = new ArrayList<>();
+        try {
+            Connection connect = Jsoup.connect(this.domain).userAgent("Mozilla");
+            ;//获取连接对象
+            Document document = connect.get();//获取url页面的内容并解析成document对象
+            Element body = document.body();
+            Elements ulElements = body.getElementsByClass("stui-vodlist clearfix");
+            if (null != ulElements && ulElements.size() > 0) {
+                Element ulElement = ulElements.get(0);
+                Elements liElements = ulElement.select("li[class=\"clearfix\"]");
+                if (null != liElements) {
+                        int i = 0;
+                    for (Element liElement : liElements) {
+                        if(i > 10){
+                            continue;
+                        }
+                        i++;
+                        Elements aTags = liElement.getElementsByClass("title").get(0).getElementsByTag("a");
+                        Element aTag = aTags.get(0);
+                        VideoSearch videoSearch = new VideoSearch();
+                        videoSearch.setName(aTag.text());
+                        videoSearch.setUrl(domain + aTag.attr("href"));
+                        videoDescribe(videoSearch);
+                        videoSearchList.add(videoSearch);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return videoSearchList;
+    }
+
     public static void main(String[] args) {
         KuKuZYDataSourceHandle handle = new KuKuZYDataSourceHandle();
        /* handle.search("海上", 1);

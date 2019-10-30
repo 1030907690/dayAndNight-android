@@ -1,21 +1,55 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="match_parent">
 
-     >
 
-    <EditText
-        android:id="@+id/tv_search_editText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:width="500dp"
-        android:hint="@string/tips_search" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/tv_btn_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@id/tv_search_editText"
-        android:text="Search/Open" />
-</RelativeLayout>
+        <LinearLayout
+            android:id="@+id/tv_search_editText_lin"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <EditText
+                android:id="@+id/tv_search_editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/tips_search" />
+
+            <Button
+                android:id="@+id/tv_btn_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@id/tv_search_editText"
+                android:text="Search/Open" />
+
+        </LinearLayout>
+
+
+        <TextView
+            android:id="@+id/home_lately_recommend_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_search_editText_lin"
+            android:text="@string/home_lately_recommend_text_str" />
+
+        <!--首页最近更新推荐-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/home_lately_recommend_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/home_lately_recommend_text"></android.support.v7.widget.RecyclerView>
+
+        <TextView
+            android:id="@+id/home_recommend_live_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/home_lately_recommend_view"
+            android:text="@string/home_recommend_live_str" />
+
+    </RelativeLayout>
+</ScrollView>

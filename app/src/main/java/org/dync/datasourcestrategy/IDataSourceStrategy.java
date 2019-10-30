@@ -40,4 +40,11 @@ public interface IDataSourceStrategy {
     public VideoDetail videoDetail(String url);
 
 
+    /***
+     * 获取首页推荐视频
+     * @return List<VideoSearch>
+     * */
+    public List<VideoSearch> homeRecommend();
+
+
 }

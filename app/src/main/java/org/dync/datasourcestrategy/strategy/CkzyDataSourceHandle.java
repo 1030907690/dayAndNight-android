@@ -142,7 +142,7 @@ public class CkzyDataSourceHandle implements IDataSourceStrategy {
                         //System.out.println(imageSrc);
                     }
                 }
-               Map<String,String> result = videoDetailInfo(document.body());
+                Map<String, String> result = videoDetailInfo(document.body());
                 videoSearch.setPerformer(result.get("leadPerformer"));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -309,10 +309,10 @@ public class CkzyDataSourceHandle implements IDataSourceStrategy {
             //主演
             Elements leadPerformer = videoDetailInfo.get(0).getElementsByClass("data");
             String leadPerformerText = leadPerformer.get(2).text();
-            result.put("leadPerformer",leadPerformerText);
+            result.put("leadPerformer", leadPerformerText);
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
 
         }
 
@@ -327,15 +327,53 @@ public class CkzyDataSourceHandle implements IDataSourceStrategy {
 
             // 剧情
             String plot = body.getElementsByClass("stui-content__desc col-pd clearfix").text();
-            result.put("plot",plot);
-            result.put("videoName",videoName);
-            result.put("imageUrl",imageUrl);
+            result.put("plot", plot);
+            result.put("videoName", videoName);
+            result.put("imageUrl", imageUrl);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return result;
     }
 
+
+    @Override
+    public List<VideoSearch> homeRecommend() {
+        List<VideoSearch> videoSearchList = new ArrayList<>();
+        try {
+            Connection connect = Jsoup.connect(this.domain).userAgent("Mozilla");
+            ;//获取连接对象
+            Document document = connect.get();//获取url页面的内容并解析成document对象
+            Element body = document.body();
+            Elements ulElements = body.getElementsByClass("stui-vodlist clearfix");
+            if (null != ulElements && ulElements.size() > 0) {
+                Element ulElement = ulElements.get(0);
+                Elements liElements = ulElement.select("li[class=\"clearfix\"]");
+                if (null != liElements) {
+                    int i = 0;
+                    for (Element liElement : liElements) {
+                        if(i > 10){
+                            continue;
+                        }
+                        i++;
+                        Elements aTags = liElement.getElementsByClass("title").get(0).getElementsByTag("a");
+                        Element aTag = aTags.get(0);
+                        VideoSearch videoSearch = new VideoSearch();
+                        videoSearch.setName(aTag.text());
+                        videoSearch.setUrl(domain + aTag.attr("href"));
+                        videoDescribe(videoSearch);
+                        videoSearchList.add(videoSearch);
+
+
+
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return videoSearchList;
+    }
 
     public static void main(String[] args) {
         CkzyDataSourceHandle handle = new CkzyDataSourceHandle();
