@@ -1,6 +1,7 @@
 package org.dync.fragment;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -22,6 +23,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 
+import org.dync.ijkplayer.DownloadHistoryActivity;
 import org.dync.ijkplayer.MainActivity;
 import org.dync.ijkplayer.R;
 import org.dync.utils.GlobalConfig;
@@ -98,12 +100,18 @@ public class MeFragment extends Fragment {
         downloadView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ToastUtil.showToast(getActivity(), "功能正在开发中...");
+
+                Intent intent = new Intent(getActivity(), DownloadHistoryActivity.class);
+                getActivity().startActivity(intent);
+
+                //ToastUtil.showToast(getActivity(), "功能正在开发中...");
+
+
 
                 /**
                  * 动态获取权限，Android 6.0 新特性，一些保护权限，除了要在AndroidManifest中声明权限，还要使用如下代码动态获取
                  */
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+               /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     final int REQUEST_EXTERNAL_STORAGE = 1;
                     String[] PERMISSIONS_STORAGE = {
                             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -119,11 +127,11 @@ public class MeFragment extends Fragment {
                                 REQUEST_EXTERNAL_STORAGE
                         );
                     }
-                }
-                String url = "https://youku.rebo5566.com/20190716/F66s4OVm/index.m3u8";
+                }*/
+             /*   String url = "https://youku.rebo5566.com/20190716/F66s4OVm/index.m3u8";
                 String savePath = Environment.getExternalStorageDirectory().getAbsolutePath();
                 downloadFile(url, savePath, savePath);
-
+*/
 
             }
 
@@ -169,6 +177,8 @@ public class MeFragment extends Fragment {
                 }
             });
 
+        }else{
+            ToastUtil.showToast(getActivity(), "未能连接上服务器不能提供服务!");
         }
     }
 

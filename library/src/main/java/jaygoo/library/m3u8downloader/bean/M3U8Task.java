@@ -12,6 +12,11 @@ import jaygoo.library.m3u8downloader.utils.MUtils;
  */
 public class M3U8Task {
 
+
+
+    /**新增字段 视频名称和剧集**/
+    private String name;
+
     private String url;
     private int state = M3U8TaskState.DEFAULT;
     private long speed;
@@ -19,6 +24,11 @@ public class M3U8Task {
     private M3U8 m3U8;
 
     private M3U8Task(){}
+
+    public M3U8Task(String name,String url){
+        this.url = url;
+        this.name = name;
+    }
 
     public M3U8Task(String url){
         this.url = url;
@@ -31,6 +41,15 @@ public class M3U8Task {
             if (url != null && url.equals(m3U8Task.getUrl()))return true;
         }
         return false;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getFormatSpeed() {

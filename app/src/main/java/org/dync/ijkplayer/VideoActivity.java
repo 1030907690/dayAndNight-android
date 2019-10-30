@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -31,19 +32,16 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+
 import com.google.android.exoplayer2.C;
 
-import org.dync.adapter.DividerGridItemDecoration;
-import org.dync.adapter.DividerItemDecoration;
-import org.dync.adapter.RecyclerSearchAdapter;
+
 import org.dync.adapter.RecyclerVideoSourceDramaSeriesAdapter;
 import org.dync.bean.Video;
 import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoGroup;
-import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
+import org.dync.db.SQLiteOperationHelper;
 import org.dync.ijkplayer.utils.GlideUtil;
 import org.dync.ijkplayer.utils.NetworkUtils;
 import org.dync.ijkplayer.utils.StatusBarUtil;
@@ -65,6 +63,7 @@ import org.dync.subtitleconverter.subtitleFile.TimedTextFileFormat;
 import org.dync.subtitleconverter.subtitleFile.TimedTextObject;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
+import org.dync.utils.VideoType;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -81,6 +80,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jaygoo.library.m3u8downloader.server.EncryptM3U8Server;
 import tv.danmaku.ijk.media.exo.IjkExoMediaPlayer;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -220,23 +220,32 @@ public class VideoActivity extends BaseActivity {
 
     private String videoTitleName;
 
+    private VideoType videoType;
 
     //上次按下返回键的系统时间
     private long lastBackTime = 0;
     //当前按下返回键的系统时间
     private long currentBackTime = 0;
 
+    private EncryptM3U8Server m3u8Server = new EncryptM3U8Server();
 
-    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl) {
+
+    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl, String videoFullName, int videoTypeCode) {
         Intent intent = new Intent(context, VideoActivity.class);
         intent.putExtra("videoPath", videoPath);
         intent.putExtra("videoTitle", videoTitle);
         intent.putExtra("videoUrl", videoUrl);
+        intent.putExtra("videoFullName", videoFullName);
+        intent.putExtra("videoTypeCode", videoTypeCode);
         return intent;
     }
 
     public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl) {
-        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl));
+        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl, null, VideoType.SEARCH.getCode()));
+    }
+
+    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl, String videoFullName, int videoTypeCode) {
+        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl, videoFullName, videoTypeCode));
     }
 
 
@@ -274,11 +283,24 @@ public class VideoActivity extends BaseActivity {
 
 
         Intent tempIntent = getIntent();
-        videoUrl = tempIntent.getStringExtra("videoUrl");
+
+        this.videoType = VideoType.get(tempIntent.getIntExtra("videoTypeCode", 0));
 
 
         // handle arguments
         mVideoPath = tempIntent.getStringExtra("videoPath");
+        if (videoType == VideoType.DOWNLOAD) {
+            m3u8Server.execute();
+            //转换本地url为网络地址url
+            mVideoPath = m3u8Server.createLocalHttpUrl(mVideoPath);
+            Message msg = videoHandle.obtainMessage();
+            msg.what = 1;
+            videoHandle.sendMessage(msg);
+        }
+
+        //新增的
+        videoUrl = tempIntent.getStringExtra("videoUrl");
+
 
         mVideoCoverUrl = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3120404212,3339906847&fm=27&gp=0.jpg";
         mVideoCoverUrl = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2973320425,1464020144&fm=27&gp=0.jpg";
@@ -389,6 +411,12 @@ public class VideoActivity extends BaseActivity {
 
                     if (null != videoGroupList && videoGroupList.size() > 0 && null != videoGroupList.get(0).getVideoList() && videoGroupList.get(0).getVideoList().size() > 0) {
                         videoNameTipTv.setText(videoTitleName + " " + videoGroupList.get(0).getVideoList().get(0).getName());
+                    }
+                    break;
+                case 1:
+                    String videoFullName = getIntent().getStringExtra("videoFullName");
+                    if (null != videoFullName && !"".equals(videoFullName)) {
+                        videoNameTipTv.setText(videoFullName);
                     }
                     break;
             }
@@ -649,7 +677,7 @@ public class VideoActivity extends BaseActivity {
             @Override
             public void onItemLongClick(View view, int position) {
                 Button videoItemBtn = (Button) view;
-                ToastUtil.showToast(VideoActivity.this, "长按 " + videoItemBtn.getTag().toString());
+                addDownloadList(videoItemBtn);
             }
         });
 
@@ -701,7 +729,8 @@ public class VideoActivity extends BaseActivity {
                     @Override
                     public void onItemLongClick(View view, int position) {
                         Button videoItemBtn = (Button) view;
-                        ToastUtil.showToast(VideoActivity.this, "长按 " + videoItemBtn.getTag().toString());
+                        //ToastUtil.showToast(VideoActivity.this, "长按 " + videoItemBtn.getTag().toString());
+                        addDownloadList(videoItemBtn);
                     }
                 });
 
@@ -1277,6 +1306,10 @@ public class VideoActivity extends BaseActivity {
         onDestroyVideo();
         WindowManagerUtil.removeSmallWindow(mContext);
         WindowManagerUtil.removeSmallApp(flAppWindow);
+        if (videoType == VideoType.DOWNLOAD) {
+            //关闭服务
+            m3u8Server.finish();
+        }
     }
 
     private void onDestroyVideo() {
@@ -1304,5 +1337,40 @@ public class VideoActivity extends BaseActivity {
             mPlayerController.onConfigurationChanged();
         }
 
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (videoType == VideoType.DOWNLOAD) {
+            m3u8Server.decrypt();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (videoType == VideoType.DOWNLOAD) {
+            m3u8Server.encrypt();
+        }
+    }
+
+
+    /***
+     * zhouzhongqing
+     * 2019年10月30日10:56:53
+     * 添加到下载列表
+     * */
+    private void addDownloadList(Button videoItemBtn) {
+        ToastUtil.showToast(VideoActivity.this, "添加到任务列表 " + videoTitleName + " " + videoItemBtn.getText().toString() + " 请到我的下载开始下载");
+        SQLiteOperationHelper sqLiteOperationHelper = new SQLiteOperationHelper(VideoActivity.this);
+        SQLiteDatabase db = sqLiteOperationHelper.getWritableDatabase();
+        db.beginTransaction();
+        db.execSQL("insert into " + SQLiteOperationHelper.DOWNLOAD_TABLE_NAME + " (name ,url ) values ('" + videoTitleName + " " + videoItemBtn.getText().toString() + "', '" + videoItemBtn.getTag().toString() + "')");
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+        sqLiteOperationHelper.close();
     }
 }
