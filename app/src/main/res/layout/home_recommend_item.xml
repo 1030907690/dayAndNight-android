@@ -16,7 +16,7 @@
         android:id="@+id/video_name"
         android:layout_below="@+id/video_image_btn"
         android:layout_width="200dp"
-        android:layout_height="30dp"
+        android:layout_height="50dp"
         />
 
 </RelativeLayout>
