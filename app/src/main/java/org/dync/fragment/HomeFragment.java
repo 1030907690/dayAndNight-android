@@ -26,7 +26,9 @@ import org.dync.adapter.RecyclerLiveRecommendAdapter;
 import org.dync.adapter.RecyclerLiveRecommendTvAdapter;
 import org.dync.bean.Live;
 import org.dync.bean.VersionUpdate;
+import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoSearch;
+import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.ijkplayer.BottomNavigationViewActivity;
 import org.dync.ijkplayer.ExoActivity;
 import org.dync.ijkplayer.R;
@@ -79,6 +81,7 @@ public class HomeFragment extends Fragment {
     private RecyclerHomeRecommendAdapter recyclerHomeRecommendTvAdapter;
     private RecyclerLiveRecommendAdapter recyclerLiveRecommendTvAdapter;
 
+    private List<VideoSearch> videoSearchList;
     private List<Live> liveList;
 
 
@@ -153,6 +156,10 @@ public class HomeFragment extends Fragment {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
+                case 0:
+                    VideoDetail videoDetail = (VideoDetail) msg.obj;
+                    VideoActivity.intentTo(getActivity(), videoDetail.getVideoGroupList().get(0).getVideoList().get(0).getUrl(), "测试", videoDetail.getPerformer(), videoDetail.getName(), VideoType.HOME.getCode());
+                    break;
                 case 1:
                     List<VideoSearch> videoSearchList = (List<VideoSearch>) msg.obj;
 
@@ -169,10 +176,32 @@ public class HomeFragment extends Fragment {
                             if (view instanceof ImageButton) {
                                 ImageButton videoItemBtn = (ImageButton) view;
                                 //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
-                                Intent intent = new Intent(getActivity(), VideoDetailTvActivity.class);
-                                intent.putExtra("url", videoItemBtn.getTag().toString());
-                                startActivity(intent);
-                                VideoActivity.intentTo(getActivity(), videoItemBtn.getTag().toString(), "测试", videoItemBtn.getTag().toString(), "", VideoType.HOME.getCode());
+
+
+                                GlobalConfig.getInstance().executorService().execute(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                                            IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
+                                            VideoDetail videoDetail = new VideoDetail();
+                                            if (null != videoItemBtn.getTag().toString() && !"".equals(videoItemBtn.getTag().toString().trim())) {
+                                                videoDetail = dataSourceStrategy.videoDetail(videoItemBtn.getTag().toString());
+                                            }
+
+                                            videoDetail.setPerformer(videoItemBtn.getTag().toString());
+                                            videoDetail.setName(videoSearchList.get(position).getName() + " " + videoDetail.getVideoGroupList().get(0).getVideoList().get(0).getName());
+                                            Message msg = mainActivityHandle.obtainMessage();
+                                            msg.obj = videoDetail;
+                                            msg.what = 0;
+                                            mainActivityHandle.sendMessage(msg);
+
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+
                             }
                         }
 
@@ -216,6 +245,7 @@ public class HomeFragment extends Fragment {
         }
     };
 
+
     /**
      * 加载推荐内容
      **/
@@ -226,7 +256,7 @@ public class HomeFragment extends Fragment {
             GlobalConfig.getInstance().executorService().execute(new Runnable() {
                 @Override
                 public void run() {
-                    List<VideoSearch> videoSearchList = GlobalConfig.getInstance().getDataSourceStrategy().homeRecommend();
+                    videoSearchList = GlobalConfig.getInstance().getDataSourceStrategy().homeRecommend();
                     if (null == videoSearchList) {
                         videoSearchList = new ArrayList<>();
                     }

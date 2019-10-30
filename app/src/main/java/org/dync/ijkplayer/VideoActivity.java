@@ -296,6 +296,10 @@ public class VideoActivity extends BaseActivity {
             Message msg = videoHandle.obtainMessage();
             msg.what = 1;
             videoHandle.sendMessage(msg);
+        }else if(videoType == VideoType.HOME){
+            Message msg = videoHandle.obtainMessage();
+            msg.what = 1;
+            videoHandle.sendMessage(msg);
         }
 
         //新增的
