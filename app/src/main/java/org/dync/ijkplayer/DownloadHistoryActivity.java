@@ -83,7 +83,7 @@ public class DownloadHistoryActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "本地文件已下载，正在播放中！！！", Toast.LENGTH_SHORT).show();
                     VideoActivity.intentTo(DownloadHistoryActivity.this, M3U8Downloader.getInstance().getM3U8Path(url), null, null, m3U8Task.getName(), VideoType.DOWNLOAD.getCode());
                 } else {
-                    M3U8Downloader.getInstance().download(url);
+                    M3U8Downloader.getInstance().download(m3U8Task.getName(),url);
                 }
             }
         });

@@ -78,10 +78,11 @@ public class M3U8Downloader {
      * 如果当前任务在下载列表中则认为是暂停
      * 否则入队等候下载
      * @param url
+     * @param name 增加name  2019年10月30日14:16:01
      */
-    public void download(String url){
+    public void download(String name,String url){
         if (TextUtils.isEmpty(url) || isQuicklyClick())return;
-        M3U8Task task = new M3U8Task(url);
+        M3U8Task task = new M3U8Task(name,url);
         if (downLoadQueue.contains(task)){
             task = downLoadQueue.getTask(url);
             if (task.getState() == M3U8TaskState.PAUSE || task.getState() == M3U8TaskState.ERROR){
