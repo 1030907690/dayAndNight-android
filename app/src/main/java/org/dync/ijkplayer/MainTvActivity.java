@@ -301,7 +301,7 @@ public class MainTvActivity extends AppCompatActivity {
 
 
     private void onListener() {
-        searchEdit.setText("九州海上牧云记");
+        //searchEdit.setText("http://pili-live-hdl.qhmywl.com/dsdtv/4677cf6625ce01b236bbb58f99094d51.flv");
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
