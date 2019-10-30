@@ -94,6 +94,8 @@ public class DownloadHistoryActivity extends AppCompatActivity {
                 MUtils.clearDir(new File(dirPath));
                 deleteAllData();
                 taskList = new M3U8Task[0];
+                adapter = new VideoListAdapter(DownloadHistoryActivity.this, R.layout.download_history_activity_list_item, taskList);
+                listView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
             }
         });
