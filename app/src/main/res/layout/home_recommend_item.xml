@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <!--手机版本首页推荐-->
+
+    <ImageButton
+        android:id="@+id/video_image_btn"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        />
+    <!-- centerCrop 将原图的中心对准ImageView的中心，等比例放大原图，直到填满ImageView为止（指的是ImageView的宽和高都要填满）。如果原图尺寸大于ImageView尺寸，超过部分裁剪。-->
+    <TextView
+        android:id="@+id/video_name"
+        android:layout_below="@+id/video_image_btn"
+        android:layout_width="200dp"
+        android:layout_height="30dp"
+        />
+
+</RelativeLayout>

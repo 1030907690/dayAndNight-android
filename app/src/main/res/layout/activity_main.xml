@@ -1,54 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="org.dync.ijkplayer.MainActivity">
 
     <RelativeLayout
-        android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="@color/colorPrimaryDark">
+        android:layout_height="match_parent">
 
-        <TextView
+        <!--隐藏原来的代码-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@color/colorPrimaryDark">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:text="@string/app_name"
+                android:textColor="#ffffff"
+                android:textSize="18sp" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btn_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_centerInParent="true"
-            android:layout_centerVertical="true"
-            android:text="@string/app_name"
-            android:textColor="#ffffff"
-            android:textSize="18sp" />
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="120dp"
+            android:text="设置" />
+
+        <Button
+            android:id="@+id/btn_ijkPlayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_setting"
+            android:layout_alignStart="@+id/btn_setting"
+            android:layout_alignLeft="@+id/btn_setting"
+            android:layout_marginTop="52dp"
+            android:text="播放陈情令" />
+
+        <Button
+            android:id="@+id/btn_exoPlayer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btn_ijkPlayer"
+            android:layout_alignStart="@+id/btn_ijkPlayer"
+            android:layout_alignLeft="@+id/btn_ijkPlayer"
+            android:layout_marginTop="52dp"
+            android:text="exo播放" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/home_lately_recommend_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_search_editText_lin"
+                android:text="@string/home_lately_recommend_text_str" />
+
+            <!--首页最近更新推荐-->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/home_lately_recommend_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/home_lately_recommend_text">
+            </android.support.v7.widget.RecyclerView>
+
+            <TextView
+                android:id="@+id/home_recommend_live_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/home_lately_recommend_view"
+                android:text="@string/home_recommend_live_str" />
+
+
+            <!--首页直播推荐-->
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/home_live_recommend_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/home_recommend_live_text"></android.support.v7.widget.RecyclerView>
+        </RelativeLayout>
     </RelativeLayout>
-
-    <Button
-        android:id="@+id/btn_setting"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="设置"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="120dp" />
-
-    <Button
-        android:id="@+id/btn_ijkPlayer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="播放陈情令"
-        android:layout_below="@+id/btn_setting"
-        android:layout_alignLeft="@+id/btn_setting"
-        android:layout_alignStart="@+id/btn_setting"
-        android:layout_marginTop="52dp" />
-
-    <Button
-        android:id="@+id/btn_exoPlayer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="exo播放"
-        android:layout_below="@+id/btn_ijkPlayer"
-        android:layout_alignLeft="@+id/btn_ijkPlayer"
-        android:layout_alignStart="@+id/btn_ijkPlayer"
-        android:layout_marginTop="52dp" />
-
-</RelativeLayout>
+</ScrollView>

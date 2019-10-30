@@ -3,7 +3,9 @@ package org.dync.utils;
 public enum VideoType {
 
     SEARCH(0,"搜索进入"),
+    HOME(1,"首页视频"),
     DOWNLOAD(1,"下载的视频");
+
 
 
     VideoType(Integer code, String name) {

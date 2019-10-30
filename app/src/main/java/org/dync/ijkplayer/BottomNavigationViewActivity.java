@@ -153,6 +153,43 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
         //初始化弹窗 布局 点击事件的id
         updataDialog = new UpdataDialog(this, R.layout.dialog_version_update,
                 new int[]{R.id.dialog_sure});
+
+
+
+        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
+        viewPager = (ViewPager) findViewById(R.id.vp);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (menuItem != null) {
+                    menuItem.setChecked(false);
+                } else {
+                    bottomNavigationView.getMenu().getItem(0).setChecked(false);
+                }
+                menuItem = bottomNavigationView.getMenu().getItem(position);
+                menuItem.setChecked(true);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(viewPagerAdapter);
+        List<Fragment> list = new ArrayList<>();
+        list.add(HomeFragment.newInstance("首页"));
+        list.add(SearchFragment.newInstance("搜索"));
+        list.add(MeFragment.newInstance("Me"));
+        list.add(AboutFragment.newInstance("关于",context));
+        viewPagerAdapter.setList(list);
     }
 
 
@@ -282,8 +319,10 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
+
                     VersionUpdate versionUpdate = JSONObject.parseObject(msg.getData().getString("json"), VersionUpdate.class);
                     GlobalConfig.getInstance().setVersionUpdate(versionUpdate);
+                    initView();
                     //设置数据源
                     int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt("data_source_option",0);
                     GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
@@ -326,43 +365,6 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navigation_view);
-
-        bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigationView);
-        bottomNavigationView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
-        viewPager = (ViewPager) findViewById(R.id.vp);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (menuItem != null) {
-                    menuItem.setChecked(false);
-                } else {
-                    bottomNavigationView.getMenu().getItem(0).setChecked(false);
-                }
-                menuItem = bottomNavigationView.getMenu().getItem(position);
-                menuItem.setChecked(true);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(viewPagerAdapter);
-        List<Fragment> list = new ArrayList<>();
-        list.add(HomeFragment.newInstance("首页"));
-        list.add(SearchFragment.newInstance("搜索"));
-        list.add(MeFragment.newInstance("Me"));
-        list.add(AboutFragment.newInstance("关于",context));
-        viewPagerAdapter.setList(list);
-
-        initView();
         if(null == GlobalConfig.getInstance().getVersionUpdate()){
             checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
         }
