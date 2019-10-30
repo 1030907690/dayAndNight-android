@@ -21,7 +21,9 @@ import android.widget.ImageButton;
 import com.alibaba.fastjson.JSONObject;
 
 import org.dync.adapter.RecyclerHomeRecommendTvAdapter;
+import org.dync.adapter.RecyclerLiveRecommendTvAdapter;
 import org.dync.adapter.RecyclerVideoSourceDramaSeriesAdapter;
+import org.dync.bean.Live;
 import org.dync.bean.VersionUpdate;
 import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
@@ -65,9 +67,14 @@ public class MainTvActivity extends AppCompatActivity {
      **/
     private RecyclerView recommendRecyclerView;
 
-
+    /**
+     * 首页推荐
+     **/
+    private RecyclerView recommendLiveRecyclerView;
     private RecyclerHomeRecommendTvAdapter recyclerHomeRecommendTvAdapter;
+    private RecyclerLiveRecommendTvAdapter recyclerLiveRecommendTvAdapter;
 
+    private  List<Live> liveList;
     //上次按下返回键的系统时间
     private long lastBackTime = 0;
     //当前按下返回键的系统时间
@@ -114,18 +121,65 @@ public class MainTvActivity extends AppCompatActivity {
     private void loadingRecommend() {
 
         if (null != GlobalConfig.getInstance().getVersionUpdate()) {
+            //加载推荐视频
             GlobalConfig.getInstance().executorService().execute(new Runnable() {
                 @Override
                 public void run() {
                     List<VideoSearch> videoSearchList = GlobalConfig.getInstance().getDataSourceStrategy().homeRecommend();
+                    if (null == videoSearchList) {
+                        videoSearchList = new ArrayList<>();
+                    }
                     Message msg = mainActivityHandle.obtainMessage();
                     msg.what = 1;
                     msg.obj = videoSearchList;
                     mainActivityHandle.sendMessage(msg);
                 }
             });
+
+            //加载直播列表
+            GlobalConfig.getInstance().executorService().execute(new Runnable() {
+                @Override
+                public void run() {
+                    OkHttpClient client = new OkHttpClient();
+                    //构造Request对象
+                    //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
+                    Request request = new Request.Builder().get().url(GlobalConfig.LIVE_URL).build();
+                    Call call = client.newCall(request);
+                    //异步调用并设置回调函数
+                    call.enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            //e.printStackTrace();
+                            ToastUtil.showToast(context, "获取直播列表失败!");
+                        }
+
+                        @Override
+                        public void onResponse(Call call, final Response response) throws IOException {
+                            final String responseStr = response.body().string();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        List<Live> liveList = JSONObject.parseArray(responseStr, Live.class);
+                                        if (null == liveList) {
+                                            liveList = new ArrayList<>();
+                                        }
+                                        Message msg = mainActivityHandle.obtainMessage();
+                                        msg.what = 2;
+                                        msg.obj = liveList;
+                                        mainActivityHandle.sendMessage(msg);
+                                    } catch (Exception e) {
+                                        Log.d("main live exception", e.getMessage());
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
         } else {
-            ToastUtil.showToast(content, "连接服务器失败,请稍后再试!");
+            ToastUtil.showToast(content, "连接直播服务器失败,请稍后再试!");
         }
 
     }
@@ -219,11 +273,9 @@ public class MainTvActivity extends AppCompatActivity {
                      * 加载推荐内容
                      * **/
                     loadingRecommend();
+                    break;
                 case 1:
                     List<VideoSearch> videoSearchList = (List<VideoSearch>) msg.obj;
-                    if (null == videoSearchList){
-                        videoSearchList = new ArrayList<>();
-                    }
 
                     //纵向线性布局
                     GridLayoutManager layoutManagerInfo = new GridLayoutManager(content, 4);
@@ -241,6 +293,33 @@ public class MainTvActivity extends AppCompatActivity {
                                 Intent intent = new Intent(context, VideoDetailTvActivity.class);
                                 intent.putExtra("url", videoItemBtn.getTag().toString());
                                 startActivity(intent);
+                            }
+                        }
+
+                        @Override
+                        public void onItemLongClick(View view, int position) {
+
+                        }
+                    });
+
+                    break;
+
+                case 2:
+                    liveList = (List<Live>) msg.obj;
+                    //纵向线性布局
+                    GridLayoutManager layoutManagerInfoLive = new GridLayoutManager(content, 4);
+                    recommendLiveRecyclerView.setLayoutManager(layoutManagerInfoLive);
+                    recyclerLiveRecommendTvAdapter = new RecyclerLiveRecommendTvAdapter(content, liveList);
+                    recommendLiveRecyclerView.setAdapter(recyclerLiveRecommendTvAdapter);
+
+
+                    recyclerLiveRecommendTvAdapter.setOnItemClickListener(new RecyclerLiveRecommendTvAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View view, int position) {
+                            if (view instanceof ImageButton) {
+                                ImageButton videoItemBtn = (ImageButton) view;
+                                //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
+                                VideoTvActivity.intentTo(content, videoItemBtn.getTag().toString(), "测试", "", liveList.get(position).getName());
                             }
                         }
 
@@ -297,6 +376,7 @@ public class MainTvActivity extends AppCompatActivity {
         settings.setPlayer(Settings.PV_PLAYER__IjkExoMediaPlayer);
 
         recommendRecyclerView = findViewById(R.id.home_lately_recommend_view);
+        recommendLiveRecyclerView = findViewById(R.id.home_live_recommend_view);
     }
 
 

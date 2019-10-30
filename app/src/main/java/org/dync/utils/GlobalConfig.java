@@ -25,6 +25,9 @@ public class GlobalConfig {
     /** 备用初始化地址**/
     public final String BACKUP_INIT_URL = "https://github.com/1030907690/dayAndNight-android/raw/master/VersionManager.json";
 
+    /** 直播列表 **/
+    public static final String LIVE_URL = "https://gitee.com/apple_1030907690/weiXin/raw/master/live.json";
+
     /** 默认选择第一个视频源**/
     private int DEFAULT_DATA_SOURCE_INDEX = 0;
 

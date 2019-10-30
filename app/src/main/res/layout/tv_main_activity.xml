@@ -42,7 +42,8 @@
             android:id="@+id/home_lately_recommend_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/home_lately_recommend_text"></android.support.v7.widget.RecyclerView>
+            android:layout_below="@+id/home_lately_recommend_text">
+        </android.support.v7.widget.RecyclerView>
 
         <TextView
             android:id="@+id/home_recommend_live_text"
@@ -50,6 +51,16 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/home_lately_recommend_view"
             android:text="@string/home_recommend_live_str" />
+
+
+        <!--首页直播推荐-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/home_live_recommend_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/home_recommend_live_text">
+        </android.support.v7.widget.RecyclerView>
+
 
     </RelativeLayout>
 </ScrollView>
