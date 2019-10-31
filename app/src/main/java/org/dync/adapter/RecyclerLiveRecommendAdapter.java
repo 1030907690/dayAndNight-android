@@ -130,6 +130,7 @@ public class RecyclerLiveRecommendAdapter extends RecyclerView.Adapter<RecyclerL
         holder.imageButton.setTag(live.getUrl());
         /*DownLoadTask task = new DownLoadTask(holder.imageButton);
         task.execute(live.getImage());*/
+        holder.imageButton.setImageResource(R.drawable.bg);
 
         // item click
         if (mOnItemClickListener != null) {
