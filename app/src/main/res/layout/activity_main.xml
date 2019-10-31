@@ -90,12 +90,22 @@
                 android:text="@string/home_recommend_live_str" />
 
 
+            <!--直播分类-->
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tab_layout_live_data"
+                android:layout_width="match_parent"
+                android:layout_below="@+id/home_recommend_live_text"
+                android:layout_height="40dp"
+                />
+
             <!--首页直播推荐-->
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/home_live_recommend_view"
+                android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/home_recommend_live_text"></android.support.v7.widget.RecyclerView>
+                android:layout_below="@+id/tab_layout_live_data">
+            </android.support.v7.widget.RecyclerView>
         </RelativeLayout>
     </RelativeLayout>
 </ScrollView>

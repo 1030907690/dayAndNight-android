@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,9 +25,11 @@ import org.dync.adapter.RecyclerHomeRecommendAdapter;
 import org.dync.adapter.RecyclerHomeRecommendTvAdapter;
 import org.dync.adapter.RecyclerLiveRecommendAdapter;
 import org.dync.adapter.RecyclerLiveRecommendTvAdapter;
+import org.dync.adapter.RecyclerVideoSourceDramaSeriesAdapter;
 import org.dync.bean.Live;
 import org.dync.bean.VersionUpdate;
 import org.dync.bean.VideoDetail;
+import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.ijkplayer.BottomNavigationViewActivity;
@@ -46,7 +49,9 @@ import org.dync.utils.VideoType;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import okhttp3.Call;
@@ -81,8 +86,11 @@ public class HomeFragment extends Fragment {
     private RecyclerHomeRecommendAdapter recyclerHomeRecommendTvAdapter;
     private RecyclerLiveRecommendAdapter recyclerLiveRecommendTvAdapter;
 
+    private TabLayout tabLayoutLiveData;
+
     private List<VideoSearch> videoSearchList;
-    private List<Live> liveList;
+
+    private final Map<String, List<Live>> liveGroupMap = new HashMap<>();
 
 
     public static HomeFragment newInstance(String name) {
@@ -119,7 +127,7 @@ public class HomeFragment extends Fragment {
         }
         btnExoPlayer = view.findViewById(R.id.btn_exoPlayer);
 
-        btnSetting = (Button) view.findViewById(R.id.btn_setting);
+        btnSetting = view.findViewById(R.id.btn_setting);
 
         // 隐藏
         btnExoPlayer.setVisibility(View.GONE);
@@ -147,6 +155,7 @@ public class HomeFragment extends Fragment {
 
         recommendRecyclerView = view.findViewById(R.id.home_lately_recommend_view);
         recommendLiveRecyclerView = view.findViewById(R.id.home_live_recommend_view);
+        tabLayoutLiveData = view.findViewById(R.id.tab_layout_live_data);
         loadingRecommend();
 
     }
@@ -182,7 +191,6 @@ public class HomeFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         try {
-                                            // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
                                             IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
                                             VideoDetail videoDetail = new VideoDetail();
                                             if (null != videoItemBtn.getTag().toString() && !"".equals(videoItemBtn.getTag().toString().trim())) {
@@ -210,34 +218,14 @@ public class HomeFragment extends Fragment {
 
                         }
                     });
-
                     break;
-
                 case 2:
-                    liveList = (List<Live>) msg.obj;
-                    //纵向线性布局
-                    GridLayoutManager layoutManagerInfoLive = new GridLayoutManager(getActivity(), 3);
-                    recommendLiveRecyclerView.setLayoutManager(layoutManagerInfoLive);
-                    recyclerLiveRecommendTvAdapter = new RecyclerLiveRecommendAdapter(getActivity(), liveList);
-                    recommendLiveRecyclerView.setAdapter(recyclerLiveRecommendTvAdapter);
-
-
-                    recyclerLiveRecommendTvAdapter.setOnItemClickListener(new RecyclerLiveRecommendAdapter.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(View view, int position) {
-                            if (view instanceof ImageButton) {
-                                ImageButton videoItemBtn = (ImageButton) view;
-                                //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
-                                VideoActivity.intentTo(getActivity(), videoItemBtn.getTag().toString(), "测试", "", liveList.get(position).getName(), VideoType.HOME.getCode());
-                            }
-                        }
-
-                        @Override
-                        public void onItemLongClick(View view, int position) {
-
-                        }
-                    });
-
+                    List<Live> liveList = (List<Live>) msg.obj;
+                    String firstGroup = initLiveGroup(liveList);
+                    if (null != liveList && liveList.size() > 0 && null != firstGroup) {
+                        createLiveView(liveGroupMap.get(firstGroup));
+                    }
+                    initTabLiveData(liveList);
                     break;
                 default:
                     break;
@@ -245,6 +233,78 @@ public class HomeFragment extends Fragment {
         }
     };
 
+    /***
+     * 初始化直播分组
+     * @return String 返回第一个分组
+     * */
+    private String initLiveGroup(List<Live> liveList) {
+        String firstGroup = null;
+        for (Live live : liveList) {
+            if (liveGroupMap.containsKey(live.getGroup())) {
+                List<Live> tempLiveList = liveGroupMap.get(live.getGroup());
+                tempLiveList.add(live);
+            } else {
+                liveGroupMap.put(live.getGroup(), new ArrayList<Live>() {{
+                    add(live);
+                }});
+                firstGroup = live.getGroup();
+            }
+        }
+        return firstGroup;
+    }
+
+    private void createLiveView(List<Live> localLiveList) {
+        //纵向线性布局
+        GridLayoutManager layoutManagerInfoLive = new GridLayoutManager(getActivity(), 3);
+        recommendLiveRecyclerView.setLayoutManager(layoutManagerInfoLive);
+        recyclerLiveRecommendTvAdapter = new RecyclerLiveRecommendAdapter(getActivity(), localLiveList);
+        recommendLiveRecyclerView.setAdapter(recyclerLiveRecommendTvAdapter);
+
+
+        recyclerLiveRecommendTvAdapter.setOnItemClickListener(new RecyclerLiveRecommendAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                if (view instanceof ImageButton) {
+                    ImageButton videoItemBtn = (ImageButton) view;
+                    //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
+                    VideoActivity.intentTo(getActivity(), videoItemBtn.getTag().toString(), "测试", "", localLiveList.get(position).getName(), VideoType.HOME.getCode());
+                }
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        });
+    }
+
+    /**
+     * 初始化直播分类数据
+     **/
+    private void initTabLiveData(List<Live> liveList) {
+        tabLayoutLiveData.setTabMode(TabLayout.MODE_SCROLLABLE);
+
+        for (Map.Entry<String, List<Live>> entry : liveGroupMap.entrySet()) {
+            tabLayoutLiveData.addTab(tabLayoutLiveData.newTab().setText(entry.getKey()).setTag(entry.getKey()));
+        }
+        tabLayoutLiveData.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                String group = (String) tab.getTag();
+                createLiveView(liveGroupMap.get(group));
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+    }
 
     /**
      * 加载推荐内容
