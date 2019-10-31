@@ -357,14 +357,15 @@ public class CkzyDataSourceHandle implements IDataSourceStrategy {
                         }
                         i++;
                         Elements aTags = liElement.getElementsByClass("title").get(0).getElementsByTag("a");
-                        Element aTag = aTags.get(0);
-                        VideoSearch videoSearch = new VideoSearch();
-                        videoSearch.setName(aTag.text());
-                        videoSearch.setUrl(domain + aTag.attr("href"));
-                        videoDescribe(videoSearch);
-                        videoSearchList.add(videoSearch);
-
-
+                        Elements typeElements = liElement.getElementsByClass("type");
+                        if (!Arrays.asList(GlobalConfig.getInstance().getVersionUpdate().getFilterClass()).contains(typeElements.get(0).text())) {
+                            Element aTag = aTags.get(0);
+                            VideoSearch videoSearch = new VideoSearch();
+                            videoSearch.setName(aTag.text());
+                            videoSearch.setUrl(domain + aTag.attr("href"));
+                            videoDescribe(videoSearch);
+                            videoSearchList.add(videoSearch);
+                        }
 
                     }
                 }

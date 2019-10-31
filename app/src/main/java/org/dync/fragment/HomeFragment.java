@@ -164,7 +164,7 @@ public class HomeFragment extends Fragment {
                     List<VideoSearch> videoSearchList = (List<VideoSearch>) msg.obj;
 
                     //纵向线性布局
-                    GridLayoutManager layoutManagerInfo = new GridLayoutManager(getActivity(), 4);
+                    GridLayoutManager layoutManagerInfo = new GridLayoutManager(getActivity(), 3);
                     recommendRecyclerView.setLayoutManager(layoutManagerInfo);
                     recyclerHomeRecommendTvAdapter = new RecyclerHomeRecommendAdapter(getActivity(), videoSearchList);
                     recommendRecyclerView.setAdapter(recyclerHomeRecommendTvAdapter);
@@ -216,7 +216,7 @@ public class HomeFragment extends Fragment {
                 case 2:
                     liveList = (List<Live>) msg.obj;
                     //纵向线性布局
-                    GridLayoutManager layoutManagerInfoLive = new GridLayoutManager(getActivity(), 4);
+                    GridLayoutManager layoutManagerInfoLive = new GridLayoutManager(getActivity(), 3);
                     recommendLiveRecyclerView.setLayoutManager(layoutManagerInfoLive);
                     recyclerLiveRecommendTvAdapter = new RecyclerLiveRecommendAdapter(getActivity(), liveList);
                     recommendLiveRecyclerView.setAdapter(recyclerLiveRecommendTvAdapter);
