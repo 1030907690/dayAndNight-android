@@ -10,6 +10,9 @@
         android:layout_width="300dp"
         android:layout_height="350dp"
         android:scaleType="centerCrop"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:focusable="true"
         />
     <!-- centerCrop 将原图的中心对准ImageView的中心，等比例放大原图，直到填满ImageView为止（指的是ImageView的宽和高都要填满）。如果原图尺寸大于ImageView尺寸，超过部分裁剪。-->
     <TextView

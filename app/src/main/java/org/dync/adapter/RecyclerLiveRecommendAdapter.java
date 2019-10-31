@@ -128,8 +128,8 @@ public class RecyclerLiveRecommendAdapter extends RecyclerView.Adapter<RecyclerL
         holder.tv.setText(live.getName());
         //执行下载操作
         holder.imageButton.setTag(live.getUrl());
-        DownLoadTask task = new DownLoadTask(holder.imageButton);
-        task.execute(live.getImage());
+        /*DownLoadTask task = new DownLoadTask(holder.imageButton);
+        task.execute(live.getImage());*/
 
         // item click
         if (mOnItemClickListener != null) {

@@ -6,6 +6,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -139,6 +141,25 @@ public class RecyclerHomeRecommendTvAdapter extends RecyclerView.Adapter<Recycle
         if (mOnItemClickListener != null) {
 
 
+            holder.imageButton.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    //获取焦点时变化
+                    if (hasFocus) {
+                        if (Build.VERSION.SDK_INT >= 21) {
+                            //选中动画
+                            ViewCompat.animate(v).scaleX(1.17f).scaleY(1.17f).translationZ(1).start();
+                        }else{
+                            ViewCompat.animate(v).scaleX(1.17f).scaleY(1.17f).start();
+                            ViewGroup parent = (ViewGroup) v.getParent();
+                            parent.requestLayout();
+                            parent.invalidate();
+                        }
+                    }else{
+                        ViewCompat.animate(v).scaleX(1f).scaleY(1f).start();
+                    }
+                }
+            });
 
             holder.imageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
