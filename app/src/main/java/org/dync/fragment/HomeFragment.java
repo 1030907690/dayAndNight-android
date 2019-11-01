@@ -238,7 +238,6 @@ public class HomeFragment extends Fragment {
      * @return String 返回第一个分组
      * */
     private String initLiveGroup(List<Live> liveList) {
-        String firstGroup = null;
         for (Live live : liveList) {
             if (liveGroupMap.containsKey(live.getGroup())) {
                 List<Live> tempLiveList = liveGroupMap.get(live.getGroup());
@@ -247,8 +246,11 @@ public class HomeFragment extends Fragment {
                 liveGroupMap.put(live.getGroup(), new ArrayList<Live>() {{
                     add(live);
                 }});
-                firstGroup = live.getGroup();
             }
+        }
+        String firstGroup = null;
+        if (null != liveGroupMap && liveGroupMap.size() > 0) {
+            firstGroup = liveGroupMap.keySet().iterator().next();
         }
         return firstGroup;
     }

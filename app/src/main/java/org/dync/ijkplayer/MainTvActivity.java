@@ -323,7 +323,6 @@ public class MainTvActivity extends AppCompatActivity {
     };
 
 
-
     /**
      * 初始化直播分类数据
      **/
@@ -358,7 +357,7 @@ public class MainTvActivity extends AppCompatActivity {
      * @return String 返回第一个分组
      * */
     private String initLiveGroup(List<Live> liveList) {
-        String firstGroup = null;
+
         for (Live live : liveList) {
             if (liveGroupMap.containsKey(live.getGroup())) {
                 List<Live> tempLiveList = liveGroupMap.get(live.getGroup());
@@ -367,8 +366,11 @@ public class MainTvActivity extends AppCompatActivity {
                 liveGroupMap.put(live.getGroup(), new ArrayList<Live>() {{
                     add(live);
                 }});
-                firstGroup = live.getGroup();
             }
+        }
+        String firstGroup = null;
+        if (null != liveGroupMap && liveGroupMap.size() > 0) {
+            firstGroup = liveGroupMap.keySet().iterator().next();
         }
         return firstGroup;
     }
