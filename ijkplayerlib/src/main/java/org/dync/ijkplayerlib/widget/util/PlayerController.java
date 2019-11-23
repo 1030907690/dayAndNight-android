@@ -823,6 +823,29 @@ public class PlayerController {
         return this;
     }
 
+
+    /**
+     * 设置屏幕亮度控制，要设置{@link #setGestureListener(GestureListener)}才能生效
+     * zhouzhongqing 2019-11-23 20:47
+     * @return
+     */
+    public PlayerController setBrightnessController(float maxProgress) {
+        try {
+            int e = android.provider.Settings.System.getInt(this.mContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS);
+            float progress = 1.0F * (float) e / 255.0F;
+            if(progress > maxProgress){
+                progress = maxProgress;
+            }
+            WindowManager.LayoutParams layout = this.mActivity.getWindow().getAttributes();
+            layout.screenBrightness = progress;
+            mActivity.getWindow().setAttributes(layout);
+            brightness = progress;
+        } catch (android.provider.Settings.SettingNotFoundException var7) {
+            var7.printStackTrace();
+        }
+        return this;
+    }
+
     /**
      * 设置控制视频播放进度的SeekBar
      *
@@ -1406,6 +1429,10 @@ public class PlayerController {
         if (mGestureListener != null) {
             mGestureListener.onBrightnessSlide(lp.screenBrightness);
         }
+    }
+
+    public GestureListener getmGestureListener() {
+        return mGestureListener;
     }
 
     /**

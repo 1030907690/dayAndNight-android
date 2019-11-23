@@ -511,7 +511,7 @@ public class VideoActivity extends BaseActivity {
                 .setVideoParentLayout(findViewById(R.id.rl_video_view_layout))//建议第一个调用
                 .setVideoController((SeekBar) findViewById(R.id.seekbar))
                 .setVolumeController()
-                .setBrightnessController()
+                .setBrightnessController(0.05f)
                 .setVideoParentRatio(IRenderView.AR_16_9_FIT_PARENT)
                 .setVideoRatio(IRenderView.AR_16_9_FIT_PARENT)
                 .setPortrait(true)
