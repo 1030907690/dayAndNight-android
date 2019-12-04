@@ -324,6 +324,10 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                     int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION, 0);
                     GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
                     comparison();
+                    break;
+                case 1:
+                    initView();
+                    break;
                 default:
                     break;
             }
@@ -373,22 +377,34 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
 
     /*获取更新文件的失败处理*/
     private void failHandler() {
-        while (true) {
-            try {
-                Thread.sleep(100);
-                if (GlobalConfig.reCount >= GlobalConfig.getInstance().getRemoteServer().length) {
-                    //判断已全部完成
-                    if (null == updataDialog) {
-                        // 全部访问完成依然未初始化 判断为忘了io失败,初始化view
-                        initView();
+        GlobalConfig.getInstance().executorService().execute(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        // 如果已经初始化 停止循环
+                        if (null != updataDialog) {
+                            break;
+                        }
+                        Thread.sleep(100);
+                        if (GlobalConfig.reCount >= GlobalConfig.getInstance().getRemoteServer().length) {
+                            //判断已全部完成
+                            if (null == updataDialog) {
+                                // 全部访问完成依然未初始化 判断为忘了io失败,初始化view
+                                Message msg = mainActivityHandle.obtainMessage();
+                                msg.what = 1;
+                                mainActivityHandle.sendMessage(msg);
+                            }
+                            break;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    break;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                Log.d(TAG,"DONE");
             }
-        }
-        Log.d(TAG,"DONE");
+        });
+
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
