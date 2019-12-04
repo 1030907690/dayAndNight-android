@@ -55,8 +55,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /*
-* https://blog.csdn.net/Afanbaby/article/details/79240620
-* */
+ * https://blog.csdn.net/Afanbaby/article/details/79240620
+ * */
 public class BottomNavigationViewActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private ViewPagerAdapter viewPagerAdapter;
@@ -75,14 +75,14 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //捕获返回键按下的事件
-        if(keyCode == KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             //获取当前系统时间的毫秒数
             currentBackTime = System.currentTimeMillis();
             //比较上次按下返回键和当前按下返回键的时间差，如果大于2秒，则提示再按一次退出
-            if(currentBackTime - lastBackTime > 2 * 1000){
+            if (currentBackTime - lastBackTime > 2 * 1000) {
                 ToastUtil.showToast(this, "再按一次返回键退出");
                 lastBackTime = currentBackTime;
-            }else{ //如果两次按下的时间差小于2秒，则退出程序
+            } else { //如果两次按下的时间差小于2秒，则退出程序
                 finish();
                 System.exit(0);
             }
@@ -93,10 +93,8 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
 
 
     /**
-     *
      * @param initUrl 初始化配置地址
-
-     * **/
+     **/
     public void checkVersionGet(String initUrl) {
         OkHttpClient client = new OkHttpClient();
         //构造Request对象
@@ -109,10 +107,10 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
             public void onFailure(Call call, IOException e) {
                 //e.printStackTrace();
                 GlobalConfig.reCount++;
-                if( GlobalConfig.reCount < GlobalConfig.getInstance().getRemoteServer().length){
-                    ToastUtil.showToast(BottomNavigationViewActivity.this, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
+                if (GlobalConfig.reCount < GlobalConfig.getInstance().getRemoteServer().length) {
+                    ToastUtil.showToast(BottomNavigationViewActivity.this, "获取服务信息失败!正在重试第" + GlobalConfig.reCount + "次");
                     checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
-                }else{
+                } else {
                     ToastUtil.showToast(BottomNavigationViewActivity.this, "获取服务信息失败!");
                 }
 
@@ -125,7 +123,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         // VersionUpdate versionUpdate = JSONObject.parseObject(responseStr, VersionUpdate.class);
-                        try{
+                        try {
                             JSONObject.parseObject(responseStr, VersionUpdate.class);
                             Message msg = new Message();
                             Bundle data = new Bundle();
@@ -133,13 +131,13 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                             msg.setData(data);
                             msg.what = 0;
                             mainActivityHandle.sendMessage(msg);
-                        }catch (Exception e){
-                            Log.d("main exception",e.getMessage());
+                        } catch (Exception e) {
+                            Log.d("main exception", e.getMessage());
                             GlobalConfig.reCount++;
-                            if( GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length){
-                                ToastUtil.showToast( context, "获取服务信息失败!正在重试第"+GlobalConfig.reCount+"次");
+                            if (GlobalConfig.reCount <= GlobalConfig.getInstance().getRemoteServer().length) {
+                                ToastUtil.showToast(context, "获取服务信息失败!正在重试第" + GlobalConfig.reCount + "次");
                                 checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
-                            }else{
+                            } else {
                                 ToastUtil.showToast(context, "获取服务信息失败!");
                             }
                         }
@@ -150,11 +148,11 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
             }
         });
     }
+
     private void initView() {
         //初始化弹窗 布局 点击事件的id
         updataDialog = new UpdataDialog(this, R.layout.dialog_version_update,
                 new int[]{R.id.dialog_sure});
-
 
 
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigationView);
@@ -189,7 +187,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
         list.add(HomeFragment.newInstance("首页"));
         list.add(SearchFragment.newInstance("搜索"));
         list.add(MeFragment.newInstance("Me"));
-        list.add(AboutFragment.newInstance("关于",context));
+        list.add(AboutFragment.newInstance("关于", context));
         viewPagerAdapter.setList(list);
     }
 
@@ -241,8 +239,6 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
         DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
         //将下载任务加入下载队列，否则不会进行下载
         downloadManager.enqueue(request);*/
-
-
 
 
         //创建下载任务
@@ -305,7 +301,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                 case DownloadManager.STATUS_SUCCESSFUL:
                     Log.i(TAG, ">>>下载完成");
                     //下载完成安装APK
-                    ToastUtil.showToast(context,"下载完成!在/download文件夹中");
+                    ToastUtil.showToast(context, "下载完成!在/download文件夹中");
                     //installAPK(new File(downloadPath + downloadFullPath));
                     break;
                 case DownloadManager.STATUS_FAILED:
@@ -325,7 +321,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                     GlobalConfig.getInstance().setVersionUpdate(versionUpdate);
                     initView();
                     //设置数据源
-                    int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION,0);
+                    int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION, 0);
                     GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
                     comparison();
                 default:
@@ -366,10 +362,33 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navigation_view);
-        if(null == GlobalConfig.getInstance().getVersionUpdate()){
+        if (null == GlobalConfig.getInstance().getVersionUpdate()) {
             checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
         }
 
+
+        failHandler();
+    }
+
+
+    /*获取更新文件的失败处理*/
+    private void failHandler() {
+        while (true) {
+            try {
+                Thread.sleep(100);
+                if (GlobalConfig.reCount >= GlobalConfig.getInstance().getRemoteServer().length) {
+                    //判断已全部完成
+                    if (null == updataDialog) {
+                        // 全部访问完成依然未初始化 判断为忘了io失败,初始化view
+                        initView();
+                    }
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        Log.d(TAG,"DONE");
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
