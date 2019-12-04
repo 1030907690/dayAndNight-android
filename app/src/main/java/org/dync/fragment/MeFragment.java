@@ -26,6 +26,7 @@ import android.widget.TextView;
 import org.dync.ijkplayer.DownloadHistoryActivity;
 import org.dync.ijkplayer.MainActivity;
 import org.dync.ijkplayer.R;
+import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
 import org.w3c.dom.Text;
@@ -152,7 +153,7 @@ public class MeFragment extends Fragment {
                 seq[i] = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(i).getKey();
             }
             SharedPreferences sharedPreferences = GlobalConfig.getInstance().getSharedPreferences();
-            int dataSourceOption = sharedPreferences.getInt("data_source_option", 0);
+            int dataSourceOption = sharedPreferences.getInt(Constant.DATA_SOURCE_OPTION, 0);
 
             ArrayAdapter<CharSequence> adapter = new ArrayAdapter<CharSequence>(getActivity(), android.R.layout.simple_spinner_item, seq);
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -161,11 +162,11 @@ public class MeFragment extends Fragment {
             spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putInt("data_source_option", position);
+                    editor.putInt(Constant.DATA_SOURCE_OPTION, position);
                     editor.commit();
 
                     //设置数据源
-                    int dataSourceOption = sharedPreferences.getInt("data_source_option",0);
+                    int dataSourceOption = sharedPreferences.getInt(Constant.DATA_SOURCE_OPTION,0);
                     GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
                    // ToastUtil.showToast(getActivity(), "Spinner1: position=" + position + " id=" + id);
                     //选择后

@@ -40,6 +40,7 @@ import org.dync.fragment.SearchFragment;
 import org.dync.fragment.TestFragment;
 import org.dync.utils.BaseUtils;
 import org.dync.utils.BottomNavigationViewHelper;
+import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
 
@@ -324,7 +325,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
                     GlobalConfig.getInstance().setVersionUpdate(versionUpdate);
                     initView();
                     //设置数据源
-                    int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt("data_source_option",0);
+                    int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION,0);
                     GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
                     comparison();
                 default:
