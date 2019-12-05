@@ -4,6 +4,17 @@ import java.io.Serializable;
 
 public class VideoSearch implements Serializable {
 
+    public VideoSearch() {
+
+    }
+
+    public VideoSearch(String name, String photo, String url, String performer) {
+        this.name = name;
+        this.photo = photo;
+        this.url = url;
+        this.performer = performer;
+    }
+
     private String name;
 
     private String photo;

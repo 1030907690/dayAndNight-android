@@ -15,6 +15,7 @@ public interface IDataSourceStrategy {
     /***
      * 搜索 获取资源策略
      * @param key 关键字
+     * @param page 页数
      * */
     public List<VideoSearch> search(String key,Integer page);
 
@@ -36,6 +37,7 @@ public interface IDataSourceStrategy {
 
     /***
      * 获取视频的详情
+     * @param url 页面详情地址
      * */
     public VideoDetail videoDetail(String url);
 
