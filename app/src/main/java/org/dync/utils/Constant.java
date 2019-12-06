@@ -14,4 +14,5 @@ public class Constant {
     /**缓存**/
     public static final String CACHE_VIDEO_DETAIL = "cache_video_detail:";
     public static final String CACHE_SEARCH = "cache_search:";
+    public static final String CACHE_LIVE = "cache_live:";
 }

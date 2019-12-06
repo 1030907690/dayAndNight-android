@@ -30,7 +30,10 @@ import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
 import org.dync.dialog.UpdataDialog;
 import org.dync.ijkplayerlib.widget.util.Settings;
+import org.dync.queue.DelayOrderTask;
+import org.dync.queue.DelayOrderWorker;
 import org.dync.utils.BaseUtils;
+import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
 
@@ -140,47 +143,62 @@ public class MainTvActivity extends AppCompatActivity {
                 }
             });
 
-            //加载直播列表
-            GlobalConfig.getInstance().executorService().execute(new Runnable() {
-                @Override
-                public void run() {
-                    OkHttpClient client = new OkHttpClient();
-                    //构造Request对象
-                    //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
-                    Request request = new Request.Builder().get().url(GlobalConfig.LIVE_URL).build();
-                    Call call = client.newCall(request);
-                    //异步调用并设置回调函数
-                    call.enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            //e.printStackTrace();
-                            ToastUtil.showToast(context, "获取直播列表失败!");
-                        }
+            if (GlobalConfig.getInstance().getDelayOrderQueueManager().containsKeyTask(Constant.CACHE_LIVE + GlobalConfig.LIVE_URL)) {
 
-                        @Override
-                        public void onResponse(Call call, final Response response) throws IOException {
-                            final String responseStr = response.body().string();
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        List<Live> liveList = JSONObject.parseArray(responseStr, Live.class);
-                                        if (null == liveList) {
-                                            liveList = new ArrayList<>();
-                                        }
-                                        Message msg = mainActivityHandle.obtainMessage();
-                                        msg.what = 2;
-                                        msg.obj = liveList;
-                                        mainActivityHandle.sendMessage(msg);
-                                    } catch (Exception e) {
-                                        Log.d("main live exception", e.getMessage());
-                                    }
-                                }
-                            });
-                        }
-                    });
+                DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_LIVE + GlobalConfig.LIVE_URL);
+
+                if (null != delayOrderTask) {
+                    DelayOrderWorker delayOrderWorker = (DelayOrderWorker) delayOrderTask.getTask();
+                    Message msg = mainActivityHandle.obtainMessage();
+                    msg.what = 2;
+                    msg.obj = (List<Live>) delayOrderWorker.getObj();
+                    mainActivityHandle.sendMessage(msg);
                 }
-            });
+            } else {
+                //加载直播列表
+                GlobalConfig.getInstance().executorService().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        OkHttpClient client = new OkHttpClient();
+                        //构造Request对象
+                        //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
+                        Request request = new Request.Builder().get().url(GlobalConfig.LIVE_URL).build();
+                        Call call = client.newCall(request);
+                        //异步调用并设置回调函数
+                        call.enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Call call, IOException e) {
+                                //e.printStackTrace();
+                                ToastUtil.showToast(MainTvActivity.this, "获取直播列表失败!");
+                            }
+
+                            @Override
+                            public void onResponse(Call call, final Response response) throws IOException {
+                                final String responseStr = response.body().string();
+
+                                try {
+                                    List<Live> liveList = JSONObject.parseArray(responseStr, Live.class);
+                                    if (null == liveList) {
+                                        liveList = new ArrayList<>();
+                                    }
+
+                                    // 加入缓存
+                                    DelayOrderWorker delayOrderWorker = new DelayOrderWorker(Constant.CACHE_LIVE + GlobalConfig.LIVE_URL, liveList);
+                                    GlobalConfig.getInstance().getDelayOrderQueueManager().put(delayOrderWorker);
+                                    Message msg = mainActivityHandle.obtainMessage();
+                                    msg.what = 2;
+                                    msg.obj = liveList;
+                                    mainActivityHandle.sendMessage(msg);
+                                } catch (Exception e) {
+                                    Log.d("main live exception", e.getMessage());
+                                }
+
+                            }
+                        });
+                    }
+                });
+
+            }
 
         } else {
             ToastUtil.showToast(content, "连接直播服务器失败,请稍后再试!");

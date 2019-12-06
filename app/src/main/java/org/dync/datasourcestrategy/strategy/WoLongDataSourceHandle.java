@@ -183,7 +183,8 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
             if (GlobalConfig.getInstance().getDelayOrderQueueManager().containsKeyTask(Constant.CACHE_VIDEO_DETAIL + url)) {
                 DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_VIDEO_DETAIL + url);
                 if (null != delayOrderTask) {
-                    videoDetail = (VideoDetail) delayOrderTask.getTask();
+                    DelayOrderWorker delayOrderWorker = (DelayOrderWorker) delayOrderTask.getTask();
+                    videoDetail = (VideoDetail) delayOrderWorker.getObj();
                     return videoDetail;
 
                 }
