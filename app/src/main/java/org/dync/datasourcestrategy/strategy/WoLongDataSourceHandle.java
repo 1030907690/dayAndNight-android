@@ -41,14 +41,14 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
     private final int maxPage = 1;
 
     public WoLongDataSourceHandle() {
-        urlMap.put(KEY, "https://wolongzy.net/search.html?searchword=%s");
-        /*List<DataSource> dataSourceList = GlobalConfig.getInstance().getVersionUpdate().getDataSource();
+        //urlMap.put(KEY, "https://wolongzy.net/search.html?searchword=%s");
+        List<DataSource> dataSourceList = GlobalConfig.getInstance().getVersionUpdate().getDataSource();
         for (DataSource dataSource : dataSourceList) {
             urlMap.put(dataSource.getKey(), dataSource.getSearchUrl());
             if (KEY.equals(dataSource.getKey())) {
                 domain = dataSource.getDomain();
             }
-        }*/
+        }
 
 
     }
@@ -72,11 +72,11 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
      * */
     private void searchKey(List<VideoSearch> videoList, String key, Integer page) throws Exception {
         if (page <= maxPage) {
-            videoSearch(videoList,String.format(urlMap.get(KEY), key),page);
+            videoSearch(videoList, String.format(urlMap.get(KEY), key), page);
         }
     }
 
-    private void videoSearch(List<VideoSearch> videoList, String url,Integer page) throws Exception {
+    private void videoSearch(List<VideoSearch> videoList, String url, Integer page) throws Exception {
         final Map<String, VideoSearch> info = new HashMap<>();
         Connection connect = Jsoup.connect(url).userAgent(Constant.USER_AGENT);//获取连接对象
         Document document = connect.get();//获取url页面的内容并解析成document对象
@@ -87,17 +87,21 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
             if (null != videoContentLis && videoContentLis.size() > 0) {
                 int line = 0;
                 for (Element videoContentLi : videoContentLis) {
-                    line++;
-                    if(line > 20){
-                        continue;
-                    }
-                    Elements videoDetails = videoContentLi.select("a[class=\"videoName\"]");
-                    if (null != videoDetails && videoDetails.size() > 0) {
-                        Element videoDetail = videoDetails.get(0);
-                        String videoName = videoDetail.text();
-                        String href = videoDetail.attr("href");
-                        VideoSearch videoSearch = new VideoSearch(videoName, "photo", domain + href, "performer");
-                        info.put(videoSearch.getUrl(), videoSearch);
+
+                    Elements typeElements = videoContentLi.select("span[class=\"category\"]");
+                    if (null != typeElements && typeElements.size() > 0 && !Arrays.asList(GlobalConfig.getInstance().getVersionUpdate().getFilterClass()).contains(typeElements.get(0).text())) {
+                        line++;
+                        if (line > 20) {
+                            continue;
+                        }
+                        Elements videoDetails = videoContentLi.select("a[class=\"videoName\"]");
+                        if (null != videoDetails && videoDetails.size() > 0) {
+                            Element videoDetail = videoDetails.get(0);
+                            String videoName = videoDetail.text();
+                            String href = videoDetail.attr("href");
+                            VideoSearch videoSearch = new VideoSearch(videoName, "photo", domain + href, "performer");
+                            info.put(videoSearch.getUrl(), videoSearch);
+                        }
                     }
 
                 }
@@ -162,6 +166,7 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
         VideoDetail videoDetail = new VideoDetail();
         List<VideoGroup> videoGroupList = new ArrayList<>();
         try {
+            videoDetail = videoDetailInfo(url);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,9 +205,60 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
             String plot = body.select("div[style=\"margin-left:10px;\"]").text().replace("剧情介绍 ", "");
             videoDetail.setPlot(plot);
 
+
+            //剧集
+            Elements episode = body.select("div[class=\"playlist wbox\"]");
+            Element content = body.getElementsByClass("width1200 white").get(2);
+            Elements elementsH4 = content.getElementsByTag("h4");
+            String videoTypes[] = new String[null != elementsH4 ? elementsH4.size() : 0];
+            for (int i = 0; i < elementsH4.size(); i++) {
+                String videoType = elementsH4.get(i).getElementsByTag("div").get(0).text();
+                videoTypes[i] = videoType;
+            }
+
+            List<VideoGroup> videoGroupList = new ArrayList<>();
+
+            String splice = "\\$";
+            if (null != episode && episode.size() > 0) {
+                int j = 0;
+                for (Element epi : episode) {
+                    Elements epiLis = epi.getElementsByTag("li");
+                    List<Video> videoList = new ArrayList<>();
+                    for (int i = 0; i < epiLis.size(); i++) {
+                        Element inputM3u8 = epiLis.get(i).getElementById("m3u8");
+                        if (null != inputM3u8) {
+                            String value = inputM3u8.attr("value");
+                            if (null != value) {
+                                String[] epis = value.split(splice);
+                                if (epis.length >= 2) {
+                                    Video video = new Video();
+                                    video.setName(epis[0]);
+                                    video.setUrl(epis[1]);
+                                    videoList.add(video);
+                                }
+                            }
+
+                        } else {
+                            //System.out.println("break " +epiLis.get(i).text());
+                            break;
+                        }
+                    }
+
+                    if (j < videoTypes.length && videoTypes[j].contains("m3u8")) {
+                        VideoGroup videoGroup = new VideoGroup();
+                        videoGroup.setGroup(videoTypes[j]);
+                        videoGroup.setVideoList(videoList);
+                        videoGroupList.add(videoGroup);
+                    }
+                    j++;
+                }
+            }
+
+            videoDetail.setVideoGroupList(videoGroupList);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return videoDetail;
     }
 
@@ -211,7 +267,7 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
     public List<VideoSearch> homeRecommend() {
         List<VideoSearch> videoSearchList = new ArrayList<>();
         try {
-            videoSearch(videoSearchList,domain,null);
+            videoSearch(videoSearchList, domain, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -221,9 +277,9 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
 
     public static void main(String[] args) {
         IDataSourceStrategy handle = new WoLongDataSourceHandle();
-        //handle.search("九州", 1);
-        handle.homeRecommend();
-        System.exit(0);
+        //handle.search("庆余年12", 1);
+        //handle.homeRecommend();
+        handle.videoDetail("https://wolongzy.net/detail/295032.html");
 
     }
 }
