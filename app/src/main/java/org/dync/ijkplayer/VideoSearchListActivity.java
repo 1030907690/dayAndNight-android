@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.dync.adapter.DividerItemDecoration;
 import org.dync.adapter.RecyclerSearchAdapter;
 import org.dync.bean.Video;
+import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.utils.GlobalConfig;
@@ -48,7 +49,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
             mDatas = new ArrayList<>();
         }
         searchNoDataTips = findViewById(R.id.id_search_tips_phone);
-        if(null == mDatas || mDatas.size() <= 0){
+        if (null == mDatas || mDatas.size() <= 0) {
             searchNoDataTips.setVisibility(View.VISIBLE);
         }
         mRecyclerView = (RecyclerView) findViewById(R.id.id_recyclerview);
@@ -70,16 +71,17 @@ public class VideoSearchListActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                           // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
+                            // String implName = GlobalConfig.getInstance().getVersionUpdate().getDataSource().get(0).getKey() + "DataSourceHandle";
                             IDataSourceStrategy dataSourceStrategy = GlobalConfig.getInstance().getDataSourceStrategy();
-                            List<Video> videoList = dataSourceStrategy.playList(mDatas.get(position).getUrl());
+                            //List<Video> videoList = dataSourceStrategy.playList(mDatas.get(position).getUrl());
+                            VideoDetail videoDetail = dataSourceStrategy.videoDetail(mDatas.get(position).getUrl());
                             Message msg = searchVideoHandler.obtainMessage();
                             msg.what = 1;
                             Bundle data = new Bundle();
                             String videoPath = "https://meigui.qqqq-kuyun.com/20190627/9918_47cdf731/index.m3u8";
 
-                            if (null != videoList && videoList.size() > 0) {
-                                videoPath = videoList.get(0).getUrl();
+                            if (null != videoDetail && videoDetail.getVideoGroupList().size() > 0 && videoDetail.getVideoGroupList().get(0).getVideoList().size() > 0d) {
+                                videoPath = videoDetail.getVideoGroupList().get(0).getVideoList().get(0).getUrl();
                             }
                             data.putString("videoPath", videoPath);
                             data.putString("url", mDatas.get(position).getUrl());
