@@ -8,16 +8,32 @@ import java.util.List;
  */
 public class VideoDetail implements Serializable {
 
+    /** 视频剧集分组 **/
     private List<VideoGroup> videoGroupList;
 
+    /** 视频封面 **/
     private String imageUrl;
 
+    /** 视频名称 **/
     private String name;
 
+    /**剧情**/
     private String plot;
 
 
+    /**主演**/
     private String performer;
+
+    /** 视频的详情网页地址**/
+    private String url;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public String getPerformer() {
         return performer;

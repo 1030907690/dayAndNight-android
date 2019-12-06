@@ -72,62 +72,76 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
      * */
     private void searchKey(List<VideoSearch> videoList, String key, Integer page) throws Exception {
         if (page <= maxPage) {
-            final Map<String, VideoSearch> info = new HashMap<>();
-            Connection connect = Jsoup.connect(String.format(urlMap.get(KEY), key)).userAgent(Constant.USER_AGENT);//获取连接对象
-            Document document = connect.get();//获取url页面的内容并解析成document对象
-            Element bodyElement = document.body();
-            Elements videoContent = bodyElement.getElementsByClass("videoContent");
-            if (null != videoContent && videoContent.size() > 0) {
-                Elements videoContentLis = videoContent.get(0).getElementsByTag("li");
-                if (null != videoContentLis && videoContentLis.size() > 0) {
-                    for (Element videoContentLi : videoContentLis) {
-                        Elements videoDetails = videoContentLi.select("a[class=\"videoName\"]");
-                        if (null != videoDetails && videoDetails.size() > 0) {
-                            Element videoDetail = videoDetails.get(0);
-                            String videoName = videoDetail.text();
-                            String href = videoDetail.attr("href");
-                            VideoSearch videoSearch = new VideoSearch(videoName, "photo", domain + href, "主演");
-                            info.put(videoSearch.getUrl(), videoSearch);
-                        }
-
-                    }
-                }
-            }
-
-            long startTime = System.currentTimeMillis();
-
-            CompletionService<Map<String, String>> completionService = new ExecutorCompletionService<>(GlobalConfig.getInstance().executorService());
-            for (Map.Entry<String, VideoSearch> videoSearch : info.entrySet()) {
-                completionService.submit(new Callable<Map<String, String>>() {
-                    public Map<String, String> call() {
-                        Map<String, String> videoAttributes = new HashMap<>();
-                        try {
-                            videoAttributes = videoDetailInfo(videoSearch.getKey());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        return videoAttributes;
-                    }
-                });
-
-            }
-            try {
-                for (int t = 0; t < info.size(); t++) {
-                    Future<Map<String, String>> f = completionService.take();
-                    Map<String, String> videoDate = f.get();
-                    System.out.println("");
-
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            } catch (ExecutionException e) {
-                throw new IllegalArgumentException("CompletionService Execution");
-            }
-
-            long endTime = System.currentTimeMillis();
-
-            System.out.println("runTime " + (endTime - startTime));
+            videoSearch(videoList,String.format(urlMap.get(KEY), key),page);
         }
+    }
+
+    private void videoSearch(List<VideoSearch> videoList, String url,Integer page) throws Exception {
+        final Map<String, VideoSearch> info = new HashMap<>();
+        Connection connect = Jsoup.connect(url).userAgent(Constant.USER_AGENT);//获取连接对象
+        Document document = connect.get();//获取url页面的内容并解析成document对象
+        Element bodyElement = document.body();
+        Elements videoContent = bodyElement.getElementsByClass("videoContent");
+        if (null != videoContent && videoContent.size() > 0) {
+            Elements videoContentLis = videoContent.get(0).getElementsByTag("li");
+            if (null != videoContentLis && videoContentLis.size() > 0) {
+                int line = 0;
+                for (Element videoContentLi : videoContentLis) {
+                    line++;
+                    if(line > 20){
+                        continue;
+                    }
+                    Elements videoDetails = videoContentLi.select("a[class=\"videoName\"]");
+                    if (null != videoDetails && videoDetails.size() > 0) {
+                        Element videoDetail = videoDetails.get(0);
+                        String videoName = videoDetail.text();
+                        String href = videoDetail.attr("href");
+                        VideoSearch videoSearch = new VideoSearch(videoName, "photo", domain + href, "performer");
+                        info.put(videoSearch.getUrl(), videoSearch);
+                    }
+
+                }
+            }
+        }
+
+        long startTime = System.currentTimeMillis();
+        //使用CompletionService并行执行
+        CompletionService<VideoDetail> completionService = new ExecutorCompletionService<>(GlobalConfig.getInstance().executorService());
+        for (Map.Entry<String, VideoSearch> videoSearch : info.entrySet()) {
+            completionService.submit(new Callable<VideoDetail>() {
+                public VideoDetail call() {
+                    VideoDetail videoAttributes = null;
+                    try {
+                        videoAttributes = videoDetailInfo(videoSearch.getKey());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return videoAttributes;
+                }
+            });
+
+        }
+        try {
+            int size = info.size();
+            for (int t = 0; t < size; t++) {
+                Future<VideoDetail> f = completionService.take();
+                VideoDetail videoData = f.get();
+                if (null != videoData) {
+                    VideoSearch videoSearch = info.get(videoData.getUrl());
+                    videoSearch.setPerformer(videoData.getPerformer());
+                    videoSearch.setPhoto(videoData.getImageUrl());
+                    videoList.add(videoSearch);
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            System.out.println("CompletionService Execution");
+        }
+
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("runTime " + (endTime - startTime));
     }
 
 
@@ -160,17 +174,36 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
     /***
      * 获取视频详情
      * */
-    public Map<String, String> videoDetailInfo(String url) {
-        Map<String, String> result = new HashMap<>();
+    public VideoDetail videoDetailInfo(String url) {
+
+        VideoDetail videoDetail = new VideoDetail();
+        videoDetail.setUrl(url);
         try {
             Element body = Jsoup.connect(url).userAgent(Constant.USER_AGENT).get().body();
             Elements videoName = body.getElementsByClass("whitetitle");
-            result.put("videoName", videoName.get(0).text().replace("名称：", ""));
-            System.out.println(" 视频名称 " + videoName.get(0).text());
+            if (null != videoName && videoName.size() > 0) {
+                videoDetail.setName(videoName.get(0).text().replace("名称：", ""));
+            }
+            Elements videoDetailEl = body.getElementsByClass("right");
+            if (null != videoDetailEl && videoDetailEl.size() > 0) {
+                Element performer = videoDetailEl.get(0).getElementsByTag("p").get(2);
+                videoDetail.setPerformer(performer.text().replace("演员：", ""));
+            }
+
+            Elements images = body.select("div[class=\"left\"]");
+            if (null != images && images.size() > 0) {
+                Element image = images.get(0).getElementsByTag("img").get(0);
+                videoDetail.setImageUrl(image.attr("src"));
+            }
+
+            //剧情介绍
+            String plot = body.select("div[style=\"margin-left:10px;\"]").text().replace("剧情介绍 ", "");
+            videoDetail.setPlot(plot);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return result;
+        return videoDetail;
     }
 
 
@@ -178,10 +211,7 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
     public List<VideoSearch> homeRecommend() {
         List<VideoSearch> videoSearchList = new ArrayList<>();
         try {
-            Connection connect = Jsoup.connect(this.domain).userAgent(Constant.USER_AGENT);
-            ;//获取连接对象
-            Document document = connect.get();//获取url页面的内容并解析成document对象
-            Element body = document.body();
+            videoSearch(videoSearchList,domain,null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -190,8 +220,9 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
 
 
     public static void main(String[] args) {
-        WoLongDataSourceHandle handle = new WoLongDataSourceHandle();
-        handle.search("九州", 1);
+        IDataSourceStrategy handle = new WoLongDataSourceHandle();
+        //handle.search("九州", 1);
+        handle.homeRecommend();
         System.exit(0);
 
     }
