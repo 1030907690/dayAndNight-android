@@ -41,7 +41,7 @@ ext {
     supportLibraryVersion = "27.1.0"
 
     versionCode = 1
-    versionName = "1.3"
+    versionName = "1.4"
     ijkplayer = "0.8.8"
     exoplayer = "2.9.2"
 }

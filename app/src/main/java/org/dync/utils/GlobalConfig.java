@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import org.dync.bean.VersionUpdate;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
+import org.dync.queue.DelayOrderQueueManager;
 
 import java.lang.reflect.Executable;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -45,15 +46,16 @@ public class GlobalConfig {
 
     private SharedPreferences sharedPreferences;
 
+    private DelayOrderQueueManager delayOrderQueueManager;
 
 
     private ExecutorService executorService;
+
     public static GlobalConfig getInstance() {
         if (null == globalConfig) {
             synchronized (GlobalConfig.class) {
                 if (null == globalConfig) {
                     globalConfig = new GlobalConfig();
-
                 }
             }
         }
@@ -63,6 +65,7 @@ public class GlobalConfig {
     private GlobalConfig() {
         int processors = Runtime.getRuntime().availableProcessors();
         executorService = new ThreadPoolExecutor(processors * 2, processors * 10, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(processors * 100), Executors.defaultThreadFactory(), new ThreadPoolExecutor.CallerRunsPolicy());
+        delayOrderQueueManager = new DelayOrderQueueManager();
     }
 
     public VersionUpdate getVersionUpdate() {
@@ -111,5 +114,13 @@ public class GlobalConfig {
 
     public void setSharedPreferences(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
+    }
+
+    public DelayOrderQueueManager getDelayOrderQueueManager() {
+        return delayOrderQueueManager;
+    }
+
+    public void setDelayOrderQueueManager(DelayOrderQueueManager delayOrderQueueManager) {
+        this.delayOrderQueueManager = delayOrderQueueManager;
     }
 }

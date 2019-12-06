@@ -6,6 +6,8 @@ import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
+import org.dync.queue.DelayOrderTask;
+import org.dync.queue.DelayOrderWorker;
 import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.jsoup.Connection;
@@ -77,6 +79,16 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
     }
 
     private void videoSearch(List<VideoSearch> videoList, String url, Integer page) throws Exception {
+
+        if (GlobalConfig.getInstance().getDelayOrderQueueManager().containsKeyTask(Constant.CACHE_SEARCH + url)) {
+            DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_VIDEO_DETAIL + url);
+            if (null != delayOrderTask) {
+                DelayOrderWorker delayOrderWorker = (DelayOrderWorker) delayOrderTask.getTask();
+                List<VideoSearch> videoListTemp = (List<VideoSearch>) delayOrderWorker.getObj();
+                videoList.addAll(videoListTemp);
+                return;
+            }
+        }
         final Map<String, VideoSearch> info = new HashMap<>();
         Connection connect = Jsoup.connect(url).userAgent(Constant.USER_AGENT);//获取连接对象
         Document document = connect.get();//获取url页面的内容并解析成document对象
@@ -146,6 +158,9 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
         long endTime = System.currentTimeMillis();
 
         System.out.println("runTime " + (endTime - startTime));
+        //加入缓存
+        DelayOrderWorker delayOrderWorker = new DelayOrderWorker(Constant.CACHE_SEARCH + url, videoList);
+        GlobalConfig.getInstance().getDelayOrderQueueManager().put(delayOrderWorker);
     }
 
 
@@ -164,10 +179,18 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
     @Override
     public VideoDetail videoDetail(String url) {
         VideoDetail videoDetail = new VideoDetail();
-        List<VideoGroup> videoGroupList = new ArrayList<>();
         try {
-            videoDetail = videoDetailInfo(url);
+            if (GlobalConfig.getInstance().getDelayOrderQueueManager().containsKeyTask(Constant.CACHE_VIDEO_DETAIL + url)) {
+                DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_VIDEO_DETAIL + url);
+                if (null != delayOrderTask) {
+                    videoDetail = (VideoDetail) delayOrderTask.getTask();
+                    return videoDetail;
 
+                }
+            }
+            videoDetail = videoDetailInfo(url);
+            DelayOrderWorker delayOrderWorker = new DelayOrderWorker(Constant.CACHE_VIDEO_DETAIL + url,videoDetail);
+            GlobalConfig.getInstance().getDelayOrderQueueManager().put(delayOrderWorker);
         } catch (Exception e) {
             e.printStackTrace();
         }

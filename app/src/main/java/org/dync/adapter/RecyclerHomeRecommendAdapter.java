@@ -99,12 +99,14 @@ public class RecyclerHomeRecommendAdapter extends RecyclerView.Adapter<RecyclerH
 
         private Bitmap downLoadBitmap(String url) {
             Bitmap bitmap = null;
-            OkHttpClient client = new OkHttpClient();
-            Log.d("recyclerAdapter", url);
-            Request request = new Request.Builder().url(url).build();
             try {
-                Response response = client.newCall(request).execute();
-                bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                OkHttpClient client = new OkHttpClient();
+                if(null != url){
+                    //Log.d("recyclerAdapter", url);
+                    Request request = new Request.Builder().url(url).build();
+                    Response response = client.newCall(request).execute();
+                    bitmap = BitmapFactory.decodeStream(response.body().byteStream());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -133,7 +135,6 @@ public class RecyclerHomeRecommendAdapter extends RecyclerView.Adapter<RecyclerH
 
         // item click
         if (mOnItemClickListener != null) {
-
 
 
             holder.imageButton.setOnClickListener(new View.OnClickListener() {
