@@ -171,8 +171,6 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        videoDetail.setVideoGroupList(videoGroupList);
         return videoDetail;
     }
 
@@ -218,7 +216,7 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
 
             List<VideoGroup> videoGroupList = new ArrayList<>();
 
-            String splice = "\\$";
+            String split = "\\$";
             if (null != episode && episode.size() > 0) {
                 int j = 0;
                 for (Element epi : episode) {
@@ -229,7 +227,7 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
                         if (null != inputM3u8) {
                             String value = inputM3u8.attr("value");
                             if (null != value) {
-                                String[] epis = value.split(splice);
+                                String[] epis = value.split(split);
                                 if (epis.length >= 2) {
                                     Video video = new Video();
                                     video.setName(epis[0]);
