@@ -3,6 +3,8 @@ package org.dync.datasourcestrategy.strategy;
 import android.os.Bundle;
 import android.os.Message;
 
+import com.alibaba.fastjson.JSONObject;
+
 import org.dync.bean.DataSource;
 import org.dync.bean.Video;
 import org.dync.bean.VideoDetail;
@@ -15,6 +17,7 @@ import org.dync.queue.DelayOrderWorker;
 import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
+import org.json.JSONArray;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -55,6 +58,7 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
     }
 
 
+/*
 
     @Override
     public List<VideoSearch> search(String key, Integer page) {
@@ -66,14 +70,23 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
         List<VideoSearch> videoList = new ArrayList<>();
         OkHttpClient client = new OkHttpClient();
 
-        String a = "";
         String apiPrefix = "https://gitee.com/apple_1030907690/weiXin/raw/master/VersionManager.json";//GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
         //构造Request对象
         //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
         Request request = new Request.Builder().get().url(apiPrefix + "").build();
         Call call = client.newCall(request);
+        String responBody = null;
+        try {
+            Response execute = call.execute();
+            responBody = execute.body().source().readUtf8();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+
         //异步调用并设置回调函数
-        call.enqueue(new Callback() {
+       */
+/* call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -86,19 +99,52 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
                 System.out.println(responseStr);
                 cdl.countDown();
             }
-        });
+        });*//*
 
+
+*/
+/*
 
         try {
             cdl.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+*//*
+
+
+        System.out.println(responBody);
+
 
         System.out.println("done ");
         return videoList;
     }
+*/
 
+
+
+    @Override
+    public List<VideoSearch> search(String key, Integer page) {
+        List<VideoSearch> videoList = new ArrayList<>();
+        OkHttpClient client = new OkHttpClient();
+        String apiPrefix = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
+        //构造Request对象
+        //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
+        Request request = new Request.Builder().get().url(apiPrefix + "/search").build();
+        Call call = client.newCall(request);
+
+        try {
+            Response execute = call.execute();
+            String responseBody = execute.body().source().readUtf8();
+            if(null != responseBody && !"".equals(responseBody)){
+                videoList = JSONObject.parseArray(responseBody,VideoSearch.class);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+         return videoList;
+    }
 
     @Override
     public List<Video> playList(String url) {
@@ -115,6 +161,23 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
     @Override
     public VideoDetail videoDetail(String url) {
         VideoDetail videoDetail = new VideoDetail();
+
+        OkHttpClient client = new OkHttpClient();
+        String apiPrefix = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
+        //构造Request对象
+        //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
+        Request request = new Request.Builder().get().url(apiPrefix + "/videoDetail").build();
+        Call call = client.newCall(request);
+
+        try {
+            Response execute = call.execute();
+            String responseBody = execute.body().source().readUtf8();
+            if(null != responseBody && !"".equals(responseBody)){
+                videoDetail = JSONObject.parseObject(responseBody,VideoDetail.class);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return videoDetail;
     }
 
@@ -123,6 +186,22 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
     public List<VideoSearch> homeRecommend() {
         List<VideoSearch> videoSearchList = new ArrayList<>();
 
+        OkHttpClient client = new OkHttpClient();
+        String apiPrefix = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
+        //构造Request对象
+        //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
+        Request request = new Request.Builder().get().url(apiPrefix + "/homeRecommend").build();
+        Call call = client.newCall(request);
+
+        try {
+            Response execute = call.execute();
+            String responseBody = execute.body().source().readUtf8();
+            if(null != responseBody && !"".equals(responseBody)){
+                videoSearchList = JSONObject.parseArray(responseBody,VideoSearch.class);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return videoSearchList;
     }
 
