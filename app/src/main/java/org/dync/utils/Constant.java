@@ -15,4 +15,7 @@ public class Constant {
     public static final String CACHE_VIDEO_DETAIL = "cache_video_detail:";
     public static final String CACHE_SEARCH = "cache_search:";
     public static final String CACHE_LIVE = "cache_live:";
+
+    /**私服**/
+    public static final String CUSTOM_API_PREFIX = "custom_api_prefix";
 }
