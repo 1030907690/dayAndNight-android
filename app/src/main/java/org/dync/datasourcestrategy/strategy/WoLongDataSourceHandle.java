@@ -81,7 +81,7 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
     private void videoSearch(List<VideoSearch> videoList, String url, Integer page) throws Exception {
 
         if (GlobalConfig.getInstance().getDelayOrderQueueManager().containsKeyTask(Constant.CACHE_SEARCH + url)) {
-            DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_VIDEO_DETAIL + url);
+            DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_SEARCH + url);
             if (null != delayOrderTask) {
                 DelayOrderWorker delayOrderWorker = (DelayOrderWorker) delayOrderTask.getTask();
                 List<VideoSearch> videoListTemp = (List<VideoSearch>) delayOrderWorker.getObj();
@@ -186,11 +186,10 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
                     DelayOrderWorker delayOrderWorker = (DelayOrderWorker) delayOrderTask.getTask();
                     videoDetail = (VideoDetail) delayOrderWorker.getObj();
                     return videoDetail;
-
                 }
             }
             videoDetail = videoDetailInfo(url);
-            DelayOrderWorker delayOrderWorker = new DelayOrderWorker(Constant.CACHE_VIDEO_DETAIL + url,videoDetail);
+            DelayOrderWorker delayOrderWorker = new DelayOrderWorker(Constant.CACHE_VIDEO_DETAIL + url, videoDetail);
             GlobalConfig.getInstance().getDelayOrderQueueManager().put(delayOrderWorker);
         } catch (Exception e) {
             e.printStackTrace();
@@ -225,7 +224,7 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
 
             //剧情介绍
             String plot = body.select("div[style=\"margin-left:10px;\"]").text().replace("剧情介绍 ", "");
-            videoDetail.setPlot(plot);
+            videoDetail.setPlot(plot.trim());
 
 
             //剧集
@@ -255,7 +254,11 @@ public class WoLongDataSourceHandle implements IDataSourceStrategy {
                                 if (epis.length >= 2) {
                                     Video video = new Video();
                                     video.setName(epis[0]);
-                                    video.setUrl(epis[1]);
+                                    String valueUrl = epis[1];
+                                    if (null != valueUrl && valueUrl.startsWith("http://")) {
+                                        valueUrl = valueUrl.replace("http://","https://");
+                                    }
+                                    video.setUrl(valueUrl);
                                     videoList.add(video);
                                 }
                             }
