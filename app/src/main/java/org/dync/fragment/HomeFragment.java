@@ -201,7 +201,7 @@ public class HomeFragment extends Fragment {
                                             }
 
                                             videoDetail.setPerformer(videoItemBtn.getTag().toString());
-                                            videoDetail.setName(videoSearchList.get(position).getName() + " " + videoDetail.getVideoGroupList().get(0).getVideoList().get(0).getName());
+                                            videoDetail.setName(videoSearchList.get(position).getName());//+ " " + videoDetail.getVideoGroupList().get(0).getVideoList().get(0).getName());
                                             Message msg = mainActivityHandle.obtainMessage();
                                             msg.obj = videoDetail;
                                             msg.what = 0;
