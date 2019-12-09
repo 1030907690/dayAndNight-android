@@ -102,7 +102,7 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
         });*//*
 
 
-*/
+     */
 /*
 
         try {
@@ -122,28 +122,43 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
 */
 
 
-
     @Override
     public List<VideoSearch> search(String key, Integer page) {
         List<VideoSearch> videoList = new ArrayList<>();
-        OkHttpClient client = new OkHttpClient();
         String apiPrefix = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
+        if (GlobalConfig.getInstance().getDelayOrderQueueManager().containsKeyTask(Constant.CACHE_SEARCH + apiPrefix + "/search?keyWord="+key)) {
+            DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_SEARCH + apiPrefix + "/search?keyWord="+key);
+            if (null != delayOrderTask) {
+                DelayOrderWorker delayOrderWorker = (DelayOrderWorker) delayOrderTask.getTask();
+                List<VideoSearch> videoListTemp = (List<VideoSearch>) delayOrderWorker.getObj();
+                videoList.addAll(videoListTemp);
+                return videoList;
+            }
+        }
+
+
+        OkHttpClient client = new OkHttpClient();
+
         //构造Request对象
         //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
-        Request request = new Request.Builder().get().url(apiPrefix + "/search").build();
+        Request request = new Request.Builder().get().url(apiPrefix + "/search?keyWord="+key).build();
         Call call = client.newCall(request);
 
         try {
             Response execute = call.execute();
             String responseBody = execute.body().source().readUtf8();
-            if(null != responseBody && !"".equals(responseBody)){
-                videoList = JSONObject.parseArray(responseBody,VideoSearch.class);
+            if (null != responseBody && !"".equals(responseBody)) {
+                videoList = JSONObject.parseArray(responseBody, VideoSearch.class);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-         return videoList;
+
+        //加入缓存
+        DelayOrderWorker delayOrderWorker = new DelayOrderWorker(Constant.CACHE_SEARCH + apiPrefix + "/search?keyWord="+key, videoList);
+        GlobalConfig.getInstance().getDelayOrderQueueManager().put(delayOrderWorker);
+        return videoList;
     }
 
     @Override
@@ -161,23 +176,36 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
     @Override
     public VideoDetail videoDetail(String url) {
         VideoDetail videoDetail = new VideoDetail();
+        String apiPrefix = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
+
+        if (GlobalConfig.getInstance().getDelayOrderQueueManager().containsKeyTask(Constant.CACHE_VIDEO_DETAIL + apiPrefix + "/videoDetail?url="+url)) {
+            DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_VIDEO_DETAIL + apiPrefix + "/videoDetail?url="+url);
+            if (null != delayOrderTask) {
+                DelayOrderWorker delayOrderWorker = (DelayOrderWorker) delayOrderTask.getTask();
+                videoDetail = (VideoDetail) delayOrderWorker.getObj();
+                return videoDetail;
+            }
+        }
 
         OkHttpClient client = new OkHttpClient();
-        String apiPrefix = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
+
         //构造Request对象
         //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
-        Request request = new Request.Builder().get().url(apiPrefix + "/videoDetail").build();
+        Request request = new Request.Builder().get().url(apiPrefix + "/videoDetail?url="+url).build();
         Call call = client.newCall(request);
 
         try {
             Response execute = call.execute();
             String responseBody = execute.body().source().readUtf8();
-            if(null != responseBody && !"".equals(responseBody)){
-                videoDetail = JSONObject.parseObject(responseBody,VideoDetail.class);
+            if (null != responseBody && !"".equals(responseBody)) {
+                videoDetail = JSONObject.parseObject(responseBody, VideoDetail.class);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        // 加入缓存
+        DelayOrderWorker delayOrderWorker = new DelayOrderWorker(Constant.CACHE_VIDEO_DETAIL + apiPrefix + "/videoDetail?url="+url, videoDetail);
+        GlobalConfig.getInstance().getDelayOrderQueueManager().put(delayOrderWorker);
         return videoDetail;
     }
 
@@ -185,9 +213,19 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
     @Override
     public List<VideoSearch> homeRecommend() {
         List<VideoSearch> videoSearchList = new ArrayList<>();
+        String apiPrefix = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
+        if (GlobalConfig.getInstance().getDelayOrderQueueManager().containsKeyTask(Constant.CACHE_SEARCH + apiPrefix + "/homeRecommend")) {
+            DelayOrderTask delayOrderTask = GlobalConfig.getInstance().getDelayOrderQueueManager().getTask(Constant.CACHE_SEARCH + apiPrefix + "/homeRecommend");
+            if (null != delayOrderTask) {
+                DelayOrderWorker delayOrderWorker = (DelayOrderWorker) delayOrderTask.getTask();
+                List<VideoSearch> videoListTemp = (List<VideoSearch>) delayOrderWorker.getObj();
+                videoSearchList.addAll(videoListTemp);
+                return videoSearchList;
+            }
+        }
+
 
         OkHttpClient client = new OkHttpClient();
-        String apiPrefix = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.CUSTOM_API_PREFIX, null);
         //构造Request对象
         //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
         Request request = new Request.Builder().get().url(apiPrefix + "/homeRecommend").build();
@@ -196,12 +234,17 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
         try {
             Response execute = call.execute();
             String responseBody = execute.body().source().readUtf8();
-            if(null != responseBody && !"".equals(responseBody)){
-                videoSearchList = JSONObject.parseArray(responseBody,VideoSearch.class);
+            if (null != responseBody && !"".equals(responseBody)) {
+                videoSearchList = JSONObject.parseArray(responseBody, VideoSearch.class);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
+
+        //加入缓存
+        DelayOrderWorker delayOrderWorker = new DelayOrderWorker(Constant.CACHE_SEARCH + apiPrefix + "/homeRecommend", videoSearchList);
+        GlobalConfig.getInstance().getDelayOrderQueueManager().put(delayOrderWorker);
         return videoSearchList;
     }
 
