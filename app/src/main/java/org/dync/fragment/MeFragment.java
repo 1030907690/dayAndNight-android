@@ -180,7 +180,7 @@ public class MeFragment extends Fragment {
                     GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
 
 
-                    if ("Custom".equals(seq[dataSourceOption]) && null == customServerTextView.getText()) {
+                    if ("Custom".equals(seq[dataSourceOption]) && (null == customServerTextView.getText() || null == customServerTextView.getText().toString())) {
                         ToastUtil.showToast(getActivity(), "选择私服后,请点击设置私服!");
                     }
 
