@@ -105,6 +105,9 @@ public class MeFragment extends Fragment {
 
         spinner = view.findViewById(R.id.data_source_spinner);
 
+        customServerTextView = view.findViewById(R.id.custom_server_view_text);
+        customServerText = view.findViewById(R.id.custom_server_text);
+
 
         downloadView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,7 +117,6 @@ public class MeFragment extends Fragment {
                 getActivity().startActivity(intent);
 
                 //ToastUtil.showToast(getActivity(), "功能正在开发中...");
-
 
 
                 /**
@@ -174,13 +176,15 @@ public class MeFragment extends Fragment {
                     editor.commit();
 
                     //设置数据源
-                    int dataSourceOption = sharedPreferences.getInt(Constant.DATA_SOURCE_OPTION,0);
+                    int dataSourceOption = sharedPreferences.getInt(Constant.DATA_SOURCE_OPTION, 0);
                     GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
-                    if("Custom".equals(seq[dataSourceOption])){
+
+
+                    if ("Custom".equals(seq[dataSourceOption]) && null == customServerTextView.getText()) {
                         ToastUtil.showToast(getActivity(), "选择私服后,请点击设置私服!");
                     }
 
-                   // ToastUtil.showToast(getActivity(), "Spinner1: position=" + position + " id=" + id);
+                    // ToastUtil.showToast(getActivity(), "Spinner1: position=" + position + " id=" + id);
                     //选择后
                 }
 
@@ -190,7 +194,7 @@ public class MeFragment extends Fragment {
                 }
             });
 
-        }else{
+        } else {
             ToastUtil.showToast(getActivity(), "未能连接上服务器不能提供服务!");
         }
 
@@ -199,13 +203,10 @@ public class MeFragment extends Fragment {
     }
 
 
-
-    private void settingCustomServer(View view){
-        customServerTextView = view.findViewById(R.id.custom_server_view_text);
-        customServerText = view.findViewById(R.id.custom_server_text);
+    private void settingCustomServer(View view) {
 
         SharedPreferences sharedPreferences = GlobalConfig.getInstance().getSharedPreferences();
-        customServerTextView.setText(sharedPreferences.getString(Constant.CUSTOM_API_PREFIX,""));
+        customServerTextView.setText(sharedPreferences.getString(Constant.CUSTOM_API_PREFIX, ""));
 
         customServerTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,10 +223,10 @@ public class MeFragment extends Fragment {
     }
 
 
-    private void customServerDialog( SharedPreferences sharedPreferences){
+    private void customServerDialog(SharedPreferences sharedPreferences) {
 
         final EditText edit = new EditText(getActivity());
-        edit.setText(sharedPreferences.getString(Constant.CUSTOM_API_PREFIX,""));
+        edit.setText(sharedPreferences.getString(Constant.CUSTOM_API_PREFIX, ""));
         AlertDialog.Builder editDialog = new AlertDialog.Builder(getActivity());
         editDialog.setTitle(getString(R.string.dialog_btn_confirm_text));
         editDialog.setIcon(R.mipmap.ic_launcher_round);
@@ -242,18 +243,18 @@ public class MeFragment extends Fragment {
                                 edit.getText().toString().trim(),Toast.LENGTH_SHORT).show();*/
 
                         Editable editable = edit.getText();
-                        if(null != editable && null != editable.toString()){
-                            if(editable.toString().startsWith("http://") || editable.toString().startsWith("https://")){
+                        if (null != editable && null != editable.toString()) {
+                            if (editable.toString().startsWith("http://") || editable.toString().startsWith("https://")) {
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString(Constant.CUSTOM_API_PREFIX, editable.toString());
                                 editor.commit();
 
                                 customServerTextView.setText(editable.toString());
-                            }else{
-                                ToastUtil.showToast(getActivity(),"地址必须是http https开头!");
+                            } else {
+                                ToastUtil.showToast(getActivity(), "地址必须是http https开头!");
                             }
-                        }else{
-                            ToastUtil.showToast(getActivity(),"您没有输入地址!");
+                        } else {
+                            ToastUtil.showToast(getActivity(), "您没有输入地址!");
                         }
 
                         dialog.dismiss();
