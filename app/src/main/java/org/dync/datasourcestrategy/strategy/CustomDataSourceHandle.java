@@ -138,13 +138,11 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
 
 
         OkHttpClient client = new OkHttpClient();
-
-        //构造Request对象
-        //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
-        Request request = new Request.Builder().get().url(apiPrefix + "/search?keyWord="+key).build();
-        Call call = client.newCall(request);
-
         try {
+            //构造Request对象
+            //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
+            Request request = new Request.Builder().get().url(apiPrefix + "/search?keyWord="+key).build();
+            Call call = client.newCall(request);
             Response execute = call.execute();
             String responseBody = execute.body().source().readUtf8();
             if (null != responseBody && !"".equals(responseBody)) {
@@ -189,12 +187,13 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
 
         OkHttpClient client = new OkHttpClient();
 
-        //构造Request对象
-        //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
-        Request request = new Request.Builder().get().url(apiPrefix + "/videoDetail?url="+url).build();
-        Call call = client.newCall(request);
 
         try {
+
+            //构造Request对象
+            //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
+            Request request = new Request.Builder().get().url(apiPrefix + "/videoDetail?url="+url).build();
+            Call call = client.newCall(request);
             Response execute = call.execute();
             String responseBody = execute.body().source().readUtf8();
             if (null != responseBody && !"".equals(responseBody)) {
@@ -226,12 +225,13 @@ public class CustomDataSourceHandle implements IDataSourceStrategy {
 
 
         OkHttpClient client = new OkHttpClient();
-        //构造Request对象
-        //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
-        Request request = new Request.Builder().get().url(apiPrefix + "/homeRecommend").build();
-        Call call = client.newCall(request);
+
 
         try {
+            //构造Request对象
+            //采用建造者模式，链式调用指明进行Get请求,传入Get的请求地址
+            Request request = new Request.Builder().get().url(apiPrefix + "/homeRecommend").build();
+            Call call = client.newCall(request);
             Response execute = call.execute();
             String responseBody = execute.body().source().readUtf8();
             if (null != responseBody && !"".equals(responseBody)) {
