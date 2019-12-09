@@ -26,4 +26,8 @@
     <string name="option_data_source_str">切换数据源</string>
     <string name="home_lately_recommend_text_str">推荐:</string>
     <string name="home_recommend_live_str">直播:</string>
+    <string name="custom_server_str">设置私服地址:</string>
+    <string name="dialog_edit_text">确认</string>
+    <string name="dialog_btn_confirm_text">请输入私服前缀:</string>
+
 </resources>

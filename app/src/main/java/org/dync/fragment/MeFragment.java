@@ -1,6 +1,8 @@
 package org.dync.fragment;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,8 +21,10 @@ import android.view.ViewGroup;
 
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import org.dync.ijkplayer.DownloadHistoryActivity;
@@ -67,6 +71,9 @@ public class MeFragment extends Fragment {
 
     private Spinner spinner;
 
+    private TextView customServerTextView;
+    private TextView customServerText;
+
     public static MeFragment newInstance(String name) {
         Bundle args = new Bundle();
         args.putString("name", name);
@@ -97,6 +104,7 @@ public class MeFragment extends Fragment {
         watchHistoryView = view.findViewById(R.id.my_watch_history);
 
         spinner = view.findViewById(R.id.data_source_spinner);
+
 
         downloadView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,6 +176,10 @@ public class MeFragment extends Fragment {
                     //设置数据源
                     int dataSourceOption = sharedPreferences.getInt(Constant.DATA_SOURCE_OPTION,0);
                     GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
+                    if("Custom".equals(seq[dataSourceOption])){
+                        ToastUtil.showToast(getActivity(), "选择私服后,请点击设置私服!");
+                    }
+
                    // ToastUtil.showToast(getActivity(), "Spinner1: position=" + position + " id=" + id);
                     //选择后
                 }
@@ -181,6 +193,74 @@ public class MeFragment extends Fragment {
         }else{
             ToastUtil.showToast(getActivity(), "未能连接上服务器不能提供服务!");
         }
+
+
+        settingCustomServer(view);
+    }
+
+
+
+    private void settingCustomServer(View view){
+        customServerTextView = view.findViewById(R.id.custom_server_view_text);
+        customServerText = view.findViewById(R.id.custom_server_text);
+
+        SharedPreferences sharedPreferences = GlobalConfig.getInstance().getSharedPreferences();
+        customServerTextView.setText(sharedPreferences.getString(Constant.CUSTOM_API_PREFIX,""));
+
+        customServerTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                customServerDialog(sharedPreferences);
+            }
+        });
+        customServerText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                customServerDialog(sharedPreferences);
+            }
+        });
+    }
+
+
+    private void customServerDialog( SharedPreferences sharedPreferences){
+
+        final EditText edit = new EditText(getActivity());
+        edit.setText(sharedPreferences.getString(Constant.CUSTOM_API_PREFIX,""));
+        AlertDialog.Builder editDialog = new AlertDialog.Builder(getActivity());
+        editDialog.setTitle(getString(R.string.dialog_btn_confirm_text));
+        editDialog.setIcon(R.mipmap.ic_launcher_round);
+
+        //设置dialog布局
+        editDialog.setView(edit);
+
+        //设置按钮
+        editDialog.setPositiveButton(getString(R.string.dialog_edit_text)
+                , new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        /*Toast.makeText(getActivity(),
+                                edit.getText().toString().trim(),Toast.LENGTH_SHORT).show();*/
+
+                        Editable editable = edit.getText();
+                        if(null != editable && null != editable.toString()){
+                            if(editable.toString().startsWith("http://") || editable.toString().startsWith("https://")){
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString(Constant.CUSTOM_API_PREFIX, editable.toString());
+                                editor.commit();
+
+                                customServerTextView.setText(editable.toString());
+                            }else{
+                                ToastUtil.showToast(getActivity(),"地址必须是http https开头!");
+                            }
+                        }else{
+                            ToastUtil.showToast(getActivity(),"您没有输入地址!");
+                        }
+
+                        dialog.dismiss();
+                    }
+                });
+
+        editDialog.create().show();
     }
 
     public static void main(String[] args) {
