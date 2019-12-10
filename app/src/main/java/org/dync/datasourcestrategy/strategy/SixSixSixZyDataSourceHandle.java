@@ -42,7 +42,7 @@ public class SixSixSixZyDataSourceHandle implements IDataSourceStrategy {
     private final int maxPage = 1;
 
     public SixSixSixZyDataSourceHandle() {
-        //urlMap.put(KEY, "http://kubozy.net/index.php?m=vod-search-pg-%s-wd-%s.html");
+        //urlMap.put(KEY, "https://www.666zy.com/?m=vod-detail-id-13732.html");
         List<DataSource> dataSourceList = GlobalConfig.getInstance().getVersionUpdate().getDataSource();
         for (DataSource dataSource : dataSourceList) {
             urlMap.put(dataSource.getKey(), dataSource.getSearchUrl());
@@ -102,7 +102,7 @@ public class SixSixSixZyDataSourceHandle implements IDataSourceStrategy {
                     Elements spans = ul.getElementsByTag("span");
                     if (null != spans && spans.size() >= 4) {
 
-                        String type = spans.get(2).text();
+                        String type = spans.get(3).text();
                         if (null != type && !Arrays.asList(GlobalConfig.getInstance().getVersionUpdate().getFilterClass()).contains(type)) {
                             j++;
                             if (j > 20) {
@@ -228,34 +228,40 @@ public class SixSixSixZyDataSourceHandle implements IDataSourceStrategy {
 
             //剧集
             Element episode = body.select("div[style=\"padding-left:10px;word-break: break-all; word-wrap:break-word;\"]").get(0);
-            Elements divs = episode.getElementsByTag("div");
+
             List<VideoGroup> videoGroupList = new ArrayList<>();
             String split = "\\$";
-            for (Element div : divs) {
-                String group = div.getElementsByTag("h3").get(0).getElementsByTag("span").get(0).text();
-                if (null != group && group.contains("m3u8")) {
 
-                    Elements uls = div.getElementsByTag("ul");
-                    if (null != uls && uls.size() > 0) {
-                        Elements lis = uls.get(0).getElementsByTag("li");
+            Elements groups = episode.getElementsByTag("h3");
+            String videoTypes[] = new String[null != groups ? groups.size() : 0];
+            for (int i = 0; i < groups.size(); i++) {
+                videoTypes[i] = groups.get(i).text().replace("来源：", "");
+            }
+            Elements uls = episode.getElementsByTag("ul");
+            if (null != uls && uls.size() > 0) {
+                int i = 0;
+                for (Element ul : uls) {
+                    if (videoTypes[i].contains("m3u8")) {
+                        Elements lis = ul.getElementsByTag("li");
                         List<Video> videoList = new ArrayList<>();
                         if (null != lis && lis.size() > 0) {
                             for (Element li : lis) {
-                                String[] epiArr = li.text().split(split);
+                                String[] epiArr = li.getElementsByTag("a").text().split(split);
                                 String number = epiArr[0];
                                 String m3u8 = epiArr[1];
                                 Video video = new Video();
                                 video.setName(number);
                                 video.setUrl(m3u8);
                                 videoList.add(video);
+
                             }
                         }
                         VideoGroup videoGroup = new VideoGroup();
-                        videoGroup.setGroup(group);
+                        videoGroup.setGroup(videoTypes[i]);
                         videoGroup.setVideoList(videoList);
                         videoGroupList.add(videoGroup);
                     }
-
+                    i++;
                 }
             }
 
@@ -282,9 +288,9 @@ public class SixSixSixZyDataSourceHandle implements IDataSourceStrategy {
 
     public static void main(String[] args) {
         IDataSourceStrategy handle = new SixSixSixZyDataSourceHandle();
-        handle.search("庆余年", 1);
-        handle.homeRecommend();
-        handle.videoDetail("http://kubozy.net/?m=vod-detail-id-30397.html");
+        //handle.search("庆余年", 1);
+        // handle.homeRecommend();
+        handle.videoDetail("https://www.666zy.com/?m=vod-detail-id-13732.html");
 
     }
 }

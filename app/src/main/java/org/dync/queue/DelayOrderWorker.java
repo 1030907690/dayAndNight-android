@@ -40,13 +40,13 @@ public class DelayOrderWorker implements Runnable {
     public void run() {
         //相关业务逻辑处理
         System.out.println(Thread.currentThread().getName() + " do something action: " + this.getAction() + " id : " + this.getId());
-        switch (this.getAction()) {
+       /* switch (this.getAction()) {
 
             default:
                 System.out.println("处理的action [ {} ]"+ this.getAction());
                 break;
         }
-
+*/
 
     }
 
