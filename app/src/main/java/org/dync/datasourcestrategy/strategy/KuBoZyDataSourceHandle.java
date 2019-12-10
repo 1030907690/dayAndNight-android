@@ -110,7 +110,7 @@ public class KuBoZyDataSourceHandle implements IDataSourceStrategy {
                             }
                             Element aTag = spans.get(1).getElementsByTag("a").get(0);
                             String detailUrl = domain + aTag.attr("href");
-                            String name = domain + aTag.text();
+                            String name = aTag.text();
                             VideoSearch videoSearch = new VideoSearch(name, "photo", detailUrl, "performer");
                             info.put(videoSearch.getUrl(), videoSearch);
                         }
