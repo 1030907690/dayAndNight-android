@@ -21,6 +21,7 @@ import org.dync.adapter.RecyclerSearchAdapter;
 import org.dync.adapter.RecyclerSearchTvAdapter;
 import org.dync.bean.Video;
 import org.dync.bean.VideoSearch;
+import org.dync.crash.MyCrashHandler;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
@@ -46,6 +47,7 @@ public class VideoSearchListTvActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MyCrashHandler.instance().init(getApplicationContext());
         setContentView(R.layout.video_search_list_tv_activity);
 
         initData();

@@ -21,6 +21,7 @@ import org.dync.adapter.RecyclerVideoSourceDramaSeriesTvAdapter;
 import org.dync.bean.Video;
 import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoGroup;
+import org.dync.crash.MyCrashHandler;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.utils.DownLoadTask;
 import org.dync.utils.GlobalConfig;
@@ -64,6 +65,7 @@ public class VideoDetailTvActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MyCrashHandler.instance().init(getApplicationContext());
         setContentView(R.layout.video_detail_tv_activity);
         initView();
 

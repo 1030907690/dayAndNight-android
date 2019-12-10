@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.C;
 import org.dync.adapter.RecyclerVideoSourceDramaSeriesAdapter;
 import org.dync.bean.Video;
 import org.dync.bean.VideoGroup;
+import org.dync.crash.MyCrashHandler;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.ijkplayer.utils.GlideUtil;
 import org.dync.ijkplayer.utils.NetworkUtils;
@@ -243,6 +244,7 @@ public class VideoTvActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MyCrashHandler.instance().init(getApplicationContext());
         setContentView(R.layout.activity_video_tv);
         ButterKnife.bind(this);
 

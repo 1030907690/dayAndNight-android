@@ -18,6 +18,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import org.dync.adapter.VideoListAdapter;
+import org.dync.crash.MyCrashHandler;
 import org.dync.db.SQLiteOperationHelper;
 import org.dync.utils.StorageUtils;
 import org.dync.utils.VideoType;
@@ -48,6 +49,7 @@ public class DownloadHistoryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MyCrashHandler.instance().init(getApplicationContext());
         setContentView(R.layout.download_history_activity);
         requestAppPermissions();
         try {

@@ -32,6 +32,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import org.dync.adapter.ViewPagerAdapter;
 import org.dync.bean.VersionUpdate;
+import org.dync.crash.MyCrashHandler;
 import org.dync.dialog.UpdataDialog;
 import org.dync.fragment.AboutFragment;
 import org.dync.fragment.HomeFragment;
@@ -365,6 +366,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MyCrashHandler.instance().init(getApplicationContext());
         setContentView(R.layout.activity_bottom_navigation_view);
         if (null == GlobalConfig.getInstance().getVersionUpdate()) {
             checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);

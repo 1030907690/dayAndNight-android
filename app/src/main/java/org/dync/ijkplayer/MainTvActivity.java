@@ -28,6 +28,7 @@ import org.dync.bean.Live;
 import org.dync.bean.VersionUpdate;
 import org.dync.bean.VideoGroup;
 import org.dync.bean.VideoSearch;
+import org.dync.crash.MyCrashHandler;
 import org.dync.dialog.UpdataDialog;
 import org.dync.ijkplayerlib.widget.util.Settings;
 import org.dync.queue.DelayOrderTask;
@@ -110,6 +111,7 @@ public class MainTvActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        MyCrashHandler.instance().init(getApplicationContext());
         setContentView(R.layout.tv_main_activity);
 
         initView();
