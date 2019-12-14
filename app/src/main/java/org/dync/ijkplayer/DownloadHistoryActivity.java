@@ -20,6 +20,8 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import org.dync.adapter.VideoListAdapter;
 import org.dync.crash.MyCrashHandler;
 import org.dync.db.SQLiteOperationHelper;
+import org.dync.utils.Constant;
+import org.dync.utils.GlobalConfig;
 import org.dync.utils.StorageUtils;
 import org.dync.utils.VideoType;
 
@@ -83,7 +85,16 @@ public class DownloadHistoryActivity extends AppCompatActivity {
                 String url = m3U8Task.getUrl();
                 if (M3U8Downloader.getInstance().checkM3U8IsExist(url)) {
                     Toast.makeText(getApplicationContext(), "本地文件已下载，正在播放中！！！", Toast.LENGTH_SHORT).show();
-                    VideoActivity.intentTo(DownloadHistoryActivity.this, M3U8Downloader.getInstance().getM3U8Path(url), null, null, m3U8Task.getName(), VideoType.DOWNLOAD.getCode());
+
+                    String device = GlobalConfig.getInstance().getSharedPreferences().getString(Constant.SWITCH, null);
+                    if(SwitchTvOrPhoneActivity.SWITCH_DEVICE[0].equals(device)){
+                        VideoTvActivity.intentTo(DownloadHistoryActivity.this, M3U8Downloader.getInstance().getM3U8Path(url), null, null, m3U8Task.getName(), VideoType.DOWNLOAD.getCode());
+                    }else  if(SwitchTvOrPhoneActivity.SWITCH_DEVICE[1].equals(device)){
+                        VideoActivity.intentTo(DownloadHistoryActivity.this, M3U8Downloader.getInstance().getM3U8Path(url), null, null, m3U8Task.getName(), VideoType.DOWNLOAD.getCode());
+                    }
+
+
+
                 } else {
                     M3U8Downloader.getInstance().download(m3U8Task.getName(),url);
                 }

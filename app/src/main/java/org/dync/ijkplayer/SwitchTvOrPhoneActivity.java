@@ -42,7 +42,7 @@ public class SwitchTvOrPhoneActivity extends AppCompatActivity {
 
     private Activity context = this;
 
-    private final String SWITCH_DEVICE[] = {"TV", "PHONE"};
+    public static final String SWITCH_DEVICE[] = {"TV", "PHONE"};
 
     //步骤1：创建一个SharedPreferences对象
     private SharedPreferences sharedPreferences;

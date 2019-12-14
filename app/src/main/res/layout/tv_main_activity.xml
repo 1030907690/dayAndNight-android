@@ -16,17 +16,26 @@
             <EditText
                 android:id="@+id/tv_search_editText"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 android:hint="@string/tips_search" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/tv_btn_search"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/search"
                 android:layout_alignRight="@id/tv_search_editText"
                 android:text="Search/Open" />
 
+
+            <ImageButton
+                android:id="@+id/tv_btn_menu"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/menu"
+                android:layout_alignRight="@id/tv_btn_search"
+                android:text="设置" />
         </LinearLayout>
 
 

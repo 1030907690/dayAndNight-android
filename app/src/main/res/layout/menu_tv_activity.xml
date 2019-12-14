@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+  <!--我的界面-->
+
+
+    <LinearLayout
+        android:id="@+id/my_download_lin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/my_download"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:text="@string/my_download_str"
+        android:textSize="30dp"
+        android:layout_weight="1"
+        />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="50dp"
+        android:src="@drawable/geq" />
+   </LinearLayout>
+
+    <View
+        android:id="@+id/my_download_darker"
+        android:layout_below="@+id/my_download_lin"
+        android:layout_width="fill_parent"
+        android:layout_height="2px"
+        android:background="@android:color/darker_gray"  />
+    <!--观看历史-->
+    <LinearLayout
+        android:layout_below="@+id/my_download_darker"
+        android:id="@+id/watch_history_lin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/my_watch_history"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:text="@string/watch_history_str"
+            android:textSize="30dp"
+            android:layout_weight="2"
+            />
+
+        <ImageView
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:src="@drawable/geq" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/watch_history_darker"
+        android:layout_below="@+id/watch_history_lin"
+        android:layout_width="fill_parent"
+        android:layout_height="2px"
+        android:background="@android:color/darker_gray"  />
+
+
+
+    <!--选择数据源-->
+    <LinearLayout
+        android:layout_below="@+id/watch_history_darker"
+        android:id="@+id/option_data_source_lin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/option_data_source"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:text="@string/option_data_source_str"
+            android:textSize="30dp"
+            android:layout_weight="1"
+            />
+
+        <Spinner
+            android:id="@+id/data_source_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/option_data_source_darker"
+        android:layout_below="@+id/option_data_source_lin"
+        android:layout_width="fill_parent"
+        android:layout_height="2px"
+        android:background="@android:color/darker_gray"  />
+
+
+    <!--设置私服地址前缀-->
+    <LinearLayout
+        android:layout_below="@+id/option_data_source_darker"
+        android:id="@+id/custom_server_lin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/custom_server_text"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:text="@string/custom_server_str"
+            android:textSize="30dp"
+            android:layout_weight="1"
+            />
+
+        <TextView
+            android:id="@+id/custom_server_view_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/custom_server_darker"
+        android:layout_below="@+id/custom_server_lin"
+        android:layout_width="fill_parent"
+        android:layout_height="2px"
+        android:background="@android:color/darker_gray"  />
+
+</RelativeLayout>

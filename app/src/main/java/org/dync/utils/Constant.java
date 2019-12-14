@@ -5,6 +5,9 @@ package org.dync.utils;
  * */
 public class Constant {
 
+    /** 选择手机还是电视机**/
+    public static final String SWITCH = "switch";
+
     /**数据源切换选择**/
     public static final String DATA_SOURCE_OPTION = "data_source_option";
 

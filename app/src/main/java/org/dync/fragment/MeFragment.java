@@ -199,11 +199,11 @@ public class MeFragment extends Fragment {
         }
 
 
-        settingCustomServer(view);
+        settingCustomServer();
     }
 
 
-    private void settingCustomServer(View view) {
+    private void settingCustomServer() {
 
         SharedPreferences sharedPreferences = GlobalConfig.getInstance().getSharedPreferences();
         customServerTextView.setText(sharedPreferences.getString(Constant.CUSTOM_API_PREFIX, ""));

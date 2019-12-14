@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +17,7 @@ import android.text.Editable;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -61,7 +64,9 @@ public class MainTvActivity extends AppCompatActivity {
 
     private EditText searchEdit;
 
-    private Button searchBtn;
+    private ImageButton searchBtn;
+
+    private ImageButton tvBtnMenu;
 
     private Activity content = this;
 
@@ -292,7 +297,9 @@ public class MainTvActivity extends AppCompatActivity {
                     GlobalConfig.getInstance().setVersionUpdate(versionUpdate);
                     comparison();
 
-
+                    //设置数据源
+                    int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION, 0);
+                    GlobalConfig.getInstance().setOptionDataSourceStrategy(dataSourceOption);
                     /**
                      * 加载推荐内容
                      * **/
@@ -463,6 +470,8 @@ public class MainTvActivity extends AppCompatActivity {
         recommendLiveRecyclerView = findViewById(R.id.home_live_recommend_view);
 
         tabLayoutLiveData = findViewById(R.id.tab_layout_live_data);
+
+        tvBtnMenu = findViewById(R.id.tv_btn_menu);
     }
 
 
@@ -484,6 +493,54 @@ public class MainTvActivity extends AppCompatActivity {
                 } else {
                     ToastUtil.showToast(content, "请输入关键字");
                 }
+            }
+        });
+
+        searchBtn.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                //获取焦点时变化
+                if (hasFocus) {
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        //选中动画
+                        ViewCompat.animate(v).scaleX(1.17f).scaleY(1.17f).translationZ(1).start();
+                    } else {
+                        ViewCompat.animate(v).scaleX(1.17f).scaleY(1.17f).start();
+                        ViewGroup parent = (ViewGroup) v.getParent();
+                        parent.requestLayout();
+                        parent.invalidate();
+                    }
+                } else {
+                    ViewCompat.animate(v).scaleX(1f).scaleY(1f).start();
+                }
+            }
+        });
+
+        tvBtnMenu.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                //获取焦点时变化
+                if (hasFocus) {
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        //选中动画
+                        ViewCompat.animate(v).scaleX(1.17f).scaleY(1.17f).translationZ(1).start();
+                    } else {
+                        ViewCompat.animate(v).scaleX(1.17f).scaleY(1.17f).start();
+                        ViewGroup parent = (ViewGroup) v.getParent();
+                        parent.requestLayout();
+                        parent.invalidate();
+                    }
+                } else {
+                    ViewCompat.animate(v).scaleX(1f).scaleY(1f).start();
+                }
+            }
+        });
+
+        tvBtnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(context,MenuTvActivity.class);
+                startActivity(intent);
             }
         });
 

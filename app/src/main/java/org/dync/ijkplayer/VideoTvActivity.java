@@ -80,6 +80,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jaygoo.library.m3u8downloader.server.EncryptM3U8Server;
 import tv.danmaku.ijk.media.exo.IjkExoMediaPlayer;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -222,11 +223,16 @@ public class VideoTvActivity extends BaseActivity {
     private long currentBackTime = 0;
 
     private AtomicInteger hideTipCount = new AtomicInteger(0);
+    private VideoType videoType;
+    private EncryptM3U8Server m3u8Server = new EncryptM3U8Server();
 
-    /** 快进快退秒数 大概是30秒**/
+
+    /**
+     * 快进快退秒数 大概是30秒
+     **/
     private int income = 34748;
 
-    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl, String name,int videoTypeCode) {
+    public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl, String name, int videoTypeCode) {
         Intent intent = new Intent(context, VideoTvActivity.class);
         intent.putExtra("videoPath", videoPath);
         intent.putExtra("videoTitle", videoTitle);
@@ -240,6 +246,9 @@ public class VideoTvActivity extends BaseActivity {
         context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl, name, VideoType.SEARCH.getCode()));
     }
 
+    public static void intentTo(Context context, String videoPath, String videoTitle, String videoUrl, String videoFullName, int videoTypeCode) {
+        context.startActivity(newIntent(context, videoPath, videoTitle, videoUrl, videoFullName, videoTypeCode));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -258,6 +267,23 @@ public class VideoTvActivity extends BaseActivity {
 
         // handle arguments
         mVideoPath = getIntent().getStringExtra("videoPath");
+        Intent tempIntent = getIntent();
+        this.videoType = VideoType.get(tempIntent.getIntExtra("videoTypeCode", 0));
+
+
+        if (videoType == VideoType.DOWNLOAD) {
+            m3u8Server.execute();
+            //转换本地url为网络地址url
+            mVideoPath = m3u8Server.createLocalHttpUrl(mVideoPath);
+            Message msg = videoHandle.obtainMessage();
+            msg.what = 2;
+            videoHandle.sendMessage(msg);
+        } else if (videoType == VideoType.HOME) {
+            Message msg = videoHandle.obtainMessage();
+            msg.what = 2;
+            videoHandle.sendMessage(msg);
+        }
+
         mVideoCoverUrl = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3120404212,3339906847&fm=27&gp=0.jpg";
         mVideoCoverUrl = "https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2973320425,1464020144&fm=27&gp=0.jpg";
 
@@ -372,9 +398,15 @@ public class VideoTvActivity extends BaseActivity {
                     videoNameTipTv.setText(getIntent().getStringExtra("name"));
                     break;
                 case 1:
-                    if(hideTipCount.getAndDecrement() < 2) {
+                    if (hideTipCount.getAndDecrement() < 2) {
                         llBottom.setVisibility(View.GONE);
                         titleNameTip.setVisibility(View.GONE);
+                    }
+                    break;
+                case 2:
+                    String videoFullName = getIntent().getStringExtra("videoFullName");
+                    if (null != videoFullName && !"".equals(videoFullName)) {
+                        videoNameTipTv.setText(videoFullName);
                     }
                     break;
             }

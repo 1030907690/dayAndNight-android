@@ -96,6 +96,11 @@
             android:name=".DownloadHistoryActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
 
+        <!--增加注册activity-->
+        <activity
+            android:name=".MenuTvActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
+
 
     </application>
 

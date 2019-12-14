@@ -2,6 +2,7 @@ package org.dync.ijkplayer;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -23,6 +24,7 @@ import org.dync.bean.VideoDetail;
 import org.dync.bean.VideoGroup;
 import org.dync.crash.MyCrashHandler;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
+import org.dync.db.SQLiteOperationHelper;
 import org.dync.utils.DownLoadTask;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
@@ -140,7 +142,7 @@ public class VideoDetailTvActivity extends AppCompatActivity {
 
                         @Override
                         public void onItemLongClick(View view, int position) {
-                            ToastUtil.showToast(content, "长按");
+                            addDownloadList((Button) view);
                         }
                     });
 
@@ -184,7 +186,8 @@ public class VideoDetailTvActivity extends AppCompatActivity {
 
                     @Override
                     public void onItemLongClick(View view, int position) {
-                        ToastUtil.showToast(content, "长按");
+                        //ToastUtil.showToast(content, "长按");
+                        addDownloadList((Button) view);
                     }
                 });
 
@@ -211,4 +214,21 @@ public class VideoDetailTvActivity extends AppCompatActivity {
         videoInfo = findViewById(R.id.video_detail_plot_info_tv);
     }
 
+
+    /***
+     * zhouzhongqing
+     * 2019年10月30日10:56:53
+     * 添加到下载列表
+     * */
+    private void addDownloadList(Button videoItemBtn) {
+        ToastUtil.showToast(VideoDetailTvActivity.this, "添加到任务列表 " + videoNameStr + videoItemBtn.getText() + " 请到我的下载开始下载");
+        SQLiteOperationHelper sqLiteOperationHelper = new SQLiteOperationHelper(VideoDetailTvActivity.this);
+        SQLiteDatabase db = sqLiteOperationHelper.getWritableDatabase();
+        db.beginTransaction();
+        db.execSQL("insert into " + SQLiteOperationHelper.DOWNLOAD_TABLE_NAME + " (name ,url ) values ('" + videoNameStr + " " + videoItemBtn.getText().toString() + "', '" + videoItemBtn.getTag().toString() + "')");
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+        sqLiteOperationHelper.close();
+    }
 }
