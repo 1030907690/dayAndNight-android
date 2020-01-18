@@ -68,9 +68,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -275,6 +278,20 @@ public class VideoTvActivity extends BaseActivity {
             m3u8Server.execute();
             //转换本地url为网络地址url
             mVideoPath = m3u8Server.createLocalHttpUrl(mVideoPath);
+            new Thread(){
+
+                @Override
+                public void run() {
+                    try {
+                        BufferedReader tempReader = new BufferedReader(new InputStreamReader(new URL(mVideoPath).openStream()));
+                        Log.d("MUtils", mVideoPath+ "可以访问");
+                    } catch (IOException e2) {
+                        e2.printStackTrace();
+                        Log.d("MUtils", mVideoPath + "不能处理的url");
+                    }
+                }
+            }.start();
+
             Message msg = videoHandle.obtainMessage();
             msg.what = 2;
             videoHandle.sendMessage(msg);
@@ -1289,6 +1306,10 @@ public class VideoTvActivity extends BaseActivity {
         onDestroyVideo();
         WindowManagerUtil.removeSmallWindow(mContext);
         WindowManagerUtil.removeSmallApp(flAppWindow);
+        if (videoType == VideoType.DOWNLOAD) {
+            //关闭服务
+            m3u8Server.finish();
+        }
     }
 
     private void onDestroyVideo() {
@@ -1317,6 +1338,25 @@ public class VideoTvActivity extends BaseActivity {
         }
 
     }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (videoType == VideoType.DOWNLOAD) {
+            m3u8Server.decrypt();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (videoType == VideoType.DOWNLOAD) {
+            m3u8Server.encrypt();
+        }
+    }
+
 
 
     private void showBottom() {
