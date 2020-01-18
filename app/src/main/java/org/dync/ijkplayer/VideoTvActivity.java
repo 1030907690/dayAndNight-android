@@ -278,20 +278,6 @@ public class VideoTvActivity extends BaseActivity {
             m3u8Server.execute();
             //转换本地url为网络地址url
             mVideoPath = m3u8Server.createLocalHttpUrl(mVideoPath);
-            new Thread(){
-
-                @Override
-                public void run() {
-                    try {
-                        BufferedReader tempReader = new BufferedReader(new InputStreamReader(new URL(mVideoPath).openStream()));
-                        Log.d("MUtils", mVideoPath+ "可以访问");
-                    } catch (IOException e2) {
-                        e2.printStackTrace();
-                        Log.d("MUtils", mVideoPath + "不能处理的url");
-                    }
-                }
-            }.start();
-
             Message msg = videoHandle.obtainMessage();
             msg.what = 2;
             videoHandle.sendMessage(msg);
