@@ -21,4 +21,7 @@ public class Constant {
 
     /**私服**/
     public static final String CUSTOM_API_PREFIX = "custom_api_prefix";
+
+    /** 记录亮度 **/
+    public static final String RECORD_BRIGHTNESS = "record_brightness";
 }

@@ -829,12 +829,12 @@ public class PlayerController {
      * zhouzhongqing 2019-11-23 20:47
      * @return
      */
-    public PlayerController setBrightnessController(float maxProgress) {
+    public PlayerController setBrightnessController(float defaultProgress) {
         try {
             int e = android.provider.Settings.System.getInt(this.mContext.getContentResolver(), android.provider.Settings.System.SCREEN_BRIGHTNESS);
             float progress = 1.0F * (float) e / 255.0F;
-            if(progress > maxProgress){
-                progress = maxProgress;
+            if (defaultProgress > 0) {
+                progress = defaultProgress;
             }
             WindowManager.LayoutParams layout = this.mActivity.getWindow().getAttributes();
             layout.screenBrightness = progress;

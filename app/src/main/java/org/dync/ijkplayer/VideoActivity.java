@@ -3,6 +3,7 @@ package org.dync.ijkplayer;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.ColorDrawable;
@@ -62,6 +63,7 @@ import org.dync.subtitleconverter.subtitleFile.FormatSTL;
 import org.dync.subtitleconverter.subtitleFile.FormatTTML;
 import org.dync.subtitleconverter.subtitleFile.TimedTextFileFormat;
 import org.dync.subtitleconverter.subtitleFile.TimedTextObject;
+import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
 import org.dync.utils.VideoType;
@@ -506,6 +508,10 @@ public class VideoActivity extends BaseActivity {
 //        mMediaController.setSupportActionBar(actionBar);
 //        mVideoView.setMediaController(mMediaController);
 
+        //得到记录的亮度 2020年1月18日11:43:55
+       SharedPreferences sharedPreferences = GlobalConfig.getInstance().getSharedPreferences();
+       float recordBrightness = GlobalConfig.getInstance().getSharedPreferences().getFloat(Constant.RECORD_BRIGHTNESS,0.05f);
+
         showVideoLoading();
         mPlayerController = null;
 
@@ -513,7 +519,7 @@ public class VideoActivity extends BaseActivity {
                 .setVideoParentLayout(findViewById(R.id.rl_video_view_layout))//建议第一个调用
                 .setVideoController((SeekBar) findViewById(R.id.seekbar))
                 .setVolumeController()
-                .setBrightnessController(0.05f)
+                .setBrightnessController(recordBrightness)
                 .setVideoParentRatio(IRenderView.AR_16_9_FIT_PARENT)
                 .setVideoRatio(IRenderView.AR_16_9_FIT_PARENT)
                 .setPortrait(true)
@@ -577,6 +583,14 @@ public class VideoActivity extends BaseActivity {
                         appVideoVolumeBox.setVisibility(View.GONE);
                         appVideoBrightness.setVisibility(View.VISIBLE);
                         appVideoBrightness.setText((int) (brightness * 100) + "%");
+
+                        //保存亮度
+                        //步骤2： 实例化SharedPreferences.Editor对象
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        //步骤3：将获取过来的值放入文件
+                        editor.putFloat(Constant.RECORD_BRIGHTNESS,brightness);
+                        //步骤4：提交
+                        editor.commit();
                     }
 
                     @Override
