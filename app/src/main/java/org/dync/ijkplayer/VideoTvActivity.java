@@ -61,6 +61,7 @@ import org.dync.subtitleconverter.subtitleFile.TimedTextFileFormat;
 import org.dync.subtitleconverter.subtitleFile.TimedTextObject;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
+import org.dync.utils.Utils;
 import org.dync.utils.VideoType;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -228,12 +229,16 @@ public class VideoTvActivity extends BaseActivity {
     private AtomicInteger hideTipCount = new AtomicInteger(0);
     private VideoType videoType;
     private EncryptM3U8Server m3u8Server = new EncryptM3U8Server();
-
-
     /**
-     * 快进快退秒数 大概是30秒
+     * 默认快进快退秒数 大概是30秒
      **/
-    private int income = 34748;
+    private int DEFAULT_INCOME = 34748;
+
+    /** 快进快退的秒数 **/
+    private int confirmIncome = 0;
+
+    /**增长阈值**/
+    private int INCOME_VALVE = 3475840;
 
     public static Intent newIntent(Context context, String videoPath, String videoTitle, String videoUrl, String name, int videoTypeCode) {
         Intent intent = new Intent(context, VideoTvActivity.class);
@@ -1478,6 +1483,7 @@ public class VideoTvActivity extends BaseActivity {
     }
 
     private void fastRetreat() {
+        calculationIncome();
         mPlayerController.setDragging(true);
         mPlayerController.getmHandler().removeMessages(PlayerController.MESSAGE_SHOW_PROGRESS);
         if (mPlayerController.getmAutoControlPanelRunnable() != null) {
@@ -1488,7 +1494,7 @@ public class VideoTvActivity extends BaseActivity {
         long duration = videoView.getDuration();
         long newPosition = (long) ((duration * mPlayerController.getSeekBar().getProgress() * 1.0) / mPlayerController.getSeekBarMaxProgress());
         //快进大概10秒
-        newPosition = (newPosition + (-income));
+        newPosition = (newPosition + (-confirmIncome));
         Log.d(TAG, "newPosition " + newPosition);
         mPlayerController.setNewPosition(newPosition);
         mPlayerController.setDragging(false);
@@ -1505,8 +1511,28 @@ public class VideoTvActivity extends BaseActivity {
     }
 
 
-    private void fastForward() {
+    /**
+     * 计算快进快退秒数
+     * 2020年1月18日15:18:36
+     * **/
+    private void calculationIncome(){
+        if (confirmIncome <= 0 ) {
+            //得到整部片子毫秒
+            int duration = videoView.getDuration();
+            // 如果大于阀值
+            if (duration > INCOME_VALVE) {
+                //计算大于多少倍
+                int multiple = Utils.round(duration,INCOME_VALVE);
+                this.confirmIncome = Utils.multiply(Utils.multiply(multiple,DEFAULT_INCOME),2);
+            }else{
+                this.confirmIncome = DEFAULT_INCOME;
+            }
+            Log.d("VideoTvActivity","confirmIncome " + this.confirmIncome);
+        }
+    }
 
+    private void fastForward() {
+        calculationIncome();
 
         mPlayerController.setDragging(true);
         mPlayerController.getmHandler().removeMessages(PlayerController.MESSAGE_SHOW_PROGRESS);
@@ -1514,11 +1540,11 @@ public class VideoTvActivity extends BaseActivity {
             mPlayerController.getmAutoControlPanelRunnable().stop();
         }
 
-
+        //得到整部片子毫秒
         long duration = videoView.getDuration();
         long newPosition = (long) ((duration * mPlayerController.getSeekBar().getProgress() * 1.0) / mPlayerController.getSeekBarMaxProgress());
         //快进大概10秒
-        newPosition = (newPosition + income);
+        newPosition = (newPosition + confirmIncome);
         Log.d(TAG, "newPosition " + newPosition);
         mPlayerController.setNewPosition(newPosition);
         mPlayerController.setDragging(false);
