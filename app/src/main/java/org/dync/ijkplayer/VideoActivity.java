@@ -1332,6 +1332,9 @@ public class VideoActivity extends BaseActivity {
             //关闭服务
             m3u8Server.finish();
         }
+
+        //添加观看历史
+        addWatchHistory();
     }
 
     private void onDestroyVideo() {
@@ -1394,5 +1397,29 @@ public class VideoActivity extends BaseActivity {
         db.endTransaction();
         db.close();
         sqLiteOperationHelper.close();
+    }
+
+
+
+
+
+    /***
+     * zhouzhongqing
+     * 2020年02月19日21:28:05
+     * 添加观看记录
+     * */
+    private void addWatchHistory() {
+        ToastUtil.showToast(VideoActivity.this, videoNameTipTv.getText().toString());
+        if (VideoType.HOME.getCode().equals(videoType.getCode()) || VideoType.SEARCH.getCode().equals(videoType.getCode())) {
+         //   String videoUrlPath = mVideoPath;
+            SQLiteOperationHelper sqLiteOperationHelper = new SQLiteOperationHelper(VideoActivity.this);
+            SQLiteDatabase db = sqLiteOperationHelper.getWritableDatabase();
+            db.beginTransaction();
+          //  db.execSQL("insert into " + SQLiteOperationHelper.WATCH_TABLE_NAME + " (name ,url ) values ('" + videoTitleName + " " + videoItemBtn.getText().toString() + "', '" + videoItemBtn.getTag().toString() + "')");
+            db.setTransactionSuccessful();
+            db.endTransaction();
+            db.close();
+            sqLiteOperationHelper.close();
+        }
     }
 }

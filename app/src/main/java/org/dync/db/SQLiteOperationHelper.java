@@ -26,7 +26,7 @@ public class SQLiteOperationHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String sql = "create table if not exists " + DOWNLOAD_TABLE_NAME + " (id integer primary key, name text, url text)";
-        String watchSql = "create table if not exists " + WATCH_TABLE_NAME + " (id integer primary key, name text, url text)";
+        String watchSql = "create table if not exists " + WATCH_TABLE_NAME + " (id integer primary key, name text, domain_key text,url text,url_item text,duration integer)";
         sqLiteDatabase.execSQL(sql);
         sqLiteDatabase.execSQL(watchSql);
     }
