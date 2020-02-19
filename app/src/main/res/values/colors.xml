@@ -28,4 +28,15 @@
 
     <color name="tab_checked">#ED6A2C</color>
     <color name="tab_unchecked">#757575</color>
+
+    <!--页面背景的颜色-->
+    <color name="color_page_bg">#F1F3F4</color>
+    <color name="common_gray">#787676</color>
+    <color name="color_black">#000000</color>
+    <color name="color_white">#ffffff</color>
+    <color name="color_cccccc">#cccccc</color>
+    <color name="colorTitle">#666</color>
+    <color name="common_red">#f11919</color>
+    <color name="colorWhite">#ffffffff</color>
+
 </resources>

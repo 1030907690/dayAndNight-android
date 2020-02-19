@@ -44,6 +44,7 @@ import org.dync.utils.BottomNavigationViewHelper;
 import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
+import org.dync.utils.Utils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -368,6 +369,7 @@ public class BottomNavigationViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         MyCrashHandler.instance().init(getApplicationContext());
         setContentView(R.layout.activity_bottom_navigation_view);
+        Utils.applyPermission(context);
         if (null == GlobalConfig.getInstance().getVersionUpdate()) {
             checkVersionGet(GlobalConfig.getInstance().getRemoteServer()[GlobalConfig.reCount]);
         }

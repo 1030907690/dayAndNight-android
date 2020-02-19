@@ -1,5 +1,6 @@
 package org.dync.ijkplayer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import org.dync.crash.MyCrashHandler;
 import org.dync.datasourcestrategy.IDataSourceStrategy;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
+import org.dync.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private List<VideoSearch> mDatas;
     private RecyclerSearchAdapter mAdapter;
-    private Context context = this;
+    private Activity context = this;
     private TextView searchNoDataTips;
 
     @Override
@@ -40,7 +42,7 @@ public class VideoSearchListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         MyCrashHandler.instance().init(getApplicationContext());
         setContentView(R.layout.video_search_list);
-
+        Utils.applyPermission(context);
         initData();
 
     }

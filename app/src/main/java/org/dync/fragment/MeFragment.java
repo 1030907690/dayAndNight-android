@@ -30,6 +30,7 @@ import android.widget.Toast;
 import org.dync.ijkplayer.DownloadHistoryActivity;
 import org.dync.ijkplayer.MainActivity;
 import org.dync.ijkplayer.R;
+import org.dync.ijkplayer.WatchHistoryActivity;
 import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
@@ -151,7 +152,10 @@ public class MeFragment extends Fragment {
         watchHistoryView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ToastUtil.showToast(getActivity(), "功能正在开发中...");
+                // ToastUtil.showToast(getActivity(), "功能正在开发中...");
+                Intent intent = new Intent(getActivity(), WatchHistoryActivity.class);
+                getActivity().startActivity(intent);
+
             }
         });
 

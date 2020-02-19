@@ -66,6 +66,7 @@ import org.dync.subtitleconverter.subtitleFile.TimedTextObject;
 import org.dync.utils.Constant;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
+import org.dync.utils.Utils;
 import org.dync.utils.VideoType;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -279,6 +280,7 @@ public class VideoActivity extends BaseActivity {
         setContentView(R.layout.activity_video);
         ButterKnife.bind(this);
 
+        Utils.applyPermission(VideoActivity.this);
         mContext = this;
 
         //隐藏 2019年8月31日16:45:43

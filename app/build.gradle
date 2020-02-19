@@ -63,4 +63,14 @@ dependencies {
     implementation project(path: ':library')
     implementation 'com.karumi:dexter:4.2.0'
     implementation 'com.github.NanoHttpd.nanohttpd:nanohttpd:master'
+
+    //SmartRefreshLayout
+    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0'
+    implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0'
+    // 通用标题栏：https://github.com/getActivity/TitleBar
+    implementation 'com.hjq:titlebar:3.5'
+    // 用Gson解析json
+    implementation 'com.google.code.gson:gson:2.8.2'
+    //cardview
+    implementation 'com.android.support:cardview-v7:28.0.0'
 }
