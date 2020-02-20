@@ -212,16 +212,14 @@ public class WatchHistoryActivity extends AppCompatActivity {
             SQLiteOperationHelper sqLiteOperationHelper = new SQLiteOperationHelper(WatchHistoryActivity.this);
             SQLiteDatabase db = sqLiteOperationHelper.getReadableDatabase();
 
-
-
             int num[] = new int[2];
-            int pagesSize = 2;
+            int pagesSize = 100;
             num[0] = page * pagesSize;// 0*50 1*50 2*50
             num[1] = pagesSize;
             String sql = "select id,name ,data_source,url,url_item,duration,create_time,name_node from "+SQLiteOperationHelper.WATCH_TABLE_NAME+" where 1=1 and data_source="+dataSourceOption+" order by id desc limit "  + num[0] + "," + num[1];
 
             Cursor cursor = db.rawQuery(sql,null);
-            ToastUtil.showToast(context,"数据条" + cursor.getCount());
+            //ToastUtil.showToast(context,"数据条" + cursor.getCount());
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
                     MovieDataModel data = new MovieDataModel();
