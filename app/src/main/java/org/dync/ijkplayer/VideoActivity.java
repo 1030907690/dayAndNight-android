@@ -1418,20 +1418,27 @@ public class VideoActivity extends BaseActivity {
      * */
     private void addWatchHistory() {
         if (VideoType.HOME.getCode().equals(videoType.getCode()) || VideoType.SEARCH.getCode().equals(videoType.getCode()) || VideoType.WATCH_HISTORY.getCode().equals(videoType.getCode())) {
-            int newPosition =  (int)((videoView.getDuration() * mPlayerController.getSeekBar().getProgress() * 1.0) / mPlayerController.getSeekBarMaxProgress());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String dataStr = sdf.format(new Date());
-            int selectDataSource = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION,0);
             SQLiteOperationHelper sqLiteOperationHelper = new SQLiteOperationHelper(VideoActivity.this);
             SQLiteDatabase db = sqLiteOperationHelper.getWritableDatabase();
             db.beginTransaction();
-            db.execSQL("insert into " + SQLiteOperationHelper.WATCH_TABLE_NAME + " (name ,data_source,url,url_item,duration,create_time,name_node) values" +
-                    " ('" + videoTitleName +"'" +","+selectDataSource +",'"+videoUrl+"'" + ",'"
-                    +mVideoPath+"'"+","+newPosition+",'"+dataStr+"'"+",'"+videoNameTipTv.getText().toString().replace(videoTitleName,"")+"'"+")");
-            db.setTransactionSuccessful();
-            db.endTransaction();
-            db.close();
-            sqLiteOperationHelper.close();
+            try{
+                int newPosition = (int) ((videoView.getDuration() * mPlayerController.getSeekBar().getProgress() * 1.0) / mPlayerController.getSeekBarMaxProgress());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String dataStr = sdf.format(new Date());
+                int selectDataSource = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION,0);
+                db.execSQL("insert into " + SQLiteOperationHelper.WATCH_TABLE_NAME + " (name ,data_source,url,url_item,duration,create_time,name_node) values" +
+                        " ('" + videoTitleName +"'" +","+selectDataSource +",'"+videoUrl+"'" + ",'"
+                        +mVideoPath+"'"+","+newPosition+",'"+dataStr+"'"+",'"+videoNameTipTv.getText().toString().replace(videoTitleName,"")+"'"+")");
+            }catch (Exception e){
+                e.printStackTrace();
+            }finally {
+                if (null != db) {
+                    db.setTransactionSuccessful();
+                    db.endTransaction();
+                    db.close();
+                }
+                sqLiteOperationHelper.close();
+            }
         }
     }
 }

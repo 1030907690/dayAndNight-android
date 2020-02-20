@@ -64,7 +64,7 @@ public class WatchHistoryActivity extends AppCompatActivity {
     //步骤1：创建一个SharedPreferences对象
     private SharedPreferences sharedPreferences;
 
-    private final int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION,0);
+    private final int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION, 0);
 
 
     @BindView(R.id.mTitleBar)
@@ -216,16 +216,16 @@ public class WatchHistoryActivity extends AppCompatActivity {
             int pagesSize = 100;
             num[0] = page * pagesSize;// 0*50 1*50 2*50
             num[1] = pagesSize;
-            String sql = "select id,name ,data_source,url,url_item,duration,create_time,name_node from "+SQLiteOperationHelper.WATCH_TABLE_NAME+" where 1=1 and data_source="+dataSourceOption+" order by id desc limit "  + num[0] + "," + num[1];
+            String sql = "select id,name ,data_source,url,url_item,duration,create_time,name_node from " + SQLiteOperationHelper.WATCH_TABLE_NAME + " where 1=1 and data_source=" + dataSourceOption + " order by id desc limit " + num[0] + "," + num[1];
 
-            Cursor cursor = db.rawQuery(sql,null);
+            Cursor cursor = db.rawQuery(sql, null);
             //ToastUtil.showToast(context,"数据条" + cursor.getCount());
             if (cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
                     MovieDataModel data = new MovieDataModel();
                     //暂时写是多少集
                     data.setMovClass(cursor.getString(7));
-                    data.setDownLoadName(cursor.getString(1) );
+                    data.setDownLoadName(cursor.getString(1));
                     //暂时写视频地址
                     data.setDownimgurl(cursor.getString(3));
                     //暂时写剧集地址
@@ -236,7 +236,7 @@ public class WatchHistoryActivity extends AppCompatActivity {
                     //暂时写时间
                     data.setStarring(cursor.getString(6));
                     data.setType("视频");
-                    data.setRegions("观看至:"+String.valueOf(cursor.getInt(5)+1/1000));
+                    data.setRegions("观看至:" + String.valueOf((cursor.getInt(5)) / (34748*2)));
                     mList.add(data);
                 }
             }
