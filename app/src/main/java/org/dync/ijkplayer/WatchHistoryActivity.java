@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,17 +34,21 @@ import org.dync.bean.MovieBaseModel;
 import org.dync.bean.MovieDataModel;
 import org.dync.bean.OtherBaseModel;
 import org.dync.crash.MyCrashHandler;
+import org.dync.db.SQLiteOperationHelper;
 import org.dync.utils.BaseTools;
+import org.dync.utils.Constant;
 import org.dync.utils.CustomDecoration;
 import org.dync.utils.GlobalConfig;
 import org.dync.utils.ToastUtil;
 import org.dync.utils.Utils;
+import org.dync.utils.VideoType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import jaygoo.library.m3u8downloader.bean.M3U8Task;
 
 /***
  * zhouzhongqing
@@ -57,6 +63,8 @@ public class WatchHistoryActivity extends AppCompatActivity {
 
     //步骤1：创建一个SharedPreferences对象
     private SharedPreferences sharedPreferences;
+
+    private final int dataSourceOption = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION,0);
 
 
     @BindView(R.id.mTitleBar)
@@ -133,7 +141,8 @@ public class WatchHistoryActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         refreshType = true;
-                        page = 1;
+                        //page = 1;
+                        page = 0;
                         parsingMovieListJson();
                         refreshLayout.finishRefresh();
                         refreshLayout.resetNoMoreData();//setNoMoreData(false);
@@ -148,7 +157,8 @@ public class WatchHistoryActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         refreshType = false;
-                        if (page > 2) {
+                        //TODO 先设置成100
+                        if (page > 100) {
                             ToastUtil.showToast(context, "暂无更多的数据啦");
                             // 将不会再次触发加载更多事件
                             refreshLayout.finishLoadMoreWithNoMoreData();
@@ -170,7 +180,7 @@ public class WatchHistoryActivity extends AppCompatActivity {
 
         try {
             // 从assets目录中获取json数据，在真实的项目开发中需要通过网络请求从服务器json数据
-            String jsonData = BaseTools.getAssetsJson(this, "movie" + page + ".json");
+            //String jsonData = BaseTools.getAssetsJson(this, "movie" + page + ".json");
             if (refreshType && mList != null) {
                 mList.clear();
                 oldListSize = 0;
@@ -178,7 +188,7 @@ public class WatchHistoryActivity extends AppCompatActivity {
                 oldListSize = mList.size();
             }
             // 使用Google的Gson开始解析json数据
-            Gson gson = new Gson();
+          /*  Gson gson = new Gson();
             MovieBaseModel movieBaseModel = gson.fromJson(jsonData, MovieBaseModel.class);
             List<MovieDataModel> movieDataModelList = movieBaseModel.getData();
             for (MovieDataModel movieDataModel : movieDataModelList) {
@@ -195,7 +205,45 @@ public class WatchHistoryActivity extends AppCompatActivity {
                 data.setType(headerList.get(3));
                 data.setRegions(headerList.get(4));
                 mList.add(data);
+            }*/
+
+            //zhouzhongqing 2020年02月20日11:54:30
+
+            SQLiteOperationHelper sqLiteOperationHelper = new SQLiteOperationHelper(WatchHistoryActivity.this);
+            SQLiteDatabase db = sqLiteOperationHelper.getReadableDatabase();
+
+
+
+            int num[] = new int[2];
+            int pagesSize = 2;
+            num[0] = page * pagesSize;// 0*50 1*50 2*50
+            num[1] = pagesSize;
+            String sql = "select id,name ,data_source,url,url_item,duration,create_time,name_node from "+SQLiteOperationHelper.WATCH_TABLE_NAME+" where 1=1 and data_source="+dataSourceOption+" order by id desc limit "  + num[0] + "," + num[1];
+
+            Cursor cursor = db.rawQuery(sql,null);
+            ToastUtil.showToast(context,"数据条" + cursor.getCount());
+            if (cursor.getCount() > 0) {
+                while (cursor.moveToNext()) {
+                    MovieDataModel data = new MovieDataModel();
+                    //暂时写是多少集
+                    data.setMovClass(cursor.getString(7));
+                    data.setDownLoadName(cursor.getString(1) );
+                    //暂时写视频地址
+                    data.setDownimgurl(cursor.getString(3));
+                    //暂时写剧集地址
+                    data.setDownLoadUrl(cursor.getString(4));
+                    data.setMvdesc(cursor.getColumnName(3));
+                    //暂时写是多少集
+                    data.setDirector(cursor.getString(7));
+                    //暂时写时间
+                    data.setStarring(cursor.getString(6));
+                    data.setType("视频");
+                    data.setRegions("观看至:"+String.valueOf(cursor.getInt(5)+1/1000));
+                    mList.add(data);
+                }
             }
+            db.close();
+            sqLiteOperationHelper.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -232,8 +280,11 @@ public class WatchHistoryActivity extends AppCompatActivity {
             // 短按点击事件回调
             @Override
             public void onItemClik(View view, int position) {
-                String videoTitle = mList.get(position).getDownLoadName();
-                ToastUtil.showToast(context, videoTitle);
+                //String videoTitle = mList.get(position).getDownLoadName();
+                //ToastUtil.showToast(context, videoTitle);
+                MovieDataModel movieDataModel = mList.get(position);
+                VideoActivity.intentTo(context, movieDataModel.getDownLoadUrl(), movieDataModel.getMovClass(), movieDataModel.getDownimgurl(), movieDataModel.getDownLoadName(), VideoType.WATCH_HISTORY.getCode());
+
             }
 
             // 长按点击事件回调

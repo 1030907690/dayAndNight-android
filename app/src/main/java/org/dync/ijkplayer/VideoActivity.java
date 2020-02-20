@@ -76,7 +76,9 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -266,6 +268,9 @@ public class VideoActivity extends BaseActivity {
             } else { //如果两次按下的时间差小于2秒，则退出程序
                 finish();
                 //System.exit(0);
+
+                //添加观看历史
+                addWatchHistory();
             }
             return true;
         }
@@ -419,8 +424,13 @@ public class VideoActivity extends BaseActivity {
 //
                     StatusBarUtil.setColor(VideoActivity.this, getResources().getColor(R.color.colorPrimary));
 
-                    if (null != videoGroupList && videoGroupList.size() > 0 && null != videoGroupList.get(0).getVideoList() && videoGroupList.get(0).getVideoList().size() > 0) {
-                        videoNameTipTv.setText(videoTitleName + " " + videoGroupList.get(0).getVideoList().get(0).getName());
+                    if (VideoType.WATCH_HISTORY == videoType){
+                        //观看历史
+                        videoNameTipTv.setText(videoTitleName + " " + getIntent().getStringExtra("videoTitle"));
+                    }else if (VideoType.SEARCH == videoType || VideoType.HOME == videoType){
+                        if (null != videoGroupList && videoGroupList.size() > 0 && null != videoGroupList.get(0).getVideoList() && videoGroupList.get(0).getVideoList().size() > 0) {
+                            videoNameTipTv.setText(videoTitleName + " " + videoGroupList.get(0).getVideoList().get(0).getName());
+                        }
                     }
                     break;
                 case 1:
@@ -1333,8 +1343,6 @@ public class VideoActivity extends BaseActivity {
             m3u8Server.finish();
         }
 
-        //添加观看历史
-        addWatchHistory();
     }
 
     private void onDestroyVideo() {
@@ -1409,13 +1417,17 @@ public class VideoActivity extends BaseActivity {
      * 添加观看记录
      * */
     private void addWatchHistory() {
-        ToastUtil.showToast(VideoActivity.this, videoNameTipTv.getText().toString());
-        if (VideoType.HOME.getCode().equals(videoType.getCode()) || VideoType.SEARCH.getCode().equals(videoType.getCode())) {
-         //   String videoUrlPath = mVideoPath;
+        if (VideoType.HOME.getCode().equals(videoType.getCode()) || VideoType.SEARCH.getCode().equals(videoType.getCode()) || VideoType.WATCH_HISTORY.getCode().equals(videoType.getCode())) {
+            int newPosition =  (int)((videoView.getDuration() * mPlayerController.getSeekBar().getProgress() * 1.0) / mPlayerController.getSeekBarMaxProgress());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String dataStr = sdf.format(new Date());
+            int selectDataSource = GlobalConfig.getInstance().getSharedPreferences().getInt(Constant.DATA_SOURCE_OPTION,0);
             SQLiteOperationHelper sqLiteOperationHelper = new SQLiteOperationHelper(VideoActivity.this);
             SQLiteDatabase db = sqLiteOperationHelper.getWritableDatabase();
             db.beginTransaction();
-          //  db.execSQL("insert into " + SQLiteOperationHelper.WATCH_TABLE_NAME + " (name ,url ) values ('" + videoTitleName + " " + videoItemBtn.getText().toString() + "', '" + videoItemBtn.getTag().toString() + "')");
+            db.execSQL("insert into " + SQLiteOperationHelper.WATCH_TABLE_NAME + " (name ,data_source,url,url_item,duration,create_time,name_node) values" +
+                    " ('" + videoTitleName +"'" +","+selectDataSource +",'"+videoUrl+"'" + ",'"
+                    +mVideoPath+"'"+","+newPosition+",'"+dataStr+"'"+",'"+videoNameTipTv.getText().toString().replace(videoTitleName,"")+"'"+")");
             db.setTransactionSuccessful();
             db.endTransaction();
             db.close();

@@ -4,7 +4,9 @@ public enum VideoType {
 
     SEARCH(0,"搜索进入"),
     DOWNLOAD(1,"下载的视频"),
-    HOME(2,"首页视频");
+    HOME(2,"首页视频"),
+    HOME_LIVE(3,"首页直播视频"),
+    WATCH_HISTORY(4,"观看历史");
 
 
 

@@ -272,7 +272,7 @@ public class HomeFragment extends Fragment {
                 if (view instanceof ImageButton) {
                     ImageButton videoItemBtn = (ImageButton) view;
                     //ToastUtil.showToast(VideoActivity.this, videoItemBtn.getText() +videoItemBtn.getTag().toString());
-                    VideoActivity.intentTo(getActivity(), videoItemBtn.getTag().toString(), "测试", "", localLiveList.get(position).getName(), VideoType.HOME.getCode());
+                    VideoActivity.intentTo(getActivity(), videoItemBtn.getTag().toString(), "测试", "", localLiveList.get(position).getName(), VideoType.HOME_LIVE.getCode());
                 }
             }
 
